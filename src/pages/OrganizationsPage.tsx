@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useOrganizations } from '@/hooks/useOrganizations'
 import { useCountriesInfinite, useOrganizationTypes } from '@/hooks/useReferences'
 import OrganizationCard from '@/components/organizations/OrganizationCard'
@@ -11,6 +12,7 @@ const ITEMS_PER_PAGE = 50
 
 export default function OrganizationsPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   // Step 1: Country selection
   const [originCountryId, setOriginCountryId] = useState('')
@@ -87,15 +89,15 @@ export default function OrganizationsPage() {
       {/* Country Selection */}
       <div className="card">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Find organizations for your route
+          {t('organizations.pageTitle')}
         </h2>
         <p className="text-gray-500 text-sm mb-6">
-          Select your home country and the country you're moving to or already living in.
+          {t('organizations.pageSubtitle')}
         </p>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Your Country (origin)
+              {t('organizations.originLabel')}
             </label>
             <SearchableSelect
               options={originOptions}
@@ -105,14 +107,14 @@ export default function OrganizationsPage() {
               onLoadMore={handleOriginLoadMore}
               hasMore={!!originQuery.hasNextPage}
               isLoading={originQuery.isFetchingNextPage}
-              placeholder="Search your country..."
-              allLabel="Select country"
+              placeholder={t('organizations.originPlaceholder')}
+              allLabel={t('organizations.selectCountry')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Destination Country
+              {t('organizations.destinationLabel')}
             </label>
             <SearchableSelect
               options={destOptions}
@@ -122,8 +124,8 @@ export default function OrganizationsPage() {
               onLoadMore={handleDestLoadMore}
               hasMore={!!destQuery.hasNextPage}
               isLoading={destQuery.isFetchingNextPage}
-              placeholder="Search destination..."
-              allLabel="Select country"
+              placeholder={t('organizations.destinationPlaceholder')}
+              allLabel={t('organizations.selectCountry')}
             />
           </div>
         </div>
@@ -137,11 +139,11 @@ export default function OrganizationsPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search by Name
+                  {t('organizations.searchByName')}
                 </label>
                 <input
                   type="text"
-                  placeholder="Search organizations..."
+                  placeholder={t('organizations.searchPlaceholder')}
                   className="input-field"
                   value={nameFilter}
                   onChange={(e) => setNameFilter(e.target.value)}
@@ -150,14 +152,14 @@ export default function OrganizationsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Organization Type
+                  {t('organizations.organizationType')}
                 </label>
                 <select
                   className="input-field"
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
                 >
-                  <option value="">All Types</option>
+                  <option value="">{t('organizations.allTypes')}</option>
                   {orgTypes?.map((type) => (
                     <option key={type.id} value={type.id}>
                       {type.title || type.type}
@@ -188,7 +190,7 @@ export default function OrganizationsPage() {
           {/* Error */}
           {error && (
             <div className="card bg-red-50 text-red-600">
-              <p>Error loading organizations: {(error as Error).message}</p>
+              <p>{t('organizations.errorLoading', { message: (error as Error).message })}</p>
             </div>
           )}
 
@@ -196,12 +198,12 @@ export default function OrganizationsPage() {
           {data && (
             <>
               <p className="text-gray-600 text-sm">
-                Found {data.total} organization{data.total !== 1 ? 's' : ''}
+                {t('organizations.foundCount', { count: data.total })}
               </p>
 
               {data.items.length === 0 ? (
                 <div className="card text-center py-8 text-gray-500">
-                  No organizations found for this country pair. Try changing filters.
+                  {t('organizations.noResults')}
                 </div>
               ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -221,8 +223,8 @@ export default function OrganizationsPage() {
           <svg className="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <p className="text-lg font-medium">Select both countries to see available organizations</p>
-          <p className="mt-2 text-sm">Choose your origin country and destination above</p>
+          <p className="text-lg font-medium">{t('organizations.selectBothCountries')}</p>
+          <p className="mt-2 text-sm">{t('organizations.selectBothCountriesHint')}</p>
         </div>
       )}
     </div>

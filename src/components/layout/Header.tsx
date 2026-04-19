@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/authStore'
 import { useLogout } from '@/hooks/useAuth'
 
+const LANGUAGES = [
+  { code: 'en', label: 'EN' },
+  { code: 'ru', label: 'RU' },
+]
+
 export default function Header() {
+  const { t, i18n } = useTranslation()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const user = useAuthStore((state) => state.user)
   const logout = useLogout()
@@ -24,7 +31,7 @@ export default function Header() {
               to="/organizations"
               className="text-gray-700 hover:text-primary-600 transition-colors"
             >
-              Organizations
+              {t('header.organizations')}
             </Link>
 
             {isAuthenticated ? (
@@ -33,13 +40,13 @@ export default function Header() {
                   to="/profile"
                   className="text-gray-700 hover:text-primary-600 transition-colors"
                 >
-                  {user?.username || 'Profile'}
+                  {user?.username || t('header.profile')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="text-gray-700 hover:text-primary-600 transition-colors"
                 >
-                  Logout
+                  {t('header.logout')}
                 </button>
               </>
             ) : (
@@ -48,13 +55,29 @@ export default function Header() {
                   to="/login"
                   className="text-gray-700 hover:text-primary-600 transition-colors"
                 >
-                  Login
+                  {t('header.login')}
                 </Link>
                 <Link to="/signup" className="btn-primary">
-                  Sign Up
+                  {t('header.signUp')}
                 </Link>
               </>
             )}
+
+            <div className="flex items-center gap-1 border border-gray-200 rounded-lg overflow-hidden">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => i18n.changeLanguage(lang.code)}
+                  className={`px-2 py-1 text-sm font-medium transition-colors ${
+                    i18n.language === lang.code
+                      ? 'bg-primary-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </nav>

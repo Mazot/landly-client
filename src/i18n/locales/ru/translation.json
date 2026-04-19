@@ -1,0 +1,121 @@
+{
+  "header": {
+    "organizations": "Организации",
+    "profile": "Профиль",
+    "logout": "Выйти",
+    "login": "Войти",
+    "signUp": "Регистрация"
+  },
+  "footer": {
+    "tagline": "Находите бизнесы, помощников и официальных представителей разных национальностей в зарубежных странах.",
+    "quickLinks": "Быстрые ссылки",
+    "organizations": "Организации",
+    "aboutUs": "О нас",
+    "contact": "Связь",
+    "contactTitle": "Контакты",
+    "allRightsReserved": "© {{year}} Landly. Все права защищены."
+  },
+  "home": {
+    "heroTitle": "Добро пожаловать в Landly 🌍",
+    "heroSubtitle": "Находите бизнесы, помощников и официальных представителей разных национальностей в зарубежных странах. Подключайтесь к культурно близким сервисам, где бы вы ни были.",
+    "exploreOrganizations": "Просмотреть организации",
+    "joinCommunity": "Присоединиться к сообществу",
+    "businessDiscovery": "Поиск бизнесов",
+    "businessDiscoveryDesc": "Находите бизнесы, обслуживающие вашу национальность в любой стране",
+    "communityHelpers": "Помощники сообщества",
+    "communityHelpersDesc": "Общайтесь с волонтёрами и организаторами сообщества, которые помогут вам обустроиться",
+    "officialRepresentatives": "Официальные представители",
+    "officialRepresentativesDesc": "Легко находите посольства, консульства и культурные центры",
+    "statsOrganizations": "Организаций",
+    "statsCountries": "Стран",
+    "statsUsers": "Пользователей",
+    "statsLanguages": "Языков",
+    "ctaTitle": "Готовы начать?",
+    "ctaSubtitle": "Присоединяйтесь к тысячам людей, нашедших своё сообщество за рубежом",
+    "createFreeAccount": "Создать бесплатный аккаунт"
+  },
+  "organizations": {
+    "pageTitle": "Найдите организации для вашего маршрута",
+    "pageSubtitle": "Выберите свою страну и страну, в которую вы переезжаете или уже живёте.",
+    "originLabel": "Ваша страна (откуда)",
+    "originPlaceholder": "Поиск вашей страны...",
+    "destinationLabel": "Страна назначения",
+    "destinationPlaceholder": "Поиск места назначения...",
+    "selectCountry": "Выбрать страну",
+    "searchByName": "Поиск по названию",
+    "searchPlaceholder": "Поиск организаций...",
+    "organizationType": "Тип организации",
+    "allTypes": "Все типы",
+    "foundCount_one": "Найдена {{count}} организация",
+    "foundCount_few": "Найдено {{count}} организации",
+    "foundCount_many": "Найдено {{count}} организаций",
+    "foundCount_other": "Найдено {{count}} организаций",
+    "noResults": "Организаций для данной пары стран не найдено. Попробуйте изменить фильтры.",
+    "selectBothCountries": "Выберите обе страны, чтобы увидеть доступные организации",
+    "selectBothCountriesHint": "Выберите страну происхождения и место назначения выше",
+    "errorLoading": "Ошибка загрузки организаций: {{message}}"
+  },
+  "organizationDetail": {
+    "backToOrganizations": "← К организациям",
+    "errorLoading": "Ошибка загрузки данных организации",
+    "locationDetails": "Сведения о местонахождении",
+    "country": "Страна",
+    "address": "Адрес",
+    "coordinates": "Координаты",
+    "contactInformation": "Контактная информация",
+    "phone": "Телефон",
+    "email": "Электронная почта",
+    "origin": "Происхождение",
+    "foundedBy": "Основана представителями из <bold>{{country}}</bold>",
+    "locationOnMap": "Местоположение на карте"
+  },
+  "organizationCard": {
+    "type": "Тип",
+    "location": "Расположение",
+    "origin": "Происхождение",
+    "address": "Адрес"
+  },
+  "login": {
+    "title": "Войти в Landly",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "loginButton": "Войти",
+    "loggingIn": "Вход...",
+    "orContinueWith": "Или продолжить через",
+    "continueWithGoogle": "Продолжить с Google",
+    "noAccount": "Нет аккаунта?",
+    "signUpLink": "Зарегистрироваться"
+  },
+  "signup": {
+    "title": "Регистрация в Landly",
+    "username": "Имя пользователя",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "confirmPassword": "Подтвердить пароль",
+    "signUpButton": "Зарегистрироваться",
+    "signingUp": "Регистрация...",
+    "orContinueWith": "Или продолжить через",
+    "continueWithGoogle": "Продолжить с Google",
+    "alreadyHaveAccount": "Уже есть аккаунт?",
+    "loginLink": "Войти",
+    "errors": {
+      "usernameMinLength": "Имя пользователя должно содержать не менее 3 символов",
+      "invalidEmail": "Введите действительный адрес электронной почты",
+      "passwordMinLength": "Пароль должен содержать не менее 8 символов",
+      "passwordsMismatch": "Пароли не совпадают"
+    }
+  },
+  "profile": {
+    "title": "Мой профиль",
+    "accountInformation": "Информация об аккаунте",
+    "username": "Имя пользователя",
+    "email": "Электронная почта",
+    "userId": "ID пользователя",
+    "actions": "Действия",
+    "editProfile": "Редактировать профиль",
+    "changePassword": "Изменить пароль",
+    "myOrganizations": "Мои организации",
+    "noOrganizations": "Вы ещё не создали ни одной организации.",
+    "createOrganization": "Создать организацию"
+  }
+}

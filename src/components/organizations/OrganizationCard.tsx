@@ -1,5 +1,6 @@
 import type { Organization } from '@/types/api'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
 
 interface OrganizationCardProps {
@@ -9,6 +10,7 @@ interface OrganizationCardProps {
 export default function OrganizationCard({
   organization,
 }: OrganizationCardProps) {
+  const { t } = useTranslation()
   const { data: countries } = useCountries()
   const { data: orgTypes } = useOrganizationTypes()
 
@@ -37,28 +39,28 @@ export default function OrganizationCard({
         <div className="space-y-2 text-sm text-gray-500">
           {orgType && (
             <div className="flex items-center gap-2">
-              <span className="font-medium">Type:</span>
+              <span className="font-medium">{t('organizationCard.type')}:</span>
               <span>{orgType.title || orgType.type}</span>
             </div>
           )}
 
           {country && (
             <div className="flex items-center gap-2">
-              <span className="font-medium">Location:</span>
+              <span className="font-medium">{t('organizationCard.location')}:</span>
               <span>{country.name}</span>
             </div>
           )}
 
           {founderCountry && (
             <div className="flex items-center gap-2">
-              <span className="font-medium">Origin:</span>
+              <span className="font-medium">{t('organizationCard.origin')}:</span>
               <span>{founderCountry.name}</span>
             </div>
           )}
 
           {organization.address && (
             <div className="flex items-center gap-2">
-              <span className="font-medium">Address:</span>
+              <span className="font-medium">{t('organizationCard.address')}:</span>
               <span className="line-clamp-1">{organization.address}</span>
             </div>
           )}

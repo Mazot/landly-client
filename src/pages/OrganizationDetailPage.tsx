@@ -1,9 +1,11 @@
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useOrganization } from '@/hooks/useOrganizations'
 import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
 import MapView from '@/components/map/MapView'
 
 export default function OrganizationDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const { data: organization, isLoading, error } = useOrganization(id!)
   const { data: countries } = useCountries()
@@ -28,9 +30,9 @@ export default function OrganizationDetailPage() {
   if (error || !organization) {
     return (
       <div className="card bg-red-50 text-red-600">
-        <p>Error loading organization details</p>
+        <p>{t('organizationDetail.errorLoading')}</p>
         <Link to="/organizations" className="text-primary-600 underline mt-4 block">
-          Back to Organizations
+          {t('organizationDetail.backToOrganizations')}
         </Link>
       </div>
     )
@@ -42,7 +44,7 @@ export default function OrganizationDetailPage() {
         to="/organizations"
         className="text-primary-600 hover:underline inline-block mb-4"
       >
-        ← Back to Organizations
+        {t('organizationDetail.backToOrganizations')}
       </Link>
 
       <div className="card">
@@ -66,25 +68,25 @@ export default function OrganizationDetailPage() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Location Details</h3>
+            <h3 className="font-semibold text-lg">{t('organizationDetail.locationDetails')}</h3>
 
             {country && (
               <div>
-                <span className="text-gray-500 text-sm">Country:</span>
+                <span className="text-gray-500 text-sm">{t('organizationDetail.country')}:</span>
                 <p className="font-medium">{country.name}</p>
               </div>
             )}
 
             {organization.address && (
               <div>
-                <span className="text-gray-500 text-sm">Address:</span>
+                <span className="text-gray-500 text-sm">{t('organizationDetail.address')}:</span>
                 <p className="font-medium">{organization.address}</p>
               </div>
             )}
 
             {organization.latitude && organization.longitude && (
               <div>
-                <span className="text-gray-500 text-sm">Coordinates:</span>
+                <span className="text-gray-500 text-sm">{t('organizationDetail.coordinates')}:</span>
                 <p className="font-medium">
                   {organization.latitude}, {organization.longitude}
                 </p>
@@ -93,11 +95,11 @@ export default function OrganizationDetailPage() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Contact Information</h3>
+            <h3 className="font-semibold text-lg">{t('organizationDetail.contactInformation')}</h3>
 
             {organization.tel && (
               <div>
-                <span className="text-gray-500 text-sm">Phone:</span>
+                <span className="text-gray-500 text-sm">{t('organizationDetail.phone')}:</span>
                 <p className="font-medium">
                   <a
                     href={`tel:${organization.tel}`}
@@ -111,7 +113,7 @@ export default function OrganizationDetailPage() {
 
             {organization.email && (
               <div>
-                <span className="text-gray-500 text-sm">Email:</span>
+                <span className="text-gray-500 text-sm">{t('organizationDetail.email')}:</span>
                 <p className="font-medium">
                   <a
                     href={`mailto:${organization.email}`}
@@ -127,10 +129,9 @@ export default function OrganizationDetailPage() {
 
         {founderCountry && (
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <h3 className="font-semibold text-lg mb-2">Origin</h3>
+            <h3 className="font-semibold text-lg mb-2">{t('organizationDetail.origin')}</h3>
             <p className="text-gray-700">
-              Founded by representatives from{' '}
-              <span className="font-medium">{founderCountry.name}</span>
+              {t('organizationDetail.foundedBy', { country: founderCountry.name })}
             </p>
           </div>
         )}
@@ -138,7 +139,7 @@ export default function OrganizationDetailPage() {
 
       {organization.latitude && organization.longitude && (
         <div className="card">
-          <h3 className="font-semibold text-lg mb-4">Location on Map</h3>
+        <h3 className="font-semibold text-lg mb-4">{t('organizationDetail.locationOnMap')}</h3>
           <MapView
             markers={[
               {

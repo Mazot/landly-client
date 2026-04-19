@@ -1,0 +1,119 @@
+{
+  "header": {
+    "organizations": "Organizations",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "signUp": "Sign Up"
+  },
+  "footer": {
+    "tagline": "Find businesses, helpers, and official representatives of different nationalities in foreign countries.",
+    "quickLinks": "Quick Links",
+    "organizations": "Organizations",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "contactTitle": "Contact",
+    "allRightsReserved": "© {{year}} Landly. All rights reserved."
+  },
+  "home": {
+    "heroTitle": "Welcome to Landly 🌍",
+    "heroSubtitle": "Find businesses, helpers, and official representatives of different nationalities in foreign countries. Connect with culturally familiar services wherever you are.",
+    "exploreOrganizations": "Explore Organizations",
+    "joinCommunity": "Join Community",
+    "businessDiscovery": "Business Discovery",
+    "businessDiscoveryDesc": "Find businesses run by or catering to your nationality in any country",
+    "communityHelpers": "Community Helpers",
+    "communityHelpersDesc": "Connect with volunteers and community organizers who can help you settle",
+    "officialRepresentatives": "Official Representatives",
+    "officialRepresentativesDesc": "Locate embassies, consulates, and cultural centers easily",
+    "statsOrganizations": "Organizations",
+    "statsCountries": "Countries",
+    "statsUsers": "Users",
+    "statsLanguages": "Languages",
+    "ctaTitle": "Ready to Get Started?",
+    "ctaSubtitle": "Join thousands of people who found their community abroad",
+    "createFreeAccount": "Create Free Account"
+  },
+  "organizations": {
+    "pageTitle": "Find organizations for your route",
+    "pageSubtitle": "Select your home country and the country you're moving to or already living in.",
+    "originLabel": "Your Country (origin)",
+    "originPlaceholder": "Search your country...",
+    "destinationLabel": "Destination Country",
+    "destinationPlaceholder": "Search destination...",
+    "selectCountry": "Select country",
+    "searchByName": "Search by Name",
+    "searchPlaceholder": "Search organizations...",
+    "organizationType": "Organization Type",
+    "allTypes": "All Types",
+    "foundCount_one": "Found {{count}} organization",
+    "foundCount_other": "Found {{count}} organizations",
+    "noResults": "No organizations found for this country pair. Try changing filters.",
+    "selectBothCountries": "Select both countries to see available organizations",
+    "selectBothCountriesHint": "Choose your origin country and destination above",
+    "errorLoading": "Error loading organizations: {{message}}"
+  },
+  "organizationDetail": {
+    "backToOrganizations": "← Back to Organizations",
+    "errorLoading": "Error loading organization details",
+    "locationDetails": "Location Details",
+    "country": "Country",
+    "address": "Address",
+    "coordinates": "Coordinates",
+    "contactInformation": "Contact Information",
+    "phone": "Phone",
+    "email": "Email",
+    "origin": "Origin",
+    "foundedBy": "Founded by representatives from <bold>{{country}}</bold>",
+    "locationOnMap": "Location on Map"
+  },
+  "organizationCard": {
+    "type": "Type",
+    "location": "Location",
+    "origin": "Origin",
+    "address": "Address"
+  },
+  "login": {
+    "title": "Login to Landly",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "loggingIn": "Logging in...",
+    "orContinueWith": "Or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign Up"
+  },
+  "signup": {
+    "title": "Sign Up for Landly",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "signUpButton": "Sign Up",
+    "signingUp": "Signing up...",
+    "orContinueWith": "Or continue with",
+    "continueWithGoogle": "Continue with Google",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginLink": "Login",
+    "errors": {
+      "usernameMinLength": "Username must be at least 3 characters",
+      "invalidEmail": "Please enter a valid email",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsMismatch": "Passwords do not match"
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "accountInformation": "Account Information",
+    "username": "Username",
+    "email": "Email",
+    "userId": "User ID",
+    "actions": "Actions",
+    "editProfile": "Edit Profile",
+    "changePassword": "Change Password",
+    "myOrganizations": "My Organizations",
+    "noOrganizations": "You haven't created any organizations yet.",
+    "createOrganization": "Create Organization"
+  }
+}

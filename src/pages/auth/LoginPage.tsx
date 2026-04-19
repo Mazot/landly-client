@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useLogin } from '@/hooks/useAuth'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const login = useLogin()
   const [formData, setFormData] = useState({
     email: '',
@@ -28,12 +30,12 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-3xl font-bold text-center mb-8">Login to Landly</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">{t('login.title')}</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('login.email')}
             </label>
             <input
               type="email"
@@ -48,7 +50,7 @@ export default function LoginPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('login.password')}
             </label>
             <input
               type="password"
@@ -72,7 +74,7 @@ export default function LoginPage() {
             className="btn-primary w-full"
             disabled={login.isPending}
           >
-            {login.isPending ? 'Logging in...' : 'Login'}
+            {login.isPending ? t('login.loggingIn') : t('login.loginButton')}
           </button>
         </form>
 
@@ -82,7 +84,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white text-gray-500">{t('login.orContinueWith')}</span>
             </div>
           </div>
 
@@ -113,9 +115,9 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-6 text-center text-gray-600">
-          Don't have an account?{' '}
+          {t('login.noAccount')}{' '}
           <Link to="/signup" className="text-primary-600 hover:underline">
-            Sign up
+            {t('login.signUpLink')}
           </Link>
         </p>
       </div>

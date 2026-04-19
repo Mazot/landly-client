@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useSignup } from '@/hooks/useAuth'
 
 export default function SignupPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const signup = useSignup()
   const [formData, setFormData] = useState({
     username: '',
@@ -17,19 +19,19 @@ export default function SignupPage() {
     const newErrors: Record<string, string> = {}
 
     if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters'
+      newErrors.username = t('signup.errors.usernameMinLength')
     }
 
     if (!formData.email.includes('@')) {
-      newErrors.email = 'Please enter a valid email'
+      newErrors.email = t('signup.errors.invalidEmail')
     }
 
     if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters'
+      newErrors.password = t('signup.errors.passwordMinLength')
     }
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match'
+      newErrors.confirmPassword = t('signup.errors.passwordsMismatch')
     }
 
     setErrors(newErrors)
@@ -62,12 +64,12 @@ export default function SignupPage() {
   return (
     <div className="max-w-md mx-auto">
       <div className="card">
-        <h1 className="text-3xl font-bold text-center mb-8">Sign Up for Landly</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">{t('signup.title')}</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username
+              {t('signup.username')}
             </label>
             <input
               type="text"
@@ -85,7 +87,7 @@ export default function SignupPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('signup.email')}
             </label>
             <input
               type="email"
@@ -103,7 +105,7 @@ export default function SignupPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('signup.password')}
             </label>
             <input
               type="password"
@@ -121,7 +123,7 @@ export default function SignupPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password
+              {t('signup.confirmPassword')}
             </label>
             <input
               type="password"
@@ -148,7 +150,7 @@ export default function SignupPage() {
             className="btn-primary w-full"
             disabled={signup.isPending}
           >
-            {signup.isPending ? 'Creating account...' : 'Sign Up'}
+            {signup.isPending ? t('signup.signingUp') : t('signup.signUpButton')}
           </button>
         </form>
 
@@ -158,7 +160,7 @@ export default function SignupPage() {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white text-gray-500">{t('signup.orContinueWith')}</span>
             </div>
           </div>
 
@@ -189,9 +191,9 @@ export default function SignupPage() {
         </div>
 
         <p className="mt-6 text-center text-gray-600">
-          Already have an account?{' '}
+          {t('signup.alreadyHaveAccount')}{' '}
           <Link to="/login" className="text-primary-600 hover:underline">
-            Login
+            {t('signup.loginLink')}
           </Link>
         </p>
       </div>

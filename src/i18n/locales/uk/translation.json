@@ -1,0 +1,121 @@
+{
+  "header": {
+    "organizations": "Організації",
+    "profile": "Профіль",
+    "logout": "Вийти",
+    "login": "Увійти",
+    "signUp": "Реєстрація"
+  },
+  "footer": {
+    "tagline": "Знаходьте бізнеси, помічників та офіційних представників різних національностей у закордонних країнах.",
+    "quickLinks": "Швидкі посилання",
+    "organizations": "Організації",
+    "aboutUs": "Про нас",
+    "contact": "Зв'язок",
+    "contactTitle": "Контакти",
+    "allRightsReserved": "© {{year}} Landly. Усі права захищено."
+  },
+  "home": {
+    "heroTitle": "Ласкаво просимо до Landly 🌍",
+    "heroSubtitle": "Знаходьте бізнеси, помічників та офіційних представників різних національностей у закордонних країнах. Підключайтесь до культурно близьких сервісів, де б ви не були.",
+    "exploreOrganizations": "Переглянути організації",
+    "joinCommunity": "Приєднатись до спільноти",
+    "businessDiscovery": "Пошук бізнесів",
+    "businessDiscoveryDesc": "Знаходьте бізнеси, що обслуговують вашу національність у будь-якій країні",
+    "communityHelpers": "Спільнотні помічники",
+    "communityHelpersDesc": "Зв'язуйтесь із волонтерами та організаторами спільноти, які допоможуть вам влаштуватись",
+    "officialRepresentatives": "Офіційні представники",
+    "officialRepresentativesDesc": "Легко знаходьте посольства, консульства та культурні центри",
+    "statsOrganizations": "Організацій",
+    "statsCountries": "Країн",
+    "statsUsers": "Користувачів",
+    "statsLanguages": "Мов",
+    "ctaTitle": "Готові розпочати?",
+    "ctaSubtitle": "Приєднуйтесь до тисяч людей, які знайшли свою спільноту за кордоном",
+    "createFreeAccount": "Створити безкоштовний акаунт"
+  },
+  "organizations": {
+    "pageTitle": "Знайдіть організації для вашого маршруту",
+    "pageSubtitle": "Оберіть свою країну та країну, до якої ви переїжджаєте або вже проживаєте.",
+    "originLabel": "Ваша країна (звідки)",
+    "originPlaceholder": "Пошук вашої країни...",
+    "destinationLabel": "Країна призначення",
+    "destinationPlaceholder": "Пошук місця призначення...",
+    "selectCountry": "Обрати країну",
+    "searchByName": "Пошук за назвою",
+    "searchPlaceholder": "Пошук організацій...",
+    "organizationType": "Тип організації",
+    "allTypes": "Всі типи",
+    "foundCount_one": "Знайдено {{count}} організацію",
+    "foundCount_few": "Знайдено {{count}} організації",
+    "foundCount_many": "Знайдено {{count}} організацій",
+    "foundCount_other": "Знайдено {{count}} організацій",
+    "noResults": "Організацій для цієї пари країн не знайдено. Спробуйте змінити фільтри.",
+    "selectBothCountries": "Оберіть обидві країни, щоб побачити доступні організації",
+    "selectBothCountriesHint": "Оберіть країну походження та місце призначення вище",
+    "errorLoading": "Помилка завантаження організацій: {{message}}"
+  },
+  "organizationDetail": {
+    "backToOrganizations": "← До організацій",
+    "errorLoading": "Помилка завантаження деталей організації",
+    "locationDetails": "Деталі розташування",
+    "country": "Країна",
+    "address": "Адреса",
+    "coordinates": "Координати",
+    "contactInformation": "Контактна інформація",
+    "phone": "Телефон",
+    "email": "Електронна пошта",
+    "origin": "Походження",
+    "foundedBy": "Заснована представниками з <bold>{{country}}</bold>",
+    "locationOnMap": "Місцезнаходження на карті"
+  },
+  "organizationCard": {
+    "type": "Тип",
+    "location": "Розташування",
+    "origin": "Походження",
+    "address": "Адреса"
+  },
+  "login": {
+    "title": "Увійти до Landly",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "loginButton": "Увійти",
+    "loggingIn": "Вхід...",
+    "orContinueWith": "Або продовжити через",
+    "continueWithGoogle": "Продовжити з Google",
+    "noAccount": "Немає акаунту?",
+    "signUpLink": "Зареєструватись"
+  },
+  "signup": {
+    "title": "Реєстрація в Landly",
+    "username": "Ім'я користувача",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "confirmPassword": "Підтвердити пароль",
+    "signUpButton": "Зареєструватись",
+    "signingUp": "Реєстрація...",
+    "orContinueWith": "Або продовжити через",
+    "continueWithGoogle": "Продовжити з Google",
+    "alreadyHaveAccount": "Вже маєте акаунт?",
+    "loginLink": "Увійти",
+    "errors": {
+      "usernameMinLength": "Ім'я користувача має містити щонайменше 3 символи",
+      "invalidEmail": "Введіть дійсну електронну адресу",
+      "passwordMinLength": "Пароль має містити щонайменше 8 символів",
+      "passwordsMismatch": "Паролі не збігаються"
+    }
+  },
+  "profile": {
+    "title": "Мій профіль",
+    "accountInformation": "Інформація про акаунт",
+    "username": "Ім'я користувача",
+    "email": "Електронна пошта",
+    "userId": "ID користувача",
+    "actions": "Дії",
+    "editProfile": "Редагувати профіль",
+    "changePassword": "Змінити пароль",
+    "myOrganizations": "Мої організації",
+    "noOrganizations": "Ви ще не створили жодної організації.",
+    "createOrganization": "Створити організацію"
+  }
+}
