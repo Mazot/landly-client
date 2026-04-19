@@ -6,10 +6,11 @@ import type {
 } from '@/types/api'
 
 export const referenceApi = {
-  // Get countries with optional pagination
+  // Get countries with optional pagination and search
   getCountries: async (params?: {
     limit?: number
     offset?: number
+    name?: string
   }): Promise<Country[]> => {
     const response = await apiClient.get('/api/common/countries', { params })
     return response.data

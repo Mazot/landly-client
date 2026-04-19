@@ -1,24 +1,74 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOrganizations } from '@/hooks/useOrganizations'
-import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
+import { useCountriesInfinite, useOrganizationTypes } from '@/hooks/useReferences'
 import OrganizationCard from '@/components/organizations/OrganizationCard'
 import MapView from '@/components/map/MapView'
+import SearchableSelect from '@/components/ui/SearchableSelect'
 import type { OrganizationFilters } from '@/services/organization.service'
 
-const ITEMS_PER_PAGE = 12
+const ITEMS_PER_PAGE = 50
 
 export default function OrganizationsPage() {
   const navigate = useNavigate()
-  const [currentPage, setCurrentPage] = useState(1)
-  const [filters, setFilters] = useState<OrganizationFilters>({
-    limit: ITEMS_PER_PAGE,
-    offset: 0,
-  })
+
+  // Step 1: Country selection
+  const [originCountryId, setOriginCountryId] = useState('')
+  const [destinationCountryId, setDestinationCountryId] = useState('')
+
+  // Step 2: Additional filters (name, type)
+  const [nameFilter, setNameFilter] = useState('')
+  const [typeFilter, setTypeFilter] = useState('')
+
+  const bothSelected = !!originCountryId && !!destinationCountryId
+
+  // Build query filters only when both countries are selected
+  const filters: OrganizationFilters | undefined = useMemo(() => {
+    if (!bothSelected) return undefined
+    return {
+      founder_country_id: originCountryId,
+      location_country_id: destinationCountryId,
+      name: nameFilter || undefined,
+      organisation_type_id: typeFilter || undefined,
+      limit: ITEMS_PER_PAGE,
+      offset: 0,
+    }
+  }, [originCountryId, destinationCountryId, nameFilter, typeFilter, bothSelected])
 
   const { data, isLoading, error } = useOrganizations(filters)
-  const { data: countries } = useCountries()
   const { data: orgTypes } = useOrganizationTypes()
+
+  // Origin country select state
+  const [originSearch, setOriginSearch] = useState('')
+  const originQuery = useCountriesInfinite(originSearch)
+  const originCountries = useMemo(
+    () => originQuery.data?.pages.flat() ?? [],
+    [originQuery.data]
+  )
+  const originOptions = useMemo(
+    () => originCountries.map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
+    [originCountries]
+  )
+  const handleOriginSearch = useCallback((q: string) => setOriginSearch(q), [])
+  const handleOriginLoadMore = useCallback(() => {
+    if (originQuery.hasNextPage) originQuery.fetchNextPage()
+  }, [originQuery])
+
+  // Destination country select state
+  const [destSearch, setDestSearch] = useState('')
+  const destQuery = useCountriesInfinite(destSearch)
+  const destCountries = useMemo(
+    () => destQuery.data?.pages.flat() ?? [],
+    [destQuery.data]
+  )
+  const destOptions = useMemo(
+    () => destCountries.map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
+    [destCountries]
+  )
+  const handleDestSearch = useCallback((q: string) => setDestSearch(q), [])
+  const handleDestLoadMore = useCallback(() => {
+    if (destQuery.hasNextPage) destQuery.fetchNextPage()
+  }, [destQuery])
 
   const mapMarkers = useMemo(() => {
     if (!data?.items) return []
@@ -32,169 +82,148 @@ export default function OrganizationsPage() {
       }))
   }, [data?.items])
 
-  const handleFilterChange = (key: keyof OrganizationFilters, value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value || undefined,
-      offset: 0, // Reset to first page on filter change
-    }))
-    setCurrentPage(1)
-  }
-
-  const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage)
-    setFilters((prev) => ({
-      ...prev,
-      offset: (newPage - 1) * ITEMS_PER_PAGE,
-    }))
-  }
-
-  const totalPages = data ? Math.ceil(data.total / ITEMS_PER_PAGE) : 0
-
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-800">Organizations</h1>
-        <button className="btn-primary">+ Add Organization</button>
-      </div>
-
-      {/* Filters */}
+    <div className="space-y-6">
+      {/* Country Selection */}
       <div className="card">
-        <div className="grid md:grid-cols-4 gap-4">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          Find organizations for your route
+        </h2>
+        <p className="text-gray-500 text-sm mb-6">
+          Select your home country and the country you're moving to or already living in.
+        </p>
+        <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search by Name
+              Your Country (origin)
             </label>
-            <input
-              type="text"
-              placeholder="Search organizations..."
-              className="input-field"
-              onChange={(e) => handleFilterChange('name', e.target.value)}
+            <SearchableSelect
+              options={originOptions}
+              value={originCountryId}
+              onChange={setOriginCountryId}
+              onSearch={handleOriginSearch}
+              onLoadMore={handleOriginLoadMore}
+              hasMore={!!originQuery.hasNextPage}
+              isLoading={originQuery.isFetchingNextPage}
+              placeholder="Search your country..."
+              allLabel="Select country"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Location Country
+              Destination Country
             </label>
-            <select
-              className="input-field"
-              onChange={(e) =>
-                handleFilterChange('location_country_id', e.target.value)
-              }
-            >
-              <option value="">All Countries</option>
-              {countries?.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.flag} {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Organization Type
-            </label>
-            <select
-              className="input-field"
-              onChange={(e) =>
-                handleFilterChange('organisation_type_id', e.target.value)
-              }
-            >
-              <option value="">All Types</option>
-              {orgTypes?.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.title || type.type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Origin Country
-            </label>
-            <select
-              className="input-field"
-              onChange={(e) =>
-                handleFilterChange('founder_country_id', e.target.value)
-              }
-            >
-              <option value="">All Origins</option>
-              {countries?.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.flag} {country.name}
-                </option>
-              ))}
-            </select>
+            <SearchableSelect
+              options={destOptions}
+              value={destinationCountryId}
+              onChange={setDestinationCountryId}
+              onSearch={handleDestSearch}
+              onLoadMore={handleDestLoadMore}
+              hasMore={!!destQuery.hasNextPage}
+              isLoading={destQuery.isFetchingNextPage}
+              placeholder="Search destination..."
+              allLabel="Select country"
+            />
           </div>
         </div>
       </div>
 
-      {/* Map */}
-      {(
-        <div className="card">
-          <h3 className="font-semibold text-lg mb-4">Organizations on Map</h3>
-          <MapView
-            markers={mapMarkers}
-            zoom={4}
-            className="h-80 rounded-lg"
-            onMarkerClick={(id) => navigate(`/organizations/${id}`)}
-          />
-        </div>
-      )}
-
-      {/* Results */}
-      {isLoading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-        </div>
-      )}
-
-      {error && (
-        <div className="card bg-red-50 text-red-600">
-          <p>Error loading organizations: {(error as Error).message}</p>
-        </div>
-      )}
-
-      {data && (
+      {/* Results section - only shows when both countries selected */}
+      {bothSelected && (
         <>
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              Found {data.total} organization{data.total !== 1 ? 's' : ''}
-            </p>
+          {/* Filters bar */}
+          <div className="card">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search by Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Search organizations..."
+                  className="input-field"
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Organization Type
+                </label>
+                <select
+                  className="input-field"
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                >
+                  <option value="">All Types</option>
+                  {orgTypes?.map((type) => (
+                    <option key={type.id} value={type.id}>
+                      {type.title || type.type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.items.map((org) => (
-              <OrganizationCard key={org.id} organization={org} />
-            ))}
+          {/* Map */}
+          <div className="card">
+            <MapView
+              markers={mapMarkers}
+              zoom={5}
+              className="h-[500px] rounded-lg"
+              onMarkerClick={(id) => navigate(`/organizations/${id}`)}
+            />
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2">
-              <button
-                className="btn-secondary"
-                disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
-              >
-                Previous
-              </button>
-              <span className="px-4 py-2">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className="btn-secondary"
-                disabled={currentPage >= totalPages}
-                onClick={() => handlePageChange(currentPage + 1)}
-              >
-                Next
-              </button>
+          {/* Loading */}
+          {isLoading && (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>
           )}
+
+          {/* Error */}
+          {error && (
+            <div className="card bg-red-50 text-red-600">
+              <p>Error loading organizations: {(error as Error).message}</p>
+            </div>
+          )}
+
+          {/* Organization cards */}
+          {data && (
+            <>
+              <p className="text-gray-600 text-sm">
+                Found {data.total} organization{data.total !== 1 ? 's' : ''}
+              </p>
+
+              {data.items.length === 0 ? (
+                <div className="card text-center py-8 text-gray-500">
+                  No organizations found for this country pair. Try changing filters.
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {data.items.map((org) => (
+                    <OrganizationCard key={org.id} organization={org} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </>
+      )}
+
+      {/* Prompt when countries not yet selected */}
+      {!bothSelected && (
+        <div className="card text-center py-16 text-gray-400">
+          <svg className="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-lg font-medium">Select both countries to see available organizations</p>
+          <p className="mt-2 text-sm">Choose your origin country and destination above</p>
+        </div>
       )}
     </div>
   )

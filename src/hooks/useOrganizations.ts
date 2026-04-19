@@ -6,6 +6,7 @@ export const useOrganizations = (filters?: OrganizationFilters) => {
   return useQuery({
     queryKey: ['organizations', filters],
     queryFn: () => organizationApi.getOrganizations(filters),
+    enabled: !!filters,
   })
 }
 
