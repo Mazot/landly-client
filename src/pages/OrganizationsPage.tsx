@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useOrganizations } from '@/hooks/useOrganizations'
 import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
 import OrganizationCard from '@/components/organizations/OrganizationCard'
+import MapView from '@/components/map/MapView'
 import type { OrganizationFilters } from '@/services/organization.service'
 
 const ITEMS_PER_PAGE = 12
 
 export default function OrganizationsPage() {
+  const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState<OrganizationFilters>({
     limit: ITEMS_PER_PAGE,
@@ -16,6 +19,18 @@ export default function OrganizationsPage() {
   const { data, isLoading, error } = useOrganizations(filters)
   const { data: countries } = useCountries()
   const { data: orgTypes } = useOrganizationTypes()
+
+  const mapMarkers = useMemo(() => {
+    if (!data?.items) return []
+    return data.items
+      .filter((org) => org.latitude && org.longitude)
+      .map((org) => ({
+        id: org.id,
+        latitude: org.latitude!,
+        longitude: org.longitude!,
+        label: org.name,
+      }))
+  }, [data?.items])
 
   const handleFilterChange = (key: keyof OrganizationFilters, value: string) => {
     setFilters((prev) => ({
@@ -116,6 +131,19 @@ export default function OrganizationsPage() {
           </div>
         </div>
       </div>
+
+      {/* Map */}
+      {(
+        <div className="card">
+          <h3 className="font-semibold text-lg mb-4">Organizations on Map</h3>
+          <MapView
+            markers={mapMarkers}
+            zoom={4}
+            className="h-80 rounded-lg"
+            onMarkerClick={(id) => navigate(`/organizations/${id}`)}
+          />
+        </div>
+      )}
 
       {/* Results */}
       {isLoading && (

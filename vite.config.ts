@@ -13,6 +13,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  optimizeDeps: {
+    include: ['mapbox-gl'],
+  },
   server: {
     port: 8080,
     proxy: {

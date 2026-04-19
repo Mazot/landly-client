@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useOrganization } from '@/hooks/useOrganizations'
 import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
+import MapView from '@/components/map/MapView'
 
 export default function OrganizationDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -135,13 +136,20 @@ export default function OrganizationDetailPage() {
         )}
       </div>
 
-      {/* Map placeholder */}
       {organization.latitude && organization.longitude && (
         <div className="card">
           <h3 className="font-semibold text-lg mb-4">Location on Map</h3>
-          <div className="bg-gray-200 h-64 rounded-lg flex items-center justify-center">
-            <p className="text-gray-500">Map integration coming soon</p>
-          </div>
+          <MapView
+            markers={[
+              {
+                id: organization.id,
+                latitude: organization.latitude,
+                longitude: organization.longitude,
+                label: organization.name,
+              },
+            ]}
+            className="h-80 rounded-lg"
+          />
         </div>
       )}
     </div>

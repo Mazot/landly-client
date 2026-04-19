@@ -22,7 +22,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Redirect to Google OAuth
-    window.location.href = `${import.meta.env.VITE_API_URL}/user/oauth/google/login`
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/user/oauth/google/login`
   }
 
   return (
