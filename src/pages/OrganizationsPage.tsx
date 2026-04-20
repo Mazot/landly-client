@@ -6,6 +6,8 @@ import { useCountriesInfinite, useOrganizationTypes } from '@/hooks/useReference
 import OrganizationCard from '@/components/organizations/OrganizationCard'
 import MapView from '@/components/map/MapView'
 import SearchableSelect from '@/components/ui/SearchableSelect'
+import CreateOrganizationModal from '@/components/organizations/CreateOrganizationModal'
+import { useAuthStore } from '@/stores/authStore'
 import type { OrganizationFilters } from '@/services/organization.service'
 
 const ITEMS_PER_PAGE = 50
@@ -13,6 +15,9 @@ const ITEMS_PER_PAGE = 50
 export default function OrganizationsPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+  const { isAuthenticated } = useAuthStore()
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
   // Step 1: Country selection
   const [originCountryId, setOriginCountryId] = useState('')
@@ -86,11 +91,28 @@ export default function OrganizationsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Create Organization Modal */}
+      <CreateOrganizationModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={(id) => navigate(`/organizations/${id}`)}
+      />
+
       {/* Country Selection */}
       <div className="card">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          {t('organizations.pageTitle')}
-        </h2>
+        <div className="flex items-start justify-between mb-4">
+          <h2 className="text-xl font-semibold text-gray-800">
+            {t('organizations.pageTitle')}
+          </h2>
+          {isAuthenticated && (
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="btn-primary text-sm"
+            >
+              + {t('organizations.createOrganization')}
+            </button>
+          )}
+        </div>
         <p className="text-gray-500 text-sm mb-6">
           {t('organizations.pageSubtitle')}
         </p>

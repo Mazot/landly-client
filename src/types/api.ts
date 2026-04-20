@@ -164,3 +164,26 @@ export interface PaginatedResponse<T> {
   items: T[]
   total: number
 }
+
+// ============================================================================
+// Image Types
+// ============================================================================
+
+export interface OrgImage {
+  id: string
+  organisationId: string
+  fileName: string
+  contentType: string
+  fileSize: number
+  width?: number
+  height?: number
+  isPrimary?: boolean
+  url: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MultipleImagesResponse {
+  items: OrgImage[]
+  total: number
+}

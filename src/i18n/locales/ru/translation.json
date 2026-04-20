@@ -53,7 +53,8 @@
     "noResults": "Организаций для данной пары стран не найдено. Попробуйте изменить фильтры.",
     "selectBothCountries": "Выберите обе страны, чтобы увидеть доступные организации",
     "selectBothCountriesHint": "Выберите страну происхождения и место назначения выше",
-    "errorLoading": "Ошибка загрузки организаций: {{message}}"
+    "errorLoading": "Ошибка загрузки организаций: {{message}}",
+    "createOrganization": "Добавить организацию"
   },
   "organizationDetail": {
     "backToOrganizations": "← К организациям",
@@ -67,7 +68,8 @@
     "email": "Электронная почта",
     "origin": "Происхождение",
     "foundedBy": "Основана представителями из <bold>{{country}}</bold>",
-    "locationOnMap": "Местоположение на карте"
+    "locationOnMap": "Местоположение на карте",
+    "gallery": "Фотографии"
   },
   "organizationCard": {
     "type": "Тип",
@@ -117,5 +119,49 @@
     "myOrganizations": "Мои организации",
     "noOrganizations": "Вы ещё не создали ни одной организации.",
     "createOrganization": "Создать организацию"
+  },
+  "common": {
+    "cancel": "Отмена"
+  },
+  "createOrg": {
+    "titleDetails": "Создать организацию",
+    "subtitleDetails": "Заполните основные данные об организации",
+    "titleImages": "Добавить фотографии",
+    "subtitleImages": "Загрузите фотографии организации (необязательно)",
+    "stepDetails": "Данные",
+    "stepImages": "Фото",
+    "name": "Название",
+    "namePlaceholder": "Название организации",
+    "description": "Описание",
+    "descriptionPlaceholder": "Краткое описание организации",
+    "address": "Адрес",
+    "addressPlaceholder": "Улица, город, страна",
+    "tel": "Телефон",
+    "email": "Электронная почта",
+    "latitude": "Широта",
+    "longitude": "Долгота",
+    "orgType": "Тип организации",
+    "selectType": "Выбрать тип",
+    "locationCountry": "Страна нахождения",
+    "founderCountry": "Страна основателя",
+    "searchCountry": "Поиск страны...",
+    "selectCountry": "Выбрать страну",
+    "nextStep": "Далее: Добавить фото →",
+    "creating": "Создание...",
+    "createError": "Не удалось создать организацию. Попробуйте снова.",
+    "dropZoneTitle": "Перетащите изображения сюда или нажмите для выбора",
+    "dropZoneSubtitle": "PNG, JPG, WEBP до 10 МБ каждый",
+    "primary": "★ Главное",
+    "setPrimary": "Сделать главным",
+    "skip": "Пропустить и завершить",
+    "uploading": "Загрузка...",
+    "uploadAndFinish": "Загрузить {{count}} фото и завершить",
+    "uploadError": "Ошибка загрузки",
+    "errors": {
+      "nameRequired": "Название обязательно",
+      "invalidEmail": "Неверный адрес электронной почты",
+      "invalidLatitude": "Широта должна быть от -90 до 90",
+      "invalidLongitude": "Долгота должна быть от -180 до 180"
+    }
   }
 }

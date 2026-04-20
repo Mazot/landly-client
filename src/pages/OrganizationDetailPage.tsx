@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useOrganization } from '@/hooks/useOrganizations'
 import { useCountries, useOrganizationTypes } from '@/hooks/useReferences'
 import MapView from '@/components/map/MapView'
+import OrgGallery from '@/components/organizations/OrgGallery'
 
 export default function OrganizationDetailPage() {
   const { t } = useTranslation()
@@ -136,6 +137,8 @@ export default function OrganizationDetailPage() {
           </div>
         )}
       </div>
+
+      <OrgGallery organisationId={organization.id} />
 
       {organization.latitude && organization.longitude && (
         <div className="card">

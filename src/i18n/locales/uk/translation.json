@@ -53,7 +53,8 @@
     "noResults": "Організацій для цієї пари країн не знайдено. Спробуйте змінити фільтри.",
     "selectBothCountries": "Оберіть обидві країни, щоб побачити доступні організації",
     "selectBothCountriesHint": "Оберіть країну походження та місце призначення вище",
-    "errorLoading": "Помилка завантаження організацій: {{message}}"
+    "errorLoading": "Помилка завантаження організацій: {{message}}",
+    "createOrganization": "Додати організацію"
   },
   "organizationDetail": {
     "backToOrganizations": "← До організацій",
@@ -67,7 +68,8 @@
     "email": "Електронна пошта",
     "origin": "Походження",
     "foundedBy": "Заснована представниками з <bold>{{country}}</bold>",
-    "locationOnMap": "Місцезнаходження на карті"
+    "locationOnMap": "Місцезнаходження на карті",
+    "gallery": "Фотографії"
   },
   "organizationCard": {
     "type": "Тип",
@@ -117,5 +119,49 @@
     "myOrganizations": "Мої організації",
     "noOrganizations": "Ви ще не створили жодної організації.",
     "createOrganization": "Створити організацію"
+  },
+  "common": {
+    "cancel": "Скасувати"
+  },
+  "createOrg": {
+    "titleDetails": "Створити організацію",
+    "subtitleDetails": "Заповніть основні дані про організацію",
+    "titleImages": "Додати фотографії",
+    "subtitleImages": "Завантажте фотографії організації (необов'язково)",
+    "stepDetails": "Дані",
+    "stepImages": "Фото",
+    "name": "Назва",
+    "namePlaceholder": "Назва організації",
+    "description": "Опис",
+    "descriptionPlaceholder": "Короткий опис організації",
+    "address": "Адреса",
+    "addressPlaceholder": "Вулиця, місто, країна",
+    "tel": "Телефон",
+    "email": "Електронна пошта",
+    "latitude": "Широта",
+    "longitude": "Довгота",
+    "orgType": "Тип організації",
+    "selectType": "Обрати тип",
+    "locationCountry": "Країна розташування",
+    "founderCountry": "Країна засновника",
+    "searchCountry": "Пошук країни...",
+    "selectCountry": "Обрати країну",
+    "nextStep": "Далі: Додати фото →",
+    "creating": "Створення...",
+    "createError": "Не вдалося створити організацію. Спробуйте знову.",
+    "dropZoneTitle": "Перетягніть зображення сюди або натисніть для вибору",
+    "dropZoneSubtitle": "PNG, JPG, WEBP до 10 МБ кожен",
+    "primary": "★ Головне",
+    "setPrimary": "Зробити головним",
+    "skip": "Пропустити та завершити",
+    "uploading": "Завантаження...",
+    "uploadAndFinish": "Завантажити {{count}} фото та завершити",
+    "uploadError": "Помилка завантаження",
+    "errors": {
+      "nameRequired": "Назва обов'язкова",
+      "invalidEmail": "Невірна електронна адреса",
+      "invalidLatitude": "Широта має бути від -90 до 90",
+      "invalidLongitude": "Довгота має бути від -180 до 180"
+    }
   }
 }

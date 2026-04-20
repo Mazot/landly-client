@@ -51,7 +51,8 @@
     "noResults": "No organizations found for this country pair. Try changing filters.",
     "selectBothCountries": "Select both countries to see available organizations",
     "selectBothCountriesHint": "Choose your origin country and destination above",
-    "errorLoading": "Error loading organizations: {{message}}"
+    "errorLoading": "Error loading organizations: {{message}}",
+    "createOrganization": "Add Organization"
   },
   "organizationDetail": {
     "backToOrganizations": "← Back to Organizations",
@@ -65,7 +66,8 @@
     "email": "Email",
     "origin": "Origin",
     "foundedBy": "Founded by representatives from <bold>{{country}}</bold>",
-    "locationOnMap": "Location on Map"
+    "locationOnMap": "Location on Map",
+    "gallery": "Photos"
   },
   "organizationCard": {
     "type": "Type",
@@ -115,5 +117,49 @@
     "myOrganizations": "My Organizations",
     "noOrganizations": "You haven't created any organizations yet.",
     "createOrganization": "Create Organization"
+  },
+  "common": {
+    "cancel": "Cancel"
+  },
+  "createOrg": {
+    "titleDetails": "Create Organization",
+    "subtitleDetails": "Fill in the basic details about the organization",
+    "titleImages": "Add Photos",
+    "subtitleImages": "Upload photos for the organization (optional)",
+    "stepDetails": "Details",
+    "stepImages": "Photos",
+    "name": "Name",
+    "namePlaceholder": "Organization name",
+    "description": "Description",
+    "descriptionPlaceholder": "Brief description of the organization",
+    "address": "Address",
+    "addressPlaceholder": "Street, city, country",
+    "tel": "Phone",
+    "email": "Email",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "orgType": "Organization Type",
+    "selectType": "Select type",
+    "locationCountry": "Location Country",
+    "founderCountry": "Origin Country",
+    "searchCountry": "Search country...",
+    "selectCountry": "Select country",
+    "nextStep": "Next: Add Photos →",
+    "creating": "Creating...",
+    "createError": "Failed to create organization. Please try again.",
+    "dropZoneTitle": "Drag & drop images here or click to browse",
+    "dropZoneSubtitle": "PNG, JPG, WEBP up to 10 MB each",
+    "primary": "★ Primary",
+    "setPrimary": "Set as primary",
+    "skip": "Skip & Finish",
+    "uploading": "Uploading...",
+    "uploadAndFinish": "Upload {{count}} photo(s) & Finish",
+    "uploadError": "Upload failed",
+    "errors": {
+      "nameRequired": "Name is required",
+      "invalidEmail": "Invalid email address",
+      "invalidLatitude": "Latitude must be between -90 and 90",
+      "invalidLongitude": "Longitude must be between -180 and 180"
+    }
   }
 }

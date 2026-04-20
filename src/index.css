@@ -39,4 +39,13 @@ body {
   .card {
     @apply bg-white rounded-lg shadow-md p-6;
   }
+
+  .org-gallery .swiper-slide {
+    position: relative;
+  }
+
+  .org-gallery .swiper-button-next,
+  .org-gallery .swiper-button-prev {
+    @apply text-primary-600;
+  }
 }
