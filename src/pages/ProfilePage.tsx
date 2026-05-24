@@ -1,16 +1,20 @@
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import CreateOrganizationModal from '@/components/organizations/CreateOrganizationModal'
 
 export default function ProfilePage() {
   const { t } = useTranslation()
   const user = useAuthStore((state) => state.user)
   const navigate = useNavigate()
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
-  if (!user) {
-    navigate('/login')
-    return null
-  }
+  useEffect(() => {
+    if (!user) navigate('/login')
+  }, [user, navigate])
+
+  if (!user) return null
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -61,8 +65,14 @@ export default function ProfilePage() {
         <p className="text-gray-600">
           {t('profile.noOrganizations')}
         </p>
-        <button className="btn-primary mt-4">{t('profile.createOrganization')}</button>
+        <button className="btn-primary mt-4" onClick={() => setIsCreateModalOpen(true)}>{t('profile.createOrganization')}</button>
       </div>
+
+      <CreateOrganizationModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={() => setIsCreateModalOpen(false)}
+      />
     </div>
   )
 }
