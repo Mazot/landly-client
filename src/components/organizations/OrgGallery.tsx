@@ -8,7 +8,6 @@ import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import { useOrgImages } from '@/hooks/useImages'
 import { useTranslation } from 'react-i18next'
 
-// @ts-expect-error - No types available for these CSS imports 
 import 'swiper/css'
 import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
