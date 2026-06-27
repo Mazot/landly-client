@@ -20,6 +20,20 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['mapbox-gl'],
     },
+    build: {
+      // mapbox-gl is a large, stable vendor — isolate it into its own
+      // long-cached chunk so app code and other vendors split cleanly.
+      chunkSizeWarningLimit: 1800,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            mapbox: ['mapbox-gl'],
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            query: ['@tanstack/react-query'],
+          },
+        },
+      },
+    },
     server: {
       port: 5173,
       proxy: {

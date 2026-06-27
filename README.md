@@ -1,259 +1,140 @@
 # 🌍 Landly Client
 
-A modern React application for connecting people with businesses, helpers, and official representatives of different nationalities in foreign countries.
+The web client for **Landly** — find diaspora-oriented organizations, businesses, embassies and helpers by **country corridor** (where you're *from* → where you're *heading*). React 18 + TypeScript SPA, talking to the `landly-server` REST API.
 
-## 🛠️ Technology Stack
+> **v2 UI.** The app is a corridor-first, map-centric experience built from a typed component library. All displayed data comes from the server; there is no hardcoded sample data.
 
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Fast build tool and dev server
-- **Tanstack Query** (React Query) - Server state management
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Zustand** - Lightweight state management
-- **Axios** - HTTP client
+## 🛠️ Tech Stack
+
+| Area | Choice |
+|---|---|
+| Framework | React 18, TypeScript 5.7, Vite 6 |
+| Routing | React Router v7 (lazy, code-split routes) |
+| Server state | TanStack Query v5 |
+| Client state | Zustand v5 (persisted to `localStorage`) |
+| Maps | Mapbox GL 3 |
+| Styling | Tailwind CSS 3.4 + design-token CSS variables |
+| i18n | i18next + react-i18next — **EN / RU / UK** |
+| HTTP | Axios (interceptors for JWT + 401 handling) |
 
 ## 📋 Prerequisites
 
-- **Node.js 18+** - [Install Node.js](https://nodejs.org/)
-- **npm or yarn** - Package manager (comes with Node.js)
-- **landly-server** - Backend API running on `http://localhost:8080`
+- **Node.js 18+**
+- **landly-server** running (default `http://localhost:8080`) — see the repo-root `OVERVIEW.md`
+- A **Mapbox** public token for the live map
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
-
 ```bash
 npm install
+cp .env.example .env   # then fill in the values below
+npm run dev            # http://localhost:5173
 ```
 
-### 2. Environment Setup
+### Environment variables (`.env`)
 
-Copy the example environment file:
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_API_URL` | yes | Backend base URL, proxied by Vite in dev (default `http://localhost:8080`) |
+| `VITE_API_BASE_URL` | yes | Backend base URL used for OAuth redirects |
+| `VITE_MAPBOX_TOKEN` | yes | Mapbox GL public token (map degrades gracefully if missing) |
+| `VITE_GOOGLE_CLIENT_ID` | no | Google OAuth client ID |
+
+## 📜 Scripts
 
 ```bash
-cp .env.example .env
+npm run dev       # Vite dev server (port 5173, /api proxied to backend)
+npm run build     # tsc --noEmit + vite production build
+npm run preview   # preview the production build
+npm run lint      # ESLint (flat config)
 ```
 
-Update the `.env` file with your configuration:
+## 🧭 Routes
 
-```env
-VITE_API_URL=http://localhost:8080/api
-VITE_GOOGLE_CLIENT_ID=your-google-client-id
-```
+| Path | Page | Notes |
+|---|---|---|
+| `/` | Landing | Public; corridor quick-start + live map preview |
+| `/map` | Map | Sidebar list + Mapbox + org quick-view panel (`?org=:id`) |
+| `/org/:id` | Organization | Full page (about, photos, contacts, mini-map) |
+| `/countries` | Countries | Active corridor + real country catalogue |
+| `/saved` | Saved | Bookmarks by kind (orgs / people / countries / corridors) |
+| `/signup`, `/signup/corridor` | Sign up | One-screen + corridor step |
+| `/welcome` | First-run onboarding | Post-signup |
+| `/login`, `/profile` | Auth | `/profile` is protected |
 
-### 3. Start Development Server
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`
-
-### 4. Build for Production
-
-```bash
-npm run build
-```
-
-The production build will be in the `dist/` directory.
-
-### 5. Preview Production Build
-
-```bash
-npm run preview
-```
+All v2 pages are full-screen and render their own `TopBar`; there is no shared layout wrapper.
 
 ## 📁 Project Structure
 
 ```text
 src/
-├── components/           # Reusable UI components
-│   ├── auth/            # Authentication components
-│   ├── layout/          # Layout components (Header, Footer)
-│   └── organizations/   # Organization-specific components
-├── hooks/               # Custom React hooks
-│   ├── useAuth.ts       # Authentication hooks
-│   ├── useOrganizations.ts
-│   └── useReferences.ts
-├── lib/                 # Third-party library configurations
-│   └── axios.ts         # Axios instance with interceptors
-├── pages/               # Page components
-│   ├── auth/            # Login, Signup pages
-│   ├── HomePage.tsx
-│   ├── OrganizationsPage.tsx
-│   ├── OrganizationDetailPage.tsx
-│   └── ProfilePage.tsx
-├── services/            # API service layer
-│   ├── auth.service.ts
-│   ├── organization.service.ts
-│   └── reference.service.ts
-├── stores/              # Zustand stores
-│   └── authStore.ts
-├── types/               # TypeScript type definitions
-│   └── api.ts
-├── App.tsx              # Main app component with routing
-├── main.tsx             # Application entry point
-└── index.css            # Global styles with Tailwind
+├── components/
+│   ├── ui/                # Design-system primitives (see below)
+│   ├── map/               # LandlyMap, MapControls, FiltersSheet, CorridorSwitcher, OrgCompactPanel
+│   ├── auth/              # ProtectedRoute
+│   └── organizations/     # Legacy create-modal + gallery
+├── hooks/
+│   ├── useCorridor.ts     # Resolves corridor (country ids) → Country objects, lazy default
+│   ├── useDisplayOrgs.ts  # useDisplayOrgs / useDisplayOrg — server orgs → display shape
+│   ├── useOrganizations / useReferences / useImages / useAuth
+│   ├── useToggleSet.ts    # Set state with toggle/has/reset
+│   └── useClickOutside.ts # Popover dismissal
+├── lib/
+│   ├── displayOrg.ts      # toDisplayOrg() mapper + initials
+│   ├── orgTypes.ts        # type → colour/key metadata, orgTypeKeyFromString()
+│   ├── countries.ts       # flagOf / countryLabel helpers (over server Country)
+│   ├── cn.ts              # classname joiner
+│   └── axios.ts           # Axios instance
+├── stores/
+│   ├── corridorStore.ts   # { fromId, toId } country ids, persisted
+│   ├── savedStore.ts      # saved bookmarks, persisted
+│   └── authStore.ts       # JWT + user
+├── services/              # API call layer (do not call axios from components)
+├── i18n/                  # i18next config + en/ru/uk locales
+├── types/api.ts           # API contract types (match server presenters)
+├── App.tsx                # Lazy routes + Suspense + ErrorBoundary
+├── main.tsx               # Providers (QueryClient, Router)
+└── index.css              # Tokens (CSS vars) + l-* utility classes
 ```
 
-## 🎨 Features
+## 🧱 Component Library (`components/ui/`)
 
-### Authentication
+**Primitives** — `Button` (variant `primary|accent|ghost`, size `sm|md|lg`, `iconButton`, `fullWidth`, polymorphic `href`), `Pill`, `Chip`, `Badge`, `TextField`, `SearchInput`, `Avatar`, `CountryPill`, `Icon`, `Logo`.
 
-- ✅ Email/Password login and signup
-- ✅ OAuth 2.0 with Google
-- ✅ JWT token management
-- ✅ Protected routes
-- ✅ Automatic token refresh
+**Composites** — `TopBar`, `CorridorBubble`, `CorridorPicker`, `ColoredTypeRail`, `FlagPair`, `InfoRow`, `SectionHeading`, `OrgHeroCover`, `AuthSplitLayout`, `ErrorBoundary` / `ErrorScreen` / `PageFallback`.
 
-### Organizations
+Prefer these over re-inlining styles. They compose the `l-*` style classes defined in `index.css` (`l-btn`, `l-pill`, `l-input`, `l-card`, `l-label`, `l-display`, `l-hairline`, `l-scroll`).
 
-- ✅ Browse all organizations
-- ✅ Advanced filtering (country, type, origin)
-- ✅ Search functionality
-- ✅ View organization details
-- ✅ Create/Edit organizations (authenticated users)
-- ✅ Pagination support
+## 🎨 Design Tokens
 
-### User Profile
+Tokens are defined **once per concern** and mirrored where the platform requires it:
 
-- ✅ View user information
-- ✅ Language preferences
-- ✅ Manage organizations
+- **CSS custom properties** in `index.css` (`--accent`, `--ink-1`, `--surface`, radii, shadows, fonts…) — the runtime source used by inline styles and the `l-*` classes.
+- **Tailwind theme** in `tailwind.config.ts` (same hex values) — enables utility classes and opacity modifiers (`bg-ink-1/28`).
+- Fonts: **Manrope** (sans) + **Instrument Serif** (display) via Google Fonts in `index.html`.
 
-### UI/UX
+## 🔌 Server Integration
 
-- ✅ Responsive design (mobile-first)
-- ✅ Loading states
-- ✅ Error handling
-- ✅ Tailwind CSS utilities
-- ✅ Smooth transitions
+- The client renders **server data only**. `useDisplayOrgs` fetches `/api/organisation/list` (filtered by the corridor's destination country) and maps each `Organization` through `toDisplayOrg()` using the org-type (`/api/common/org_types`) and country (`/api/common/countries`) references. Photos come from `/api/images/list/{id}`.
+- **Corridor** = a pair of server country ids in `corridorStore`; `useCorridor` resolves them to `Country` objects and lazily defaults to Russia → Germany (or the first two countries).
+- **Saved** bookmarks are client-side (`savedStore`, `localStorage`) — the backend has no `/api/saved`.
+- Fields the schema doesn't have (rating, hours, "verified", org languages…) are omitted from the UI rather than faked.
+- API calls live in `services/*` and flow through the Axios instance (`lib/axios.ts`), which attaches the JWT and redirects to `/login` on 401.
 
-## 🔌 API Integration
+## ⚡ Performance & Resilience
 
-The client connects to the landly-server REST API:
+- **Route-level code splitting** — every page is `React.lazy`-loaded behind `<Suspense>`, so a route only ships the code it needs.
+- **Vendor chunking** (`vite.config.ts` `manualChunks`) — `mapbox-gl` (~1.7 MB) is isolated into its own long-cached chunk and loads only on map-bearing routes; `react-vendor` and `query` split out too.
+- **Error boundary** — `ErrorBoundary` wraps the router with a branded `ErrorScreen` fallback so a render crash never blanks the app.
 
-### Authentication Endpoints
+## 🌐 Dev Proxy
 
-- `POST /api/user/signup` - Create new account
-- `POST /api/user/signin` - Login
-- `GET /api/user/oauth/google/login` - Google OAuth
-- `GET /api/user/me` - Get current user
-- `POST /api/user/logout` - Logout
+Vite proxies `/api/*` → `VITE_API_URL` (default `http://localhost:8080`), so the client calls `/api/...` with no CORS setup in development.
 
-### Organization Endpoints
+## 🌍 Internationalisation
 
-- `GET /api/organisations` - List organizations (with filters)
-- `GET /api/organisations/:id` - Get organization details
-- `POST /api/organisations` - Create organization
-- `PUT /api/organisations/:id` - Update organization
-- `DELETE /api/organisations/:id` - Delete organization
-
-### Reference Data
-
-- `GET /api/countries` - List countries
-- `GET /api/languages` - List languages
-- `GET /api/organisation-types` - List organization types
-
-## 🎯 Available Scripts
-
-```bash
-# Development
-npm run dev          # Start dev server
-
-# Building
-npm run build        # Build for production
-npm run preview      # Preview production build
-
-# Linting
-npm run lint         # Run ESLint
-```
-
-## 🔧 Configuration
-
-### Tailwind CSS
-
-Custom configuration in `tailwind.config.js`:
-
-- Custom color palette (primary shades)
-- Component classes (btn-primary, input-field, card)
-- Responsive breakpoints
-
-### Vite
-
-Configuration in `vite.config.ts`:
-
-- Path aliases (`@/` points to `src/`)
-- API proxy to backend server
-- React plugin with Fast Refresh
-
-### React Query
-
-Default configuration in `main.tsx`:
-
-- Retry: 1 attempt
-- Stale time: 5 minutes
-- No refetch on window focus
-
-## 🌐 Proxy Configuration
-
-The Vite dev server proxies `/api` requests to the backend:
-
-```typescript
-proxy: {
-  '/api': {
-    target: 'http://localhost:8080',
-    changeOrigin: true,
-  },
-}
-```
-
-This allows calling the API as `/api/...` without CORS issues during development.
-
-## 🚧 Future Enhancements
-
-- [ ] Map integration (Google Maps / Leaflet)
-- [ ] Real-time chat functionality
-- [ ] Image upload for organizations
-- [ ] Advanced search with autocomplete
-- [ ] Multi-language support (i18n)
-- [ ] Dark mode
-- [ ] User reviews and ratings
-
-## 🐛 Troubleshooting
-
-### API Connection Issues
-
-If you can't connect to the backend:
-
-1. Ensure landly-server is running on `http://localhost:8080`
-2. Check the `VITE_API_URL` in your `.env` file
-3. Verify CORS settings in the backend
-
-### Build Errors
-
-If you encounter build errors:
-
-```bash
-# Clear node_modules and reinstall
-rm -rf node_modules
-npm install
-
-# Clear Vite cache
-rm -rf node_modules/.vite
-```
+Locale files: `src/i18n/locales/{en,ru,uk}/translation.json`. Use `const { t } = useTranslation()`; **EN is the source of truth** — add a key to all three files. Language is detected from `localStorage` → `navigator` and persisted.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
+MIT.

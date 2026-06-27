@@ -162,6 +162,11 @@
       "invalidLongitude": "Longitude must be between -180 and 180"
     }
   },
+  "error": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. Please reload the page.",
+    "reload": "Reload"
+  },
   "ui": {
     "continueGoogle": "Continue with Google",
     "continueApple": "Continue with Apple",

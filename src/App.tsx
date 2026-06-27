@@ -1,41 +1,52 @@
+import { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import LandingPage from './pages/LandingPage'
-import MapPage from './pages/MapPage'
-import OrganizationDetailPage from './pages/OrganizationDetailPage'
-import CountriesPage from './pages/CountriesPage'
-import SavedPage from './pages/SavedPage'
-import SignupPage from './pages/auth/SignupPage'
-import SignupCorridorPage from './pages/auth/SignupCorridorPage'
-import LoginPage from './pages/auth/LoginPage'
-import WelcomePage from './pages/WelcomePage'
-import ProfilePage from './pages/ProfilePage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import ErrorBoundary from './components/ui/ErrorBoundary'
+import ErrorScreen from './components/ui/ErrorScreen'
+import PageFallback from './components/ui/PageFallback'
+
+// Route-level code splitting: each page is its own chunk, so the heavy
+// map-bearing routes (mapbox-gl) load only when visited.
+const LandingPage = lazy(() => import('./pages/LandingPage'))
+const MapPage = lazy(() => import('./pages/MapPage'))
+const OrganizationDetailPage = lazy(() => import('./pages/OrganizationDetailPage'))
+const CountriesPage = lazy(() => import('./pages/CountriesPage'))
+const SavedPage = lazy(() => import('./pages/SavedPage'))
+const SignupPage = lazy(() => import('./pages/auth/SignupPage'))
+const SignupCorridorPage = lazy(() => import('./pages/auth/SignupCorridorPage'))
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const WelcomePage = lazy(() => import('./pages/WelcomePage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 
 function App() {
   return (
-    <Routes>
-      {/* v2 — full-screen pages (own TopBar, no shared Layout) */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/map" element={<MapPage />} />
-      <Route path="/org/:id" element={<OrganizationDetailPage />} />
-      <Route path="/countries" element={<CountriesPage />} />
-      <Route path="/saved" element={<SavedPage />} />
+    <ErrorBoundary fallback={<ErrorScreen />}>
+      <Suspense fallback={<PageFallback />}>
+        <Routes>
+          {/* v2 — full-screen pages (own TopBar, no shared Layout) */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/org/:id" element={<OrganizationDetailPage />} />
+          <Route path="/countries" element={<CountriesPage />} />
+          <Route path="/saved" element={<SavedPage />} />
 
-      {/* auth + onboarding */}
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/signup/corridor" element={<SignupCorridorPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/welcome" element={<WelcomePage />} />
+          {/* auth + onboarding */}
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/signup/corridor" element={<SignupCorridorPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
 
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   )
 }
 
