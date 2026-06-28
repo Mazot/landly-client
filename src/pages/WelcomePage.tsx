@@ -38,65 +38,79 @@ export default function WelcomePage() {
   )
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
+    <div className="flex flex-col" style={{ height: '100dvh', background: 'var(--bg)', overflow: 'hidden' }}>
       <TopBar />
 
       <div className="relative" style={{ flex: 1, overflow: 'hidden' }}>
         <div className="absolute inset-0" style={{ opacity: 0.85 }}>
           <LandlyMap markers={markers} fitToMarkers showControls={false} interactive={false} />
         </div>
+
+        {/* Mobile gradient: bottom-to-top; Desktop: left-to-right */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 md:hidden"
+          style={{ background: 'linear-gradient(to top, rgba(246,244,239,0.98) 0%, rgba(246,244,239,0.92) 50%, rgba(246,244,239,0.1) 85%)', pointerEvents: 'none' }}
+        />
+        <div
+          className="absolute inset-0 hidden md:block"
           style={{ background: 'linear-gradient(to right, rgba(246,244,239,0.96) 0%, rgba(246,244,239,0.8) 38%, rgba(246,244,239,0) 70%)', pointerEvents: 'none' }}
         />
 
-        {/* welcome panel */}
-        <div className="absolute flex flex-col justify-center" style={{ top: 0, bottom: 0, left: 0, width: 560, padding: '0 64px', zIndex: 11 }}>
-          <span className="l-pill accent" style={{ alignSelf: 'flex-start' }}>
-            <Icon name="sparkle" size={13} /> {t('welcome.badge')}
-          </span>
-          <h1 className="l-display" style={{ fontSize: 56, margin: '20px 0 14px 0', fontWeight: 400, lineHeight: 1.05 }}>
-            {t('welcome.hiName', { name: firstName })}<br />{t('welcome.letsLead')}<em>{t('welcome.getYouSetUp')}</em>
-          </h1>
-          <p style={{ font: '400 16px/1.6 var(--font-sans)', color: 'var(--ink-2)', maxWidth: 440, margin: 0 }}>
-            {t('welcome.subtitle', corridorNames)}
-          </p>
+        {/* Welcome panel:
+            Mobile  → bottom sheet style: inset-x-0 bottom-0, scrollable, px-4 py-6
+            Desktop → left panel: top-0 bottom-0 left-0 w-[560px] px-16 py-0 centered */}
+        <div
+          className="absolute flex flex-col justify-end md:justify-center inset-x-0 bottom-0 md:inset-x-auto md:top-0 md:left-0 md:bottom-0"
+          style={{ width: undefined, padding: undefined, zIndex: 11 }}
+        >
+          <div className="px-4 pb-6 md:px-16 md:pb-0" style={{ maxWidth: 560 }}>
+            <span className="l-pill accent" style={{ alignSelf: 'flex-start' }}>
+              <Icon name="sparkle" size={13} /> {t('welcome.badge')}
+            </span>
+            {/* Heading: 34px mobile, 56px desktop */}
+            <h1 className="l-display text-[34px] md:text-[56px]" style={{ margin: '16px 0 12px 0', fontWeight: 400, lineHeight: 1.05 }}>
+              {t('welcome.hiName', { name: firstName })}<br />{t('welcome.letsLead')}<em>{t('welcome.getYouSetUp')}</em>
+            </h1>
+            <p className="hidden md:block" style={{ font: '400 16px/1.6 var(--font-sans)', color: 'var(--ink-2)', maxWidth: 440, margin: 0 }}>
+              {t('welcome.subtitle', corridorNames)}
+            </p>
 
-          {/* checklist */}
-          <div className="l-card" style={{ marginTop: 28, padding: 10, maxWidth: 480, boxShadow: 'var(--shadow-2)' }}>
-            {steps.map((st, i) => (
-              <button
-                key={st.title}
-                onClick={() => navigate('/map')}
-                className="flex items-center w-full"
-                style={{ gap: 14, padding: '14px 14px', borderTop: i ? '1px solid var(--border-1)' : 'none', background: 'transparent', border: 0, borderTopStyle: i ? 'solid' : undefined, cursor: 'pointer', textAlign: 'left' }}
-              >
-                <span
-                  className="flex items-center justify-center"
-                  style={{ width: 38, height: 38, borderRadius: 999, flexShrink: 0, background: st.done ? 'var(--ink-1)' : 'var(--surface-2)', color: st.done ? '#fff' : 'var(--ink-3)', border: st.done ? 'none' : '1px solid var(--border-2)' }}
+            {/* checklist */}
+            <div className="l-card" style={{ marginTop: 20, padding: 10, boxShadow: 'var(--shadow-2)' }}>
+              {steps.map((st, i) => (
+                <button
+                  key={st.title}
+                  onClick={() => navigate('/map')}
+                  className="flex items-center w-full"
+                  style={{ gap: 14, padding: '12px 14px', borderTop: i ? '1px solid var(--border-1)' : 'none', background: 'transparent', border: 0, borderTopStyle: i ? 'solid' : undefined, cursor: 'pointer', textAlign: 'left' }}
                 >
-                  {st.done ? <Icon name="check" size={16} stroke={2.4} /> : <Icon name={st.ic} size={16} />}
-                </span>
-                <span style={{ flex: 1 }}>
-                  <span className="block" style={{ font: '600 14.5px/1.2 var(--font-sans)', color: st.done ? 'var(--ink-3)' : 'var(--ink-1)', textDecoration: st.done ? 'line-through' : 'none' }}>{st.title}</span>
-                  <span className="block" style={{ font: '500 12.5px/1.4 var(--font-sans)', color: 'var(--ink-3)', marginTop: 4 }}>{st.sub}</span>
-                </span>
-                {!st.done && <Icon name="chevronRight" size={16} style={{ color: 'var(--ink-4)' }} />}
-              </button>
-            ))}
-          </div>
+                  <span
+                    className="flex items-center justify-center"
+                    style={{ width: 36, height: 36, borderRadius: 999, flexShrink: 0, background: st.done ? 'var(--ink-1)' : 'var(--surface-2)', color: st.done ? '#fff' : 'var(--ink-3)', border: st.done ? 'none' : '1px solid var(--border-2)' }}
+                  >
+                    {st.done ? <Icon name="check" size={15} stroke={2.4} /> : <Icon name={st.ic} size={15} />}
+                  </span>
+                  <span style={{ flex: 1 }}>
+                    <span className="block" style={{ font: '600 14px/1.2 var(--font-sans)', color: st.done ? 'var(--ink-3)' : 'var(--ink-1)', textDecoration: st.done ? 'line-through' : 'none' }}>{st.title}</span>
+                    <span className="block" style={{ font: '500 12px/1.4 var(--font-sans)', color: 'var(--ink-3)', marginTop: 4 }}>{st.sub}</span>
+                  </span>
+                  {!st.done && <Icon name="chevronRight" size={15} style={{ color: 'var(--ink-4)' }} />}
+                </button>
+              ))}
+            </div>
 
-          <div className="flex items-center" style={{ gap: 14, marginTop: 22 }}>
-            <Button variant="accent" size="lg" onClick={() => navigate('/map')}>
-              {t('welcome.addFirstPlace')} <Icon name="arrowRight" size={15} stroke={2} />
-            </Button>
-            <Button variant="ghost" size="lg">{t('welcome.takeTour')}</Button>
-            <button onClick={() => navigate('/map')} style={{ marginLeft: 'auto', font: '600 13px/1 var(--font-sans)', color: 'var(--ink-3)', cursor: 'pointer', background: 'transparent', border: 0 }}>{t('welcome.skip')}</button>
+            <div className="flex items-center flex-wrap" style={{ gap: 10, marginTop: 18 }}>
+              <Button variant="accent" size="lg" onClick={() => navigate('/map')}>
+                {t('welcome.addFirstPlace')} <Icon name="arrowRight" size={15} stroke={2} />
+              </Button>
+              <div className="hidden md:block"><Button variant="ghost" size="lg">{t('welcome.takeTour')}</Button></div>
+              <button onClick={() => navigate('/map')} style={{ marginLeft: 'auto', font: '600 13px/1 var(--font-sans)', color: 'var(--ink-3)', cursor: 'pointer', background: 'transparent', border: 0 }}>{t('welcome.skip')}</button>
+            </div>
           </div>
         </div>
 
-        {/* hint card */}
-        <div className="l-card absolute" style={{ bottom: 24, right: 24, width: 300, padding: 16, boxShadow: 'var(--shadow-3)', zIndex: 11 }}>
+        {/* Hint card — desktop only */}
+        <div className="l-card absolute hidden md:block" style={{ bottom: 24, right: 24, width: 300, padding: 16, boxShadow: 'var(--shadow-3)', zIndex: 11 }}>
           <div className="flex items-center" style={{ gap: 9 }}>
             <Icon name="users" size={16} style={{ color: 'var(--type-volunteer)' }} />
             <span style={{ font: '600 13.5px/1.2 var(--font-sans)' }}>{t('welcome.knowSomeone')}</span>

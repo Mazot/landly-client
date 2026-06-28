@@ -181,7 +181,12 @@
     "profile": "Profile",
     "signIn": "Sign in",
     "createAccount": "Create account",
-    "nav": { "map": "Map", "countries": "Countries", "saved": "Saved" }
+    "nav": {
+      "map": "Map",
+      "countries": "Countries",
+      "saved": "Saved"
+    },
+    "mainNav": "Main navigation"
   },
   "orgType": {
     "embassy": "Embassy",
@@ -218,7 +223,11 @@
     "locate": "Locate me"
   },
   "landing": {
-    "nav": { "howItWorks": "How it works", "forHelpers": "For helpers", "countries": "Countries" },
+    "nav": {
+      "howItWorks": "How it works",
+      "forHelpers": "For helpers",
+      "countries": "Countries"
+    },
     "signIn": "Sign in",
     "getStarted": "Get started",
     "badge": "12 new places this week",
@@ -240,7 +249,11 @@
     "showingIn": "Showing in {{country}}",
     "organizationsCount": "{{count}} organizations",
     "sortBy": "Sort by",
-    "sort": { "nearest": "Nearest", "recent": "Recently added", "verified": "Verified" },
+    "sort": {
+      "nearest": "Nearest",
+      "recent": "Recently added",
+      "verified": "Verified"
+    },
     "listView": "List view",
     "gridView": "Grid view",
     "moreToLoad": "{{count}} more — scroll the map to load",
@@ -275,7 +288,12 @@
     "reset": "Reset",
     "showPlaces": "Show {{count}} places",
     "addMore": "+ add",
-    "lang": { "russian": "Russian", "ukrainian": "Ukrainian", "english": "English", "german": "German" }
+    "lang": {
+      "russian": "Russian",
+      "ukrainian": "Ukrainian",
+      "english": "English",
+      "german": "German"
+    }
   },
   "orgCompact": {
     "backToResults": "Back to results",
@@ -306,9 +324,22 @@
     "seeAll": "See all {{count}}",
     "hours": "Hours",
     "closed": "Closed",
-    "days": { "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun" },
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
     "communitySignals": "Community signals",
-    "signals": { "peopleCame": "People came", "stillActive": "Still active", "lastCheckIn": "Last check-in", "discussions": "Discussions" },
+    "signals": {
+      "peopleCame": "People came",
+      "stillActive": "Still active",
+      "lastCheckIn": "Last check-in",
+      "discussions": "Discussions"
+    },
     "addedBy": "Added by",
     "placesAdded": "{{count}} places added",
     "message": "Message",
@@ -317,7 +348,12 @@
     "synced": "Synced · {{rating}} ★ · {{count}} ratings",
     "languages": "Languages",
     "reportProblem": "Report a problem",
-    "telegram": "Telegram · {{handle}}"
+    "telegram": "Telegram · {{handle}}",
+    "maps": {
+      "google": "Google Maps",
+      "apple": "Apple Maps",
+      "gis": "2GIS"
+    }
   },
   "countries": {
     "forYou": "For you",
@@ -337,8 +373,18 @@
     "newList": "New list",
     "empty": "Nothing saved yet — tap the bookmark on any place to keep it.",
     "remove": "Remove from saved",
-    "tabs": { "all": "All", "orgs": "Organizations", "people": "People", "countries": "Countries", "corridors": "Corridors" },
-    "kind": { "country": "Country", "corridor": "Corridor", "person": "Person" }
+    "tabs": {
+      "all": "All",
+      "orgs": "Organizations",
+      "people": "People",
+      "countries": "Countries",
+      "corridors": "Corridors"
+    },
+    "kind": {
+      "country": "Country",
+      "corridor": "Corridor",
+      "person": "Person"
+    }
   },
   "signupOne": {
     "eyebrow": "One screen · no steps",
@@ -362,8 +408,16 @@
     "creating": "Creating account…",
     "createAccount": "Create account",
     "terms": "By continuing you agree to Landly's Terms & Privacy.",
-    "roles": { "newcomer": "Newcomer", "helping": "Helping", "exploring": "Exploring" },
-    "langs": { "russian": "Russian", "english": "English", "addMore": "+ add" }
+    "roles": {
+      "newcomer": "Newcomer",
+      "helping": "Helping",
+      "exploring": "Exploring"
+    },
+    "langs": {
+      "russian": "Russian",
+      "english": "English",
+      "addMore": "+ add"
+    }
   },
   "signupCorridor": {
     "eyebrow": "Step 2 of 2 · Almost there",
@@ -372,17 +426,34 @@
     "blurb": "Where you're from and where you're heading — in one move. This is the only thing the map needs to open to the right place.",
     "haveAccount": "Have an account?",
     "signIn": "Sign in",
-    "steps": { "account": "Account", "corridor": "Corridor" },
+    "steps": {
+      "account": "Account",
+      "corridor": "Corridor"
+    },
     "corridorHas": "{{from}} → {{to}} has",
-    "stats": { "consulates": "Consulates", "communities": "Communities", "businesses": "Businesses", "volunteers": "Volunteers" },
+    "stats": {
+      "consulates": "Consulates",
+      "communities": "Communities",
+      "businesses": "Businesses",
+      "volunteers": "Volunteers"
+    },
     "popularFrom": "Popular from {{country}}",
     "hereAs": "I'm here as",
     "languages": "Languages",
     "tip": "Living between two places? Add more corridors anytime — switch them from the map's top bar.",
     "back": "Back",
     "finish": "Finish & open map",
-    "roles": { "newcomer": "Newcomer", "helping": "Helping others", "exploring": "Just exploring" },
-    "langs": { "russian": "Russian", "english": "English", "german": "German", "addMore": "+ add" }
+    "roles": {
+      "newcomer": "Newcomer",
+      "helping": "Helping others",
+      "exploring": "Just exploring"
+    },
+    "langs": {
+      "russian": "Russian",
+      "english": "English",
+      "german": "German",
+      "addMore": "+ add"
+    }
   },
   "welcome": {
     "badge": "Welcome to Landly",
@@ -397,9 +468,65 @@
     "recommendDesc": "Recommend a friend or volunteer — they don't need an account, you just vouch for them.",
     "recommendPerson": "Recommend a person",
     "steps": {
-      "corridorSet": { "t": "Corridor set", "s": "{{from}} → {{to}} — the map opens here" },
-      "saveFirst": { "t": "Save your first place", "s": "Tap the bookmark on any place to keep it" },
-      "addPlace": { "t": "Add a place or recommend a helper", "s": "Pay it forward for the next newcomer" }
+      "corridorSet": {
+        "t": "Corridor set",
+        "s": "{{from}} → {{to}} — the map opens here"
+      },
+      "saveFirst": {
+        "t": "Save your first place",
+        "s": "Tap the bookmark on any place to keep it"
+      },
+      "addPlace": {
+        "t": "Add a place or recommend a helper",
+        "s": "Pay it forward for the next newcomer"
+      }
     }
+  },
+  "account": {
+    "edit": "Edit",
+    "tabs": {
+      "profile": "Profile",
+      "myOrgs": "My orgs",
+      "myPeople": "My people",
+      "corridors": "Corridors"
+    },
+    "stats": {
+      "places": "Places",
+      "people": "People",
+      "helped": "Helped",
+      "rating": "Rating"
+    },
+    "myOrgs": "My organizations",
+    "myPeople": "My recommended people",
+    "addOrg": "Add",
+    "recommend": "Recommend",
+    "resend": "Resend",
+    "fixResubmit": "Fix & resubmit",
+    "status": {
+      "live": "Live",
+      "pending": "Pending",
+      "rejected": "Rejected",
+      "confirmed": "Confirmed",
+      "awaiting": "Awaiting"
+    },
+    "signIn": "Sign in to see your profile",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "roleNewcomer": "Newcomer",
+    "statusActive": "Active"
+  },
+  "messages": {
+    "title": "Messages",
+    "newMessage": "New message",
+    "writeMessage": "Write a message…",
+    "today": "Today",
+    "privacyNote": "Connected via recommendation. Phone numbers stay hidden until you both share them.",
+    "usuallyReplies": "Usually replies in ~{{time}}",
+    "profile": "Profile",
+    "empty": "No messages yet. Connect with helpers and orgs on the map.",
+    "back": "Back",
+    "attach": "Attach file",
+    "send": "Send",
+    "threadTopic": "Anmeldung help"
   }
 }

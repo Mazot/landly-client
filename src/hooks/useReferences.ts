@@ -6,7 +6,7 @@ const COUNTRIES_PAGE_SIZE = 20
 export const useCountries = () => {
   return useQuery({
     queryKey: ['countries'],
-    queryFn: () => referenceApi.getCountries(),
+    queryFn: () => referenceApi.getCountries({ limit: 300 }),
     staleTime: Infinity, // Reference data rarely changes
   })
 }

@@ -151,7 +151,7 @@ export default function LandlyMap({
 
   return (
     <div className={`relative ${className}`}>
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="absolute inset-0 h-screen" />
       {showControls && (
         <MapControls
           onZoomIn={() => handleZoom(1)}

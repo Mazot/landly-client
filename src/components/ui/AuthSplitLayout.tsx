@@ -23,9 +23,9 @@ export default function AuthSplitLayout({
   children,
 }: AuthSplitLayoutProps) {
   return (
-    <div className="grid relative" style={{ height: '100vh', background: 'var(--bg)', gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
-      {/* left dark hero */}
-      <div className="flex flex-col text-white relative" style={{ background: 'var(--ink-1)', padding: '56px 56px 0 56px', overflow: 'hidden' }}>
+    <div className="grid relative md:grid-cols-2" style={{ height: '100dvh', background: 'var(--bg)', overflow: 'hidden' }}>
+      {/* left dark hero — hidden on mobile */}
+      <div className="hidden md:flex flex-col text-white relative" style={{ background: 'var(--ink-1)', padding: '56px 56px 0 56px', overflow: 'hidden' }}>
         <Logo size={28} wordColor="#fff" />
         <div style={{ marginTop: 84, maxWidth: 480, position: 'relative', zIndex: 2 }}>
           <div className="l-label" style={{ color: 'rgba(255,255,255,0.6)' }}>{eyebrow}</div>
@@ -43,7 +43,24 @@ export default function AuthSplitLayout({
         </div>
       </div>
 
-      {children}
+      {/* Mobile-only compact header — logo + eyebrow pill */}
+      <div
+        className="md:hidden flex items-center"
+        style={{
+          position: 'absolute', top: 0, left: 0, right: 0,
+          height: 56, padding: '0 16px', zIndex: 10,
+          borderBottom: '1px solid var(--border-1)',
+          background: 'var(--bg)',
+        }}
+      >
+        <Logo size={22} />
+        <span className="l-label" style={{ marginLeft: 12, color: 'var(--ink-3)' }}>{eyebrow}</span>
+      </div>
+
+      {/* Form panel — full width on mobile, right half on md+ */}
+      <div className="col-start-1 md:col-start-2" style={{ paddingTop: 56 }}>
+        {children}
+      </div>
     </div>
   )
 }

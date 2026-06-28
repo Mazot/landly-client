@@ -56,8 +56,9 @@ export default function SignupCorridorPage() {
       titleSize={56}
       aside={statCard}
     >
-      {/* right form */}
-      <div className="flex flex-col" style={{ padding: '44px 64px', overflow: 'hidden' }}>
+      {/* right form — px-4 mobile, px-16 tablet+ */}
+      <div className="flex flex-col px-4 pt-6 md:px-16 md:pt-11" style={{ overflow: 'hidden', height: '100%' }}>
+      <div className="flex flex-col" style={{ flex: 1, overflow: 'hidden' }}>
         <div className="flex justify-end" style={{ marginBottom: 28 }}>
           <span style={{ font: '500 13px/1 var(--font-sans)', color: 'var(--ink-3)' }}>
             {t('signupCorridor.haveAccount')}{' '}
@@ -117,7 +118,7 @@ export default function SignupCorridorPage() {
 
             <div className="l-hairline" style={{ margin: '24px 0 20px 0' }} />
 
-            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            <div className="grid grid-cols-1 md:grid-cols-2" style={{ gap: 24 }}>
               <div>
                 <div className="l-label" style={{ marginBottom: 10 }}>{t('signupCorridor.hereAs')}</div>
                 <div className="flex flex-wrap" style={{ gap: 7 }}>
@@ -150,7 +151,7 @@ export default function SignupCorridorPage() {
         </div>
 
         {/* footer */}
-        <div className="flex items-center justify-between" style={{ marginTop: 24 }}>
+        <div className="flex items-center justify-between" style={{ marginTop: 24, paddingBottom: 20 }}>
           <Button variant="ghost" onClick={() => navigate('/signup')}>
             <Icon name="arrowLeft" size={14} stroke={2} /> {t('signupCorridor.back')}
           </Button>
@@ -162,6 +163,7 @@ export default function SignupCorridorPage() {
           <Button variant="accent" onClick={() => navigate('/map')}>
             {t('signupCorridor.finish')} <Icon name="arrowRight" size={14} stroke={2} />
           </Button>
+        </div>
         </div>
       </div>
     </AuthSplitLayout>

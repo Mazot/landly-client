@@ -14,10 +14,13 @@ export function useCorridor() {
 
   useEffect(() => {
     if (!countries || countries.length === 0) return
-    if (fromId && toId) return
+    // Validate stored IDs against the real list (guards against stale mock IDs in localStorage)
+    const validFrom = countries.find((c) => c.id === fromId)?.id
+    const validTo = countries.find((c) => c.id === toId)?.id
+    if (validFrom && validTo) return
     const find = (n: string) => countries.find((c) => c.name.toLowerCase() === n)
-    const f = fromId ?? find('russia')?.id ?? countries[0]?.id
-    const t = toId ?? find('germany')?.id ?? countries[1]?.id ?? countries[0]?.id
+    const f = validFrom ?? find('russia')?.id ?? countries[0]?.id
+    const t = validTo ?? find('germany')?.id ?? countries[1]?.id ?? countries[0]?.id
     if (f && t) setCorridor(f, t)
   }, [countries, fromId, toId, setCorridor])
 

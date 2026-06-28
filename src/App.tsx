@@ -18,6 +18,11 @@ const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
 const WelcomePage = lazy(() => import('./pages/WelcomePage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 
+// TODO: note inplemented yet
+const AccountPage = lazy(() => import('./pages/AccountPage'))
+const MessagesPage = lazy(() => import('./pages/MessagesPage'))
+const MessageThreadPage = lazy(() => import('./pages/MessageThreadPage'))
+
 function App() {
   return (
     <ErrorBoundary fallback={<ErrorScreen />}>
@@ -35,6 +40,10 @@ function App() {
           <Route path="/signup/corridor" element={<SignupCorridorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
+
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/messages/:id" element={<MessageThreadPage />} />
 
           <Route
             path="/profile"
