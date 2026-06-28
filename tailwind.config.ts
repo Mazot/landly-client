@@ -15,6 +15,20 @@ export default {
   ],
   theme: {
     extend: {
+      // Breakpoints aligned with design targets:
+      //   sm  = 390px  iPhone 14 Pro
+      //   md  = 834px  iPad Air portrait
+      //   lg  = 1024px tablet landscape
+      //   xl  = 1280px desktop
+      //   2xl = 1440px desktop wide
+      screens: {
+        sm:    '390px',
+        md:    '834px',
+        lg:    '1024px',
+        xl:    '1280px',
+        '2xl': '1440px',
+      },
+
       colors: {
         // Legacy palette — kept for pages not yet migrated to v2.
         primary: {
