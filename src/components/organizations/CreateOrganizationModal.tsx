@@ -1,10 +1,16 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { organizationApi } from '@/services/organization.service'
 import { imageApi } from '@/services/image.service'
 import { useCountriesInfinite, useOrganizationTypes } from '@/hooks/useReferences'
+import { useCorridor } from '@/hooks/useCorridor'
 import SearchableSelect from '@/components/ui/SearchableSelect'
+import TextField from '@/components/ui/TextField'
+import Button from '@/components/ui/Button'
+import Icon from '@/components/ui/Icon'
+import Divider from '@/components/ui/Divider'
 import type { CreateOrganisationRequest } from '@/types/api'
 
 interface Props {
@@ -23,27 +29,26 @@ interface ImageFile {
   error?: string
 }
 
+const EMPTY_FORM: CreateOrganisationRequest = {
+  name: '', address: '', description: '', email: '', tel: '',
+  latitude: undefined, longitude: undefined,
+  location_country_id: '', founder_country_id: '', organisation_type_id: '',
+}
+
 export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { from, to } = useCorridor()
 
   const [step, setStep] = useState<Step>('details')
   const [createdOrgId, setCreatedOrgId] = useState<string | null>(null)
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([])
   const [isDragging, setIsDragging] = useState(false)
-
   const [form, setForm] = useState<CreateOrganisationRequest>({
-    name: '',
-    address: '',
-    description: '',
-    email: '',
-    tel: '',
-    latitude: undefined,
-    longitude: undefined,
-    location_country_id: '',
-    founder_country_id: '',
-    organisation_type_id: '',
+    ...EMPTY_FORM,
+    location_country_id: to?.id ?? '',
+    founder_country_id: from?.id ?? '',
   })
   const [errors, setErrors] = useState<Partial<Record<keyof CreateOrganisationRequest, string>>>({})
 
@@ -51,18 +56,14 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
 
   const [locationSearch, setLocationSearch] = useState('')
   const locationQuery = useCountriesInfinite(locationSearch)
-  const locationCountries = locationQuery.data?.pages.flat() ?? []
-  const locationOptions = locationCountries.map((c) => ({
-    value: c.id,
-    label: `${c.flag ?? ''} ${c.name}`.trim(),
+  const locationOptions = (locationQuery.data?.pages.flat() ?? []).map((c) => ({
+    value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim(),
   }))
 
   const [founderSearch, setFounderSearch] = useState('')
   const founderQuery = useCountriesInfinite(founderSearch)
-  const founderCountries = founderQuery.data?.pages.flat() ?? []
-  const founderOptions = founderCountries.map((c) => ({
-    value: c.id,
-    label: `${c.flag ?? ''} ${c.name}`.trim(),
+  const founderOptions = (founderQuery.data?.pages.flat() ?? []).map((c) => ({
+    value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim(),
   }))
 
   const createMutation = useMutation({
@@ -74,61 +75,40 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
     },
   })
 
-  // Cleanup previews on unmount
-  useEffect(() => {
-    return () => {
-      imageFiles.forEach((f) => URL.revokeObjectURL(f.preview))
-    }
-  }, [imageFiles])
+  useEffect(() => () => { imageFiles.forEach((f) => URL.revokeObjectURL(f.preview)) }, [imageFiles])
 
-  // Reset state when modal closes
   useEffect(() => {
     if (!isOpen) {
       setStep('details')
       setCreatedOrgId(null)
       setImageFiles([])
-      setForm({
-        name: '',
-        address: '',
-        description: '',
-        email: '',
-        tel: '',
-        latitude: undefined,
-        longitude: undefined,
-        location_country_id: '',
-        founder_country_id: '',
-        organisation_type_id: '',
-      })
+      setForm({ ...EMPTY_FORM, location_country_id: to?.id ?? '', founder_country_id: from?.id ?? '' })
       setErrors({})
     }
-  }, [isOpen])
+  }, [isOpen, from, to])
+
+  // Close on Escape
+  useEffect(() => {
+    if (!isOpen) return
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', h)
+    return () => document.removeEventListener('keydown', h)
+  }, [isOpen, onClose])
 
   const validate = (): boolean => {
-    const newErrors: typeof errors = {}
-    if (!form.name.trim()) newErrors.name = t('createOrg.errors.nameRequired')
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = t('createOrg.errors.invalidEmail')
-    }
-    if (
-      form.latitude !== undefined &&
-      (isNaN(form.latitude) || form.latitude < -90 || form.latitude > 90)
-    ) {
-      newErrors.latitude = t('createOrg.errors.invalidLatitude')
-    }
-    if (
-      form.longitude !== undefined &&
-      (isNaN(form.longitude) || form.longitude < -180 || form.longitude > 180)
-    ) {
-      newErrors.longitude = t('createOrg.errors.invalidLongitude')
-    }
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    const e: typeof errors = {}
+    if (!form.name.trim()) e.name = t('createOrg.errors.nameRequired')
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t('createOrg.errors.invalidEmail')
+    if (form.latitude !== undefined && (isNaN(form.latitude) || form.latitude < -90 || form.latitude > 90)) e.latitude = t('createOrg.errors.invalidLatitude')
+    if (form.longitude !== undefined && (isNaN(form.longitude) || form.longitude < -180 || form.longitude > 180)) e.longitude = t('createOrg.errors.invalidLongitude')
+    setErrors(e)
+    return Object.keys(e).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (ev: React.FormEvent) => {
+    ev.preventDefault()
     if (!validate()) return
-    const payload: CreateOrganisationRequest = {
+    createMutation.mutate({
       name: form.name.trim(),
       address: form.address || undefined,
       description: form.description || undefined,
@@ -139,8 +119,7 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
       location_country_id: form.location_country_id || undefined,
       founder_country_id: form.founder_country_id || undefined,
       organisation_type_id: form.organisation_type_id || undefined,
-    }
-    createMutation.mutate(payload)
+    })
   }
 
   const addFiles = useCallback((files: FileList | null) => {
@@ -148,43 +127,17 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     Array.from(files).forEach((file) => {
       if (!allowed.includes(file.type)) return
-      setImageFiles((prev) => [
-        ...prev,
-        {
-          file,
-          preview: URL.createObjectURL(file),
-          isPrimary: prev.length === 0,
-          uploading: false,
-        },
-      ])
+      setImageFiles((prev) => [...prev, { file, preview: URL.createObjectURL(file), isPrimary: prev.length === 0, uploading: false }])
     })
   }, [])
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault()
-      setIsDragging(false)
-      addFiles(e.dataTransfer.files)
-    },
-    [addFiles]
-  )
-
-  const removeFile = (index: number) => {
+  const removeFile = (i: number) => {
     setImageFiles((prev) => {
-      URL.revokeObjectURL(prev[index].preview)
-      const next = prev.filter((_, i) => i !== index)
-      // Ensure one primary if we just removed the primary
-      if (prev[index].isPrimary && next.length > 0) {
-        next[0] = { ...next[0], isPrimary: true }
-      }
+      URL.revokeObjectURL(prev[i].preview)
+      const next = prev.filter((_, j) => j !== i)
+      if (prev[i].isPrimary && next.length > 0) next[0] = { ...next[0], isPrimary: true }
       return next
     })
-  }
-
-  const togglePrimary = (index: number) => {
-    setImageFiles((prev) =>
-      prev.map((f, i) => ({ ...f, isPrimary: i === index }))
-    )
   }
 
   const handleUploadAll = async () => {
@@ -197,11 +150,7 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
         await imageApi.uploadImage(createdOrgId, updated[i].file, updated[i].isPrimary)
         updated[i] = { ...updated[i], uploading: false }
       } catch {
-        updated[i] = {
-          ...updated[i],
-          uploading: false,
-          error: t('createOrg.uploadError'),
-        }
+        updated[i] = { ...updated[i], uploading: false, error: t('createOrg.uploadError') }
       }
       setImageFiles([...updated])
     }
@@ -210,205 +159,139 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
     onClose()
   }
 
-  const handleSkip = () => {
-    if (createdOrgId) onCreated?.(createdOrgId)
-    onClose()
-  }
+  const f = (k: keyof CreateOrganisationRequest, v: unknown) => setForm((p) => ({ ...p, [k]: v }))
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(20,18,14,0.42)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+      <div style={{ background: 'var(--surface)', borderRadius: 20, border: '1px solid var(--border-1)', boxShadow: 'var(--shadow-pop)', width: '100%', maxWidth: 560, maxHeight: '90dvh', display: 'flex', flexDirection: 'column' }}>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between" style={{ padding: '18px 20px 14px', borderBottom: '1px solid var(--border-1)', flexShrink: 0 }}>
           <div>
-            <h2 className="text-xl font-semibold text-gray-800">
+            <div style={{ font: '600 17px/1 var(--font-sans)' }}>
               {step === 'details' ? t('createOrg.titleDetails') : t('createOrg.titleImages')}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            </div>
+            <div style={{ font: '500 12.5px/1.4 var(--font-sans)', color: 'var(--ink-3)', marginTop: 4 }}>
               {step === 'details' ? t('createOrg.subtitleDetails') : t('createOrg.subtitleImages')}
-            </p>
+            </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-            aria-label="Close"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+          <button onClick={onClose} style={{ background: 'var(--surface-2)', border: '1px solid var(--border-1)', borderRadius: 8, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--ink-3)', flexShrink: 0 }}>
+            <Icon name="close" size={14} />
           </button>
         </div>
 
         {/* Step indicators */}
-        <div className="flex gap-2 px-6 pt-4">
+        <div className="flex items-center" style={{ padding: '12px 20px 0', gap: 8, flexShrink: 0 }}>
           {(['details', 'images'] as Step[]).map((s, i) => (
-            <div key={s} className="flex items-center gap-2">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  step === s
-                    ? 'bg-primary-600 text-white'
-                    : s === 'images' && step === 'details'
-                    ? 'bg-gray-200 text-gray-500'
-                    : 'bg-green-500 text-white'
-                }`}
-              >
-                {s === 'images' && step !== 'details' && createdOrgId ? '✓' : i + 1}
+            <div key={s} className="flex items-center" style={{ gap: 8 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                font: '600 12px/1 var(--font-sans)',
+                background: step === s ? 'var(--ink-1)' : s === 'images' && step === 'details' ? 'var(--surface-2)' : 'var(--type-helper)',
+                color: step === s ? 'var(--surface)' : s === 'images' && step === 'details' ? 'var(--ink-3)' : '#fff',
+                border: '1px solid var(--border-1)',
+              }}>
+                {s === 'images' && step !== 'details' ? <Icon name="check" size={11} stroke={2.5} /> : i + 1}
               </div>
-              <span className={`text-sm ${step === s ? 'text-gray-800 font-medium' : 'text-gray-400'}`}>
+              <span style={{ font: `${step === s ? 600 : 500} 13px/1 var(--font-sans)`, color: step === s ? 'var(--ink-1)' : 'var(--ink-3)' }}>
                 {s === 'details' ? t('createOrg.stepDetails') : t('createOrg.stepImages')}
               </span>
-              {i < 1 && <div className="w-8 h-px bg-gray-200 mx-1" />}
+              {i < 1 && <div style={{ width: 24, height: 1, background: 'var(--border-1)' }} />}
             </div>
           ))}
         </div>
 
         {/* ─── Step 1: Details ─── */}
         {step === 'details' && (
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.name')} <span className="text-red-500">*</span>
-              </label>
-              <input
-                className={`input-field ${errors.name ? 'border-red-400' : ''}`}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder={t('createOrg.namePlaceholder')}
-              />
-              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
-            </div>
+          <form onSubmit={handleSubmit} className="l-scroll" style={{ overflowY: 'auto', padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <TextField
+              label={`${t('createOrg.name')} *`}
+              value={form.name}
+              onChange={(e) => f('name', e.target.value)}
+              placeholder={t('createOrg.namePlaceholder')}
+              style={errors.name ? { borderColor: 'var(--danger)' } : undefined}
+            />
+            {errors.name && <div style={{ font: '500 12px/1 var(--font-sans)', color: 'var(--danger)', marginTop: -8 }}>{errors.name}</div>}
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.description')}
-              </label>
+            <label className="block">
+              <span className="l-label">{t('createOrg.description')}</span>
               <textarea
-                className="input-field resize-none"
+                className="l-input"
                 rows={3}
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={(e) => f('description', e.target.value)}
                 placeholder={t('createOrg.descriptionPlaceholder')}
+                style={{ resize: 'none', height: 'auto' }}
               />
-            </div>
+            </label>
 
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.address')}
-              </label>
-              <input
-                className="input-field"
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                placeholder={t('createOrg.addressPlaceholder')}
-              />
-            </div>
+            <TextField
+              label={t('createOrg.address')}
+              value={form.address}
+              onChange={(e) => f('address', e.target.value)}
+              placeholder={t('createOrg.addressPlaceholder')}
+            />
 
-            {/* Tel + Email */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <TextField label={t('createOrg.tel')} value={form.tel} onChange={(e) => f('tel', e.target.value)} placeholder="+1 234 567" />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('createOrg.tel')}
-                </label>
-                <input
-                  className="input-field"
-                  value={form.tel}
-                  onChange={(e) => setForm({ ...form, tel: e.target.value })}
-                  placeholder="+1 234 567 8900"
+                <TextField
+                  label={t('createOrg.email')} type="email" value={form.email}
+                  onChange={(e) => f('email', e.target.value)} placeholder="contact@org.com"
+                  style={errors.email ? { borderColor: 'var(--danger)' } : undefined}
                 />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('createOrg.email')}
-                </label>
-                <input
-                  className={`input-field ${errors.email ? 'border-red-400' : ''}`}
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="contact@org.com"
-                />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                {errors.email && <div style={{ font: '500 12px/1 var(--font-sans)', color: 'var(--danger)', marginTop: 4 }}>{errors.email}</div>}
               </div>
             </div>
 
-            {/* Lat + Lng */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('createOrg.latitude')}
-                </label>
-                <input
-                  className={`input-field ${errors.latitude ? 'border-red-400' : ''}`}
-                  type="number"
-                  step="any"
+                <TextField
+                  label={t('createOrg.latitude')} type="number" step="any"
                   value={form.latitude ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      latitude: e.target.value === '' ? undefined : parseFloat(e.target.value),
-                    })
-                  }
+                  onChange={(e) => f('latitude', e.target.value === '' ? undefined : parseFloat(e.target.value))}
                   placeholder="48.8566"
+                  style={errors.latitude ? { borderColor: 'var(--danger)' } : undefined}
                 />
-                {errors.latitude && <p className="text-red-500 text-xs mt-1">{errors.latitude}</p>}
+                {errors.latitude && <div style={{ font: '500 12px/1 var(--font-sans)', color: 'var(--danger)', marginTop: 4 }}>{errors.latitude}</div>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('createOrg.longitude')}
-                </label>
-                <input
-                  className={`input-field ${errors.longitude ? 'border-red-400' : ''}`}
-                  type="number"
-                  step="any"
+                <TextField
+                  label={t('createOrg.longitude')} type="number" step="any"
                   value={form.longitude ?? ''}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      longitude: e.target.value === '' ? undefined : parseFloat(e.target.value),
-                    })
-                  }
+                  onChange={(e) => f('longitude', e.target.value === '' ? undefined : parseFloat(e.target.value))}
                   placeholder="2.3522"
+                  style={errors.longitude ? { borderColor: 'var(--danger)' } : undefined}
                 />
-                {errors.longitude && <p className="text-red-500 text-xs mt-1">{errors.longitude}</p>}
+                {errors.longitude && <div style={{ font: '500 12px/1 var(--font-sans)', color: 'var(--danger)', marginTop: 4 }}>{errors.longitude}</div>}
               </div>
             </div>
 
-            {/* Organisation type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.orgType')}
-              </label>
+            <label className="block">
+              <span className="l-label">{t('createOrg.orgType')}</span>
               <select
-                className="input-field"
+                className="l-input"
                 value={form.organisation_type_id}
-                onChange={(e) => setForm({ ...form, organisation_type_id: e.target.value })}
+                onChange={(e) => f('organisation_type_id', e.target.value)}
               >
                 <option value="">{t('createOrg.selectType')}</option>
                 {orgTypes?.map((ot) => (
-                  <option key={ot.id} value={ot.id}>
-                    {ot.title || ot.type}
-                  </option>
+                  <option key={ot.id} value={ot.id}>{ot.title || ot.type}</option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            {/* Location country */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.locationCountry')}
-              </label>
+              <span className="l-label">{t('createOrg.locationCountry')}</span>
               <SearchableSelect
                 options={locationOptions}
                 value={form.location_country_id ?? ''}
-                onChange={(v) => setForm({ ...form, location_country_id: v })}
+                onChange={(v) => f('location_country_id', v)}
                 onSearch={setLocationSearch}
                 onLoadMore={() => locationQuery.hasNextPage && locationQuery.fetchNextPage()}
                 hasMore={!!locationQuery.hasNextPage}
@@ -418,15 +301,12 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
               />
             </div>
 
-            {/* Founder country */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('createOrg.founderCountry')}
-              </label>
+              <span className="l-label">{t('createOrg.founderCountry')}</span>
               <SearchableSelect
                 options={founderOptions}
                 value={form.founder_country_id ?? ''}
-                onChange={(v) => setForm({ ...form, founder_country_id: v })}
+                onChange={(v) => f('founder_country_id', v)}
                 onSearch={setFounderSearch}
                 onLoadMore={() => founderQuery.hasNextPage && founderQuery.fetchNextPage()}
                 hasMore={!!founderQuery.hasNextPage}
@@ -437,103 +317,67 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
             </div>
 
             {createMutation.isError && (
-              <div className="bg-red-50 text-red-600 text-sm rounded-lg p-3">
+              <div style={{ background: 'rgba(207,52,52,0.08)', borderRadius: 10, padding: '10px 14px', font: '500 13px/1.4 var(--font-sans)', color: 'var(--danger)' }}>
                 {t('createOrg.createError')}
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={onClose} className="btn-secondary">
-                {t('common.cancel')}
-              </button>
-              <button
-                type="submit"
-                disabled={createMutation.isPending}
-                className="btn-primary"
-              >
-                {createMutation.isPending ? t('createOrg.creating') : t('createOrg.nextStep')}
-              </button>
+            <Divider />
+            <div className="flex justify-end" style={{ gap: 10 }}>
+              <Button type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
+              <Button type="submit" variant="accent" disabled={createMutation.isPending}>
+                {createMutation.isPending ? t('createOrg.creating') : t('createOrg.nextStep')} <Icon name="arrowRight" size={13} stroke={2} />
+              </Button>
             </div>
           </form>
         )}
 
         {/* ─── Step 2: Images ─── */}
         {step === 'images' && createdOrgId && (
-          <div className="p-6 space-y-4">
+          <div className="l-scroll" style={{ overflowY: 'auto', padding: '16px 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
             {/* Drop zone */}
             <div
-              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer ${
-                isDragging
-                  ? 'border-primary-500 bg-primary-50'
-                  : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-              }`}
+              onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
               onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
+              onDrop={(e) => { e.preventDefault(); setIsDragging(false); addFiles(e.dataTransfer.files) }}
+              style={{
+                border: `2px dashed ${isDragging ? 'var(--accent)' : 'var(--border-2)'}`,
+                borderRadius: 14, padding: '32px 16px', textAlign: 'center', cursor: 'pointer',
+                background: isDragging ? 'var(--accent-tint)' : 'var(--surface-2)',
+                transition: 'border-color 0.15s, background 0.15s',
+              }}
             >
-              <svg
-                className="w-10 h-10 mx-auto text-gray-400 mb-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                />
-              </svg>
-              <p className="text-sm text-gray-600 font-medium">{t('createOrg.dropZoneTitle')}</p>
-              <p className="text-xs text-gray-400 mt-1">{t('createOrg.dropZoneSubtitle')}</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/gif"
-                multiple
-                className="hidden"
-                onChange={(e) => addFiles(e.target.files)}
-              />
+              <Icon name="upload" size={28} style={{ color: 'var(--ink-4)', marginBottom: 10 }} />
+              <div style={{ font: '600 14px/1.4 var(--font-sans)', color: 'var(--ink-2)' }}>{t('createOrg.dropZoneTitle')}</div>
+              <div style={{ font: '500 12px/1.4 var(--font-sans)', color: 'var(--ink-3)', marginTop: 4 }}>{t('createOrg.dropZoneSubtitle')}</div>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
             </div>
 
-            {/* Preview grid */}
             {imageFiles.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
-                {imageFiles.map((f, i) => (
-                  <div key={i} className="relative group rounded-lg overflow-hidden border border-gray-200">
-                    <img
-                      src={f.preview}
-                      alt={f.file.name}
-                      className="w-full h-28 object-cover"
-                    />
-                    {/* Primary badge */}
-                    <button
-                      onClick={() => togglePrimary(i)}
-                      className={`absolute top-1 left-1 text-xs px-2 py-0.5 rounded-full font-medium transition-colors ${
-                        f.isPrimary
-                          ? 'bg-primary-600 text-white'
-                          : 'bg-white/80 text-gray-600 hover:bg-primary-100'
-                      }`}
-                    >
-                      {f.isPrimary ? t('createOrg.primary') : t('createOrg.setPrimary')}
-                    </button>
-                    {/* Remove */}
+              <div className="grid" style={{ gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+                {imageFiles.map((img, i) => (
+                  <div key={i} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border-1)' }}>
+                    <img src={img.preview} alt={img.file.name} style={{ width: '100%', height: 90, objectFit: 'cover', display: 'block' }} />
+                    {img.isPrimary && (
+                      <span style={{ position: 'absolute', top: 6, left: 6, background: 'var(--accent)', color: '#fff', font: '600 10px/1 var(--font-sans)', padding: '3px 7px', borderRadius: 999 }}>
+                        {t('createOrg.primary')}
+                      </span>
+                    )}
                     <button
                       onClick={() => removeFile(i)}
-                      className="absolute top-1 right-1 w-6 h-6 bg-white/80 rounded-full flex items-center justify-center text-gray-600 hover:bg-red-100 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ position: 'absolute', top: 5, right: 5, width: 22, height: 22, borderRadius: 999, background: 'rgba(20,18,14,0.6)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                     >
-                      ×
+                      <Icon name="close" size={11} />
                     </button>
-                    {/* Uploading overlay */}
-                    {f.uploading && (
-                      <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                        <div className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin" />
+                    {img.uploading && (
+                      <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: 18, height: 18, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: 999, animation: 'spin 0.8s linear infinite' }} />
                       </div>
                     )}
-                    {f.error && (
-                      <div className="absolute bottom-0 inset-x-0 bg-red-500/80 text-white text-xs p-1 text-center">
-                        {f.error}
+                    {img.error && (
+                      <div style={{ position: 'absolute', bottom: 0, inset: 'auto 0 0', background: 'rgba(207,52,52,0.85)', color: '#fff', font: '500 11px/1 var(--font-sans)', padding: '4px 6px', textAlign: 'center' }}>
+                        {img.error}
                       </div>
                     )}
                   </div>
@@ -541,26 +385,21 @@ export default function CreateOrganizationModal({ isOpen, onClose, onCreated }: 
               </div>
             )}
 
-            <div className="flex justify-end gap-3 pt-2">
-              <button type="button" onClick={handleSkip} className="btn-secondary">
+            <Divider />
+            <div className="flex justify-end" style={{ gap: 10 }}>
+              <Button variant="ghost" onClick={() => { if (createdOrgId) onCreated?.(createdOrgId); onClose() }}>
                 {imageFiles.length === 0 ? t('createOrg.skip') : t('common.cancel')}
-              </button>
+              </Button>
               {imageFiles.length > 0 && (
-                <button
-                  type="button"
-                  onClick={handleUploadAll}
-                  disabled={imageFiles.some((f) => f.uploading)}
-                  className="btn-primary"
-                >
-                  {imageFiles.some((f) => f.uploading)
-                    ? t('createOrg.uploading')
-                    : t('createOrg.uploadAndFinish', { count: imageFiles.length })}
-                </button>
+                <Button variant="accent" onClick={handleUploadAll} disabled={imageFiles.some((f) => f.uploading)}>
+                  {imageFiles.some((f) => f.uploading) ? t('createOrg.uploading') : t('createOrg.uploadAndFinish', { count: imageFiles.length })}
+                </Button>
               )}
             </div>
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

@@ -38,7 +38,7 @@ export default function SignupPage() {
   }
 
   const handleGoogle = () => {
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/api/user/oauth/google/login`
+    window.location.href = '/api/user/oauth/google/login'
   }
 
   return (

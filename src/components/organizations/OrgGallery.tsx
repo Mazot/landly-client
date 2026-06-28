@@ -7,6 +7,7 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import { useOrgImages } from '@/hooks/useImages'
 import { useTranslation } from 'react-i18next'
+import Icon from '@/components/ui/Icon'
 
 import 'swiper/css'
 import 'yet-another-react-lightbox/styles.css'
@@ -14,22 +15,6 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css'
 
 interface Props {
   organisationId: string
-}
-
-function ChevronLeft() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
-  )
-}
-
-function ChevronRight() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  )
 }
 
 export default function OrgGallery({ organisationId }: Props) {
@@ -42,8 +27,8 @@ export default function OrgGallery({ organisationId }: Props) {
 
   if (isLoading) {
     return (
-      <div className="card">
-        <div className="h-64 bg-gray-100 rounded-lg animate-pulse" />
+      <div className="l-card" style={{ padding: 20 }}>
+        <div style={{ height: 200, borderRadius: 10, background: 'var(--surface-2)', animation: 'pulse 1.5s ease-in-out infinite' }} />
       </div>
     )
   }
@@ -57,73 +42,78 @@ export default function OrgGallery({ organisationId }: Props) {
 
   const slides = sorted.map((img) => ({ src: img.url }))
 
-  const handleProgress = (swiper: SwiperType) => {
-    setIsBeginning(swiper.isBeginning)
-    setIsEnd(swiper.isEnd)
-  }
+  const NavButton = ({ prev }: { prev?: boolean }) => (
+    <button
+      type="button"
+      onClick={() => prev ? swiperRef.current?.slidePrev() : swiperRef.current?.slideNext()}
+      disabled={prev ? isBeginning : isEnd}
+      aria-label={prev ? 'Previous' : 'Next'}
+      style={{
+        position: 'absolute',
+        [prev ? 'left' : 'right']: -14,
+        top: '50%', transform: 'translateY(-50%)',
+        zIndex: 10,
+        width: 28, height: 28,
+        borderRadius: 999,
+        background: 'var(--surface)',
+        border: '1px solid var(--border-1)',
+        boxShadow: 'var(--shadow-1)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'pointer',
+        color: 'var(--ink-2)',
+        opacity: (prev ? isBeginning : isEnd) ? 0.3 : 1,
+        transition: 'opacity 0.15s',
+      }}
+    >
+      <Icon name={prev ? 'arrowLeft' : 'arrowRight'} size={13} stroke={2.2} />
+    </button>
+  )
 
   return (
-    <div className="card">
-      <h3 className="font-semibold text-lg mb-4">{t('organizationDetail.gallery')}</h3>
+    <div className="l-card" style={{ padding: 20 }}>
+      <div style={{ font: '600 15px/1 var(--font-sans)', marginBottom: 14 }}>
+        {t('organizationDetail.gallery')}
+      </div>
 
-      <div className="relative">
-        {/* Prev arrow */}
-        <button
-          type="button"
-          onClick={() => swiperRef.current?.slidePrev()}
-          disabled={isBeginning}
-          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 z-10
-                     w-8 h-8 flex items-center justify-center
-                     bg-white border border-gray-200 rounded-full shadow-md
-                     text-gray-600 hover:text-primary-600 hover:border-primary-400
-                     transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="Previous"
-        >
-          <ChevronLeft />
-        </button>
-
-        {/* Next arrow */}
-        <button
-          type="button"
-          onClick={() => swiperRef.current?.slideNext()}
-          disabled={isEnd}
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-10
-                     w-8 h-8 flex items-center justify-center
-                     bg-white border border-gray-200 rounded-full shadow-md
-                     text-gray-600 hover:text-primary-600 hover:border-primary-400
-                     transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="Next"
-        >
-          <ChevronRight />
-        </button>
+      <div style={{ position: 'relative' }}>
+        <NavButton prev />
+        <NavButton />
 
         <Swiper
           modules={[A11y]}
-          spaceBetween={12}
+          spaceBetween={10}
           slidesPerView="auto"
           onSwiper={(swiper) => {
             swiperRef.current = swiper
             setIsBeginning(swiper.isBeginning)
             setIsEnd(swiper.isEnd)
           }}
-          onProgress={handleProgress}
-          className="rounded-lg overflow-hidden"
+          onProgress={(swiper) => {
+            setIsBeginning(swiper.isBeginning)
+            setIsEnd(swiper.isEnd)
+          }}
+          style={{ borderRadius: 10, overflow: 'hidden' }}
         >
           {sorted.map((img, i) => (
-            <SwiperSlide key={img.id} style={{ width: 'auto' }} className="relative">
+            <SwiperSlide key={img.id} style={{ width: 'auto' }}>
               <button
                 type="button"
                 onClick={() => setLightboxIndex(i)}
-                className="block rounded-lg overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-500"
+                style={{ display: 'block', border: 0, padding: 0, cursor: 'pointer', position: 'relative' }}
               >
                 <img
                   src={img.url}
                   alt={img.fileName}
-                  className="h-64 w-auto object-cover rounded-lg"
+                  style={{ height: 200, width: 'auto', objectFit: 'cover', borderRadius: 10, display: 'block' }}
                   loading="lazy"
                 />
                 {img.isPrimary && (
-                  <span className="absolute top-2 left-2 bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full">
+                  <span style={{
+                    position: 'absolute', top: 8, left: 8,
+                    background: 'var(--accent)', color: '#fff',
+                    font: '600 10px/1 var(--font-sans)',
+                    padding: '3px 8px', borderRadius: 999,
+                  }}>
                     ★
                   </span>
                 )}

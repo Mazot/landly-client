@@ -15,6 +15,7 @@ const SavedPage = lazy(() => import('./pages/SavedPage'))
 const SignupPage = lazy(() => import('./pages/auth/SignupPage'))
 const SignupCorridorPage = lazy(() => import('./pages/auth/SignupCorridorPage'))
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const GoogleCallbackPage = lazy(() => import('./pages/auth/GoogleCallbackPage'))
 const WelcomePage = lazy(() => import('./pages/WelcomePage'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
 
@@ -39,6 +40,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/signup/corridor" element={<SignupCorridorPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
 
           <Route path="/account" element={<AccountPage />} />

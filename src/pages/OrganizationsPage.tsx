@@ -7,6 +7,9 @@ import OrganizationCard from '@/components/organizations/OrganizationCard'
 import MapView from '@/components/map/MapView'
 import SearchableSelect from '@/components/ui/SearchableSelect'
 import CreateOrganizationModal from '@/components/organizations/CreateOrganizationModal'
+import Button from '@/components/ui/Button'
+import Icon from '@/components/ui/Icon'
+import TextField from '@/components/ui/TextField'
 import { useAuthStore } from '@/stores/authStore'
 import type { OrganizationFilters } from '@/services/organization.service'
 
@@ -18,18 +21,13 @@ export default function OrganizationsPage() {
   const { isAuthenticated } = useAuthStore()
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-
-  // Step 1: Country selection
   const [originCountryId, setOriginCountryId] = useState('')
   const [destinationCountryId, setDestinationCountryId] = useState('')
-
-  // Step 2: Additional filters (name, type)
   const [nameFilter, setNameFilter] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
 
   const bothSelected = !!originCountryId && !!destinationCountryId
 
-  // Build query filters only when both countries are selected
   const filters: OrganizationFilters | undefined = useMemo(() => {
     if (!bothSelected) return undefined
     return {
@@ -45,87 +43,61 @@ export default function OrganizationsPage() {
   const { data, isLoading, error } = useOrganizations(filters)
   const { data: orgTypes } = useOrganizationTypes()
 
-  // Origin country select state
   const [originSearch, setOriginSearch] = useState('')
   const originQuery = useCountriesInfinite(originSearch)
-  const originCountries = useMemo(
-    () => originQuery.data?.pages.flat() ?? [],
+  const originOptions = useMemo(
+    () => (originQuery.data?.pages.flat() ?? []).map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
     [originQuery.data]
   )
-  const originOptions = useMemo(
-    () => originCountries.map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
-    [originCountries]
-  )
-  const handleOriginSearch = useCallback((q: string) => setOriginSearch(q), [])
-  const handleOriginLoadMore = useCallback(() => {
-    if (originQuery.hasNextPage) originQuery.fetchNextPage()
-  }, [originQuery])
+  const handleOriginLoadMore = useCallback(() => { if (originQuery.hasNextPage) originQuery.fetchNextPage() }, [originQuery])
 
-  // Destination country select state
   const [destSearch, setDestSearch] = useState('')
   const destQuery = useCountriesInfinite(destSearch)
-  const destCountries = useMemo(
-    () => destQuery.data?.pages.flat() ?? [],
+  const destOptions = useMemo(
+    () => (destQuery.data?.pages.flat() ?? []).map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
     [destQuery.data]
   )
-  const destOptions = useMemo(
-    () => destCountries.map((c) => ({ value: c.id, label: `${c.flag ?? ''} ${c.name}`.trim() })),
-    [destCountries]
-  )
-  const handleDestSearch = useCallback((q: string) => setDestSearch(q), [])
-  const handleDestLoadMore = useCallback(() => {
-    if (destQuery.hasNextPage) destQuery.fetchNextPage()
-  }, [destQuery])
+  const handleDestLoadMore = useCallback(() => { if (destQuery.hasNextPage) destQuery.fetchNextPage() }, [destQuery])
 
   const mapMarkers = useMemo(() => {
     if (!data?.items) return []
     return data.items
       .filter((org) => org.latitude && org.longitude)
-      .map((org) => ({
-        id: org.id,
-        latitude: org.latitude!,
-        longitude: org.longitude!,
-        label: org.name,
-      }))
+      .map((org) => ({ id: org.id, latitude: org.latitude!, longitude: org.longitude!, label: org.name }))
   }, [data?.items])
 
   return (
-    <div className="space-y-6">
-      {/* Create Organization Modal */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: '24px 20px 40px', maxWidth: 960, margin: '0 auto' }}>
       <CreateOrganizationModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreated={(id) => navigate(`/organizations/${id}`)}
       />
 
-      {/* Country Selection */}
-      <div className="card">
-        <div className="flex items-start justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">
-            {t('organizations.pageTitle')}
-          </h2>
-          {isAuthenticated && (
-            <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="btn-primary text-sm"
-            >
-              + {t('organizations.createOrganization')}
-            </button>
-          )}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 style={{ font: '600 22px/1 var(--font-sans)', margin: 0 }}>{t('organizations.pageTitle')}</h1>
+          <p style={{ font: '400 14px/1.5 var(--font-sans)', color: 'var(--ink-3)', margin: '6px 0 0' }}>{t('organizations.pageSubtitle')}</p>
         </div>
-        <p className="text-gray-500 text-sm mb-6">
-          {t('organizations.pageSubtitle')}
-        </p>
-        <div className="grid md:grid-cols-2 gap-6">
+        {isAuthenticated && (
+          <Button variant="accent" onClick={() => setIsCreateModalOpen(true)}>
+            <Icon name="plus" size={13} /> {t('organizations.createOrganization')}
+          </Button>
+        )}
+      </div>
+
+      {/* Country selectors */}
+      <div className="l-card" style={{ padding: 20 }}>
+        <div className="l-label" style={{ marginBottom: 14 }}>{t('organizations.selectCorridor', 'Select corridor')}</div>
+        <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('organizations.originLabel')}
-            </label>
+            <span className="l-label">{t('organizations.originLabel')}</span>
             <SearchableSelect
               options={originOptions}
               value={originCountryId}
               onChange={setOriginCountryId}
-              onSearch={handleOriginSearch}
+              onSearch={useCallback((q: string) => setOriginSearch(q), [])}
               onLoadMore={handleOriginLoadMore}
               hasMore={!!originQuery.hasNextPage}
               isLoading={originQuery.isFetchingNextPage}
@@ -133,16 +105,13 @@ export default function OrganizationsPage() {
               allLabel={t('organizations.selectCountry')}
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t('organizations.destinationLabel')}
-            </label>
+            <span className="l-label">{t('organizations.destinationLabel')}</span>
             <SearchableSelect
               options={destOptions}
               value={destinationCountryId}
               onChange={setDestinationCountryId}
-              onSearch={handleDestSearch}
+              onSearch={useCallback((q: string) => setDestSearch(q), [])}
               onLoadMore={handleDestLoadMore}
               hasMore={!!destQuery.hasNextPage}
               isLoading={destQuery.isFetchingNextPage}
@@ -153,82 +122,78 @@ export default function OrganizationsPage() {
         </div>
       </div>
 
-      {/* Results section - only shows when both countries selected */}
+      {/* No selection state */}
+      {!bothSelected && (
+        <div className="l-card flex flex-col items-center" style={{ padding: '48px 24px', gap: 12, textAlign: 'center' }}>
+          <Icon name="globe" size={40} style={{ color: 'var(--ink-4)' }} />
+          <div style={{ font: '600 15px/1.3 var(--font-sans)' }}>{t('organizations.selectBothCountries')}</div>
+          <div style={{ font: '400 13px/1.5 var(--font-sans)', color: 'var(--ink-3)' }}>{t('organizations.selectBothCountriesHint')}</div>
+        </div>
+      )}
+
+      {/* Results */}
       {bothSelected && (
         <>
-          {/* Filters bar */}
-          <div className="card">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('organizations.searchByName')}
-                </label>
-                <input
-                  type="text"
-                  placeholder={t('organizations.searchPlaceholder')}
-                  className="input-field"
-                  value={nameFilter}
-                  onChange={(e) => setNameFilter(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('organizations.organizationType')}
-                </label>
-                <select
-                  className="input-field"
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                >
+          {/* Filters */}
+          <div className="l-card" style={{ padding: 16 }}>
+            <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+              <TextField
+                label={t('organizations.searchByName')}
+                value={nameFilter}
+                onChange={(e) => setNameFilter(e.target.value)}
+                placeholder={t('organizations.searchPlaceholder')}
+              />
+              <label className="block">
+                <span className="l-label">{t('organizations.organizationType')}</span>
+                <select className="l-input" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
                   <option value="">{t('organizations.allTypes')}</option>
                   {orgTypes?.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.title || type.type}
-                    </option>
+                    <option key={type.id} value={type.id}>{type.title || type.type}</option>
                   ))}
                 </select>
-              </div>
+              </label>
             </div>
           </div>
 
           {/* Map */}
-          <div className="card">
+          <div className="l-card" style={{ padding: 0, overflow: 'hidden', borderRadius: 14 }}>
             <MapView
               markers={mapMarkers}
               zoom={5}
-              className="h-[500px] rounded-lg"
+              className="h-[400px]"
               onMarkerClick={(id) => navigate(`/organizations/${id}`)}
             />
           </div>
 
           {/* Loading */}
           {isLoading && (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            <div className="flex justify-center" style={{ padding: '32px 0' }}>
+              <div style={{ width: 32, height: 32, border: '2px solid var(--accent)', borderTopColor: 'transparent', borderRadius: 999, animation: 'spin 0.8s linear infinite' }} />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="card bg-red-50 text-red-600">
-              <p>{t('organizations.errorLoading', { message: (error as Error).message })}</p>
+            <div className="l-card" style={{ padding: 16, background: 'rgba(207,52,52,0.06)', borderColor: 'var(--danger)' }}>
+              <div style={{ font: '500 13px/1.4 var(--font-sans)', color: 'var(--danger)' }}>
+                {t('organizations.errorLoading', { message: (error as Error).message })}
+              </div>
             </div>
           )}
 
-          {/* Organization cards */}
+          {/* Count + grid */}
           {data && (
             <>
-              <p className="text-gray-600 text-sm">
+              <div style={{ font: '500 13px/1 var(--font-sans)', color: 'var(--ink-3)' }}>
                 {t('organizations.foundCount', { count: data.total })}
-              </p>
-
+              </div>
               {data.items.length === 0 ? (
-                <div className="card text-center py-8 text-gray-500">
-                  {t('organizations.noResults')}
+                <div className="l-card flex flex-col items-center" style={{ padding: '40px 24px', gap: 10, textAlign: 'center' }}>
+                  <Icon name="search" size={32} style={{ color: 'var(--ink-4)' }} />
+                  <div style={{ font: '500 14px/1.4 var(--font-sans)', color: 'var(--ink-3)' }}>{t('organizations.noResults')}</div>
                 </div>
               ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
                   {data.items.map((org) => (
                     <OrganizationCard key={org.id} organization={org} />
                   ))}
@@ -237,17 +202,6 @@ export default function OrganizationsPage() {
             </>
           )}
         </>
-      )}
-
-      {/* Prompt when countries not yet selected */}
-      {!bothSelected && (
-        <div className="card text-center py-16 text-gray-400">
-          <svg className="mx-auto h-16 w-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p className="text-lg font-medium">{t('organizations.selectBothCountries')}</p>
-          <p className="mt-2 text-sm">{t('organizations.selectBothCountriesHint')}</p>
-        </div>
       )}
     </div>
   )
