@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import type { Country } from '@/types/api'
 import Icon from '@/components/ui/Icon'
 import { flagOf } from '@/lib/countries'
-import CountryPicker from './CountryPicker'
+import CountryPicker from '@/components/ui/CountryPicker'
 
 interface SelectorProps {
   country?: Country

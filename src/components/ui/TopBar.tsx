@@ -1,14 +1,13 @@
 /* Global top app bar — responsive: mobile flags-only, tablet/desktop full. */
-import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useCorridor } from '@/hooks/useCorridor'
-import { useClickOutside } from '@/hooks/useClickOutside'
 import { useAuthStore } from '@/stores/authStore'
-import CorridorSwitcher from '@/components/map/CorridorSwitcher'
+import CountryPicker from './CountryPicker'
 import Logo from './Logo'
 import Avatar from './Avatar'
-import CountryPill from './CountryPill'
 import Button from './Button'
 import Icon from './Icon'
 
@@ -20,13 +19,11 @@ const NAV = [
 
 export default function TopBar() {
   const { t } = useTranslation()
-  const { from, to } = useCorridor()
+  const { from, to, countries, setFrom, setTo } = useCorridor()
   const { isAuthenticated, user } = useAuthStore()
   const location = useLocation()
   const navigate = useNavigate()
-  const [corridorOpen, setCorridorOpen] = useState(false)
-  const corridorRef = useRef<HTMLDivElement>(null)
-  useClickOutside(corridorRef, () => setCorridorOpen(false), corridorOpen)
+  const [pickerOpen, setPickerOpen] = useState<'from' | 'to' | null>(null)
 
   const path = location.pathname
   const activeKey = path.startsWith('/countries')
@@ -36,10 +33,6 @@ export default function TopBar() {
       : 'map'
 
   const initials = (user?.username ?? user?.email ?? 'AM').slice(0, 2).toUpperCase()
-
-  const corridorRing = corridorOpen
-    ? '0 0 0 2px var(--accent), 0 0 0 6px rgba(217,119,87,0.18)'
-    : 'none'
 
   return (
     <div
@@ -68,52 +61,63 @@ export default function TopBar() {
         style={{ width: 1, height: 22, background: 'var(--border-1)', margin: '0 18px' }}
       />
 
-      {/* Corridor pill + switcher */}
+      {/* Corridor pill — from + to each independently clickable */}
       <div
-        className="relative ml-auto md:ml-0"
-        ref={corridorRef}
+        className="relative ml-auto md:ml-0 inline-flex items-center"
+        style={{
+          gap: 4,
+          padding: '4px 5px',
+          borderRadius: 999,
+          background: 'var(--surface-2)',
+          border: '1px solid var(--border-1)',
+        }}
       >
-        {/* Mobile: flags-only pill */}
+        {/* From button */}
         <button
-          onClick={() => setCorridorOpen((v) => !v)}
-          className="md:hidden inline-flex items-center"
+          onClick={() => setPickerOpen('from')}
+          className="inline-flex items-center"
           style={{
-            gap: 5,
-            padding: '5px 5px 5px 8px',
-            borderRadius: 999,
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border-1)',
-            cursor: 'pointer',
-            boxShadow: corridorRing,
+            gap: 5, padding: '4px 8px 4px 6px', borderRadius: 999,
+            background: 'var(--surface)', border: '1px solid var(--border-1)',
+            cursor: 'pointer', font: '600 13px/1 var(--font-sans)', color: 'var(--ink-1)',
           }}
-          aria-label={t('topbar.corridorLabel', 'Switch corridor')}
+          aria-label={t('topbar.changeFrom', 'Change from country')}
         >
-          <span style={{ fontSize: 15 }}>{from?.flag || '🏳️'}</span>
-          <Icon name="arrowRight" size={11} style={{ color: 'var(--ink-3)' }} />
-          <span style={{ fontSize: 15 }}>{to?.flag || '🏳️'}</span>
+          <span style={{ fontSize: 14, lineHeight: 1 }}>{from?.flag || '🏳️'}</span>
+          <span className="hidden md:inline">{from?.name ?? '—'}</span>
         </button>
 
-        {/* Tablet/Desktop: full pill with country names */}
-        <button
-          onClick={() => setCorridorOpen((v) => !v)}
-          className="hidden md:inline-flex items-center"
-          style={{
-            gap: 6,
-            padding: 6,
-            borderRadius: 999,
-            background: 'var(--surface-2)',
-            border: '1px solid var(--border-1)',
-            cursor: 'pointer',
-            boxShadow: corridorRing,
-          }}
-        >
-          <CountryPill flag={from?.flag} name={from?.name} size="sm" />
-          <Icon name="arrowRight" size={14} style={{ color: 'var(--ink-3)' }} />
-          <CountryPill flag={to?.flag} name={to?.name} size="sm" />
-        </button>
+        <Icon name="arrowRight" size={12} style={{ color: 'var(--ink-3)', flexShrink: 0 }} />
 
-        {corridorOpen && <CorridorSwitcher onClose={() => setCorridorOpen(false)} />}
+        {/* To button */}
+        <button
+          onClick={() => setPickerOpen('to')}
+          className="inline-flex items-center"
+          style={{
+            gap: 5, padding: '4px 8px 4px 6px', borderRadius: 999,
+            background: 'var(--surface)', border: '1px solid var(--border-1)',
+            cursor: 'pointer', font: '600 13px/1 var(--font-sans)', color: 'var(--ink-1)',
+          }}
+          aria-label={t('topbar.changeTo', 'Change to country')}
+        >
+          <span style={{ fontSize: 14, lineHeight: 1 }}>{to?.flag || '🏳️'}</span>
+          <span className="hidden md:inline">{to?.name ?? '—'}</span>
+        </button>
       </div>
+
+      {/* Country picker portal */}
+      {pickerOpen && createPortal(
+        <CountryPicker
+          title={pickerOpen === 'from'
+            ? t('topbar.changeFrom', 'From country')
+            : t('topbar.changeTo', 'To country')}
+          countries={countries}
+          selectedId={pickerOpen === 'from' ? from?.id : to?.id}
+          onSelect={pickerOpen === 'from' ? setFrom : setTo}
+          onClose={() => setPickerOpen(null)}
+        />,
+        document.body
+      )}
 
       {/* Nav links — tablet/desktop only */}
       <nav className="hidden md:flex" style={{ gap: 6, marginLeft: 24 }}>
