@@ -1,259 +1,74 @@
 # 🌍 Landly Client
 
-A modern React application for connecting people with businesses, helpers, and official representatives of different nationalities in foreign countries.
+React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-## 🛠️ Technology Stack
+> **Status:** the old screens and UI components were removed together with the old design. What remains is the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — and the Google Maps setup. Screens are rebuilt on top of it.
 
-- **React 18** - UI library
-- **TypeScript** - Type safety
-- **Vite** - Fast build tool and dev server
-- **Tanstack Query** (React Query) - Server state management
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Zustand** - Lightweight state management
-- **Axios** - HTTP client
+## 🛠️ Stack
+
+- **React 18** + **TypeScript** + **Vite**
+- **TanStack Query** — server state; **Zustand** — client state (session, guest corridor)
+- **Axios** — HTTP client (`src/lib/axios.ts`)
+- **React Router** — routing
+- **Google Maps Platform** via [`@vis.gl/react-google-maps`](https://visgl.github.io/react-google-maps/) — map, markers, Places
+- **i18next** — `en`, `ru`, `uk`
+- **Tailwind CSS** + design tokens in `src/index.css`
 
 ## 📋 Prerequisites
 
-- **Node.js 18+** - [Install Node.js](https://nodejs.org/)
-- **npm or yarn** - Package manager (comes with Node.js)
-- **landly-server** - Backend API running on `http://localhost:8080`
+- Node.js 18+
+- [landly-server](../landly-server) on `http://localhost:8080` with `FRONTEND_ORIGIN=http://localhost:5173`
+- A Google Maps Platform browser key (Maps JavaScript API + Places API (New))
 
-## 🚀 Quick Start
-
-### 1. Install Dependencies
+## 🚀 Quick start
 
 ```bash
 npm install
+cp .env.example .env   # then fill in the values
+npm run dev            # http://localhost:5173
 ```
 
-### 2. Environment Setup
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_API_URL` | no | Backend origin without `/api`, e.g. `http://localhost:8080`. Empty = same origin (the Vite proxy forwards `/api/*`) |
+| `VITE_GOOGLE_MAPS_API_KEY` | yes | Browser key, restricted by HTTP referrer. Never the server's `GOOGLE_PLACES_API_KEY` |
+| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for Advanced Markers / cloud styling; `DEMO_MAP_ID` when unset (dev only) |
 
-Copy the example environment file:
+Shared with the server: `VITE_API_URL` must point to the server, and the server's `FRONTEND_ORIGIN` must be this client's origin (CORS + the Google sign-in redirect).
 
-```bash
-cp .env.example .env
-```
-
-Update the `.env` file with your configuration:
-
-```env
-VITE_API_URL=http://localhost:8080/api
-VITE_GOOGLE_CLIENT_ID=your-google-client-id
-```
-
-### 3. Start Development Server
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:3000`
-
-### 4. Build for Production
-
-```bash
-npm run build
-```
-
-The production build will be in the `dist/` directory.
-
-### 5. Preview Production Build
-
-```bash
-npm run preview
-```
-
-## 📁 Project Structure
+## 📁 Structure
 
 ```text
 src/
-├── components/           # Reusable UI components
-│   ├── auth/            # Authentication components
-│   ├── layout/          # Layout components (Header, Footer)
-│   └── organizations/   # Organization-specific components
-├── hooks/               # Custom React hooks
-│   ├── useAuth.ts       # Authentication hooks
-│   ├── useOrganizations.ts
-│   └── useReferences.ts
-├── lib/                 # Third-party library configurations
-│   └── axios.ts         # Axios instance with interceptors
-├── pages/               # Page components
-│   ├── auth/            # Login, Signup pages
-│   ├── HomePage.tsx
-│   ├── OrganizationsPage.tsx
-│   ├── OrganizationDetailPage.tsx
-│   └── ProfilePage.tsx
-├── services/            # API service layer
-│   ├── auth.service.ts
-│   ├── organization.service.ts
-│   └── reference.service.ts
-├── stores/              # Zustand stores
-│   └── authStore.ts
-├── types/               # TypeScript type definitions
-│   └── api.ts
-├── App.tsx              # Main app component with routing
-├── main.tsx             # Application entry point
-└── index.css            # Global styles with Tailwind
+├── types/api/      # landly-server contracts, one file per server feature
+├── services/       # one API object per server feature (all endpoints)
+├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
+├── lib/
+│   ├── axios.ts    # client: base URL, Bearer token, comma-separated query arrays
+│   ├── queryKeys.ts
+│   ├── maps.ts     # Google Maps config + bbox/marker/place helpers
+│   ├── errors.ts   # landly-server error bodies
+│   ├── dates.ts    # server timestamps (UTC without a zone)
+│   └── query.ts
+├── stores/         # authStore (JWT session), corridorStore (guest corridor)
+├── i18n/
+├── App.tsx         # routes (empty until screens are rebuilt)
+└── main.tsx        # providers: React Query, Google Maps APIProvider, Router
 ```
 
-## 🎨 Features
+## 🔌 API
 
-### Authentication
+Contracts follow the server's OpenAPI spec (`http://localhost:8080/api-docs/openapi.json`, UI at `/scalar`): request bodies and query strings are `snake_case`, responses `camelCase`; list endpoints answer `{ items, total }`, where `total` is the size of this page.
 
-- ✅ Email/Password login and signup
-- ✅ OAuth 2.0 with Google
-- ✅ JWT token management
-- ✅ Protected routes
-- ✅ Automatic token refresh
+## 🗺️ Google Maps
 
-### Organizations
+The server stores only a place's `google_place_id` and a refreshable copy of its point. Hours, photos and the Google rating are fetched live in the browser (`usePlaceDetails`) and must be shown on a Google map with Google's attribution — never send them to the server.
 
-- ✅ Browse all organizations
-- ✅ Advanced filtering (country, type, origin)
-- ✅ Search functionality
-- ✅ View organization details
-- ✅ Create/Edit organizations (authenticated users)
-- ✅ Pagination support
-
-### User Profile
-
-- ✅ View user information
-- ✅ Language preferences
-- ✅ Manage organizations
-
-### UI/UX
-
-- ✅ Responsive design (mobile-first)
-- ✅ Loading states
-- ✅ Error handling
-- ✅ Tailwind CSS utilities
-- ✅ Smooth transitions
-
-## 🔌 API Integration
-
-The client connects to the landly-server REST API:
-
-### Authentication Endpoints
-
-- `POST /api/user/signup` - Create new account
-- `POST /api/user/signin` - Login
-- `GET /api/user/oauth/google/login` - Google OAuth
-- `GET /api/user/me` - Get current user
-- `POST /api/user/logout` - Logout
-
-### Organization Endpoints
-
-- `GET /api/organisations` - List organizations (with filters)
-- `GET /api/organisations/:id` - Get organization details
-- `POST /api/organisations` - Create organization
-- `PUT /api/organisations/:id` - Update organization
-- `DELETE /api/organisations/:id` - Delete organization
-
-### Reference Data
-
-- `GET /api/countries` - List countries
-- `GET /api/languages` - List languages
-- `GET /api/organisation-types` - List organization types
-
-## 🎯 Available Scripts
+## 🎯 Scripts
 
 ```bash
-# Development
-npm run dev          # Start dev server
-
-# Building
-npm run build        # Build for production
-npm run preview      # Preview production build
-
-# Linting
-npm run lint         # Run ESLint
+npm run dev       # dev server
+npm run build     # tsc + production build
+npm run lint      # ESLint
+npm run preview   # preview the build
 ```
-
-## 🔧 Configuration
-
-### Tailwind CSS
-
-Custom configuration in `tailwind.config.js`:
-
-- Custom color palette (primary shades)
-- Component classes (btn-primary, input-field, card)
-- Responsive breakpoints
-
-### Vite
-
-Configuration in `vite.config.ts`:
-
-- Path aliases (`@/` points to `src/`)
-- API proxy to backend server
-- React plugin with Fast Refresh
-
-### React Query
-
-Default configuration in `main.tsx`:
-
-- Retry: 1 attempt
-- Stale time: 5 minutes
-- No refetch on window focus
-
-## 🌐 Proxy Configuration
-
-The Vite dev server proxies `/api` requests to the backend:
-
-```typescript
-proxy: {
-  '/api': {
-    target: 'http://localhost:8080',
-    changeOrigin: true,
-  },
-}
-```
-
-This allows calling the API as `/api/...` without CORS issues during development.
-
-## 🚧 Future Enhancements
-
-- [ ] Map integration (Google Maps / Leaflet)
-- [ ] Real-time chat functionality
-- [ ] Image upload for organizations
-- [ ] Advanced search with autocomplete
-- [ ] Multi-language support (i18n)
-- [ ] Dark mode
-- [ ] User reviews and ratings
-
-## 🐛 Troubleshooting
-
-### API Connection Issues
-
-If you can't connect to the backend:
-
-1. Ensure landly-server is running on `http://localhost:8080`
-2. Check the `VITE_API_URL` in your `.env` file
-3. Verify CORS settings in the backend
-
-### Build Errors
-
-If you encounter build errors:
-
-```bash
-# Clear node_modules and reinstall
-rm -rf node_modules
-npm install
-
-# Clear Vite cache
-rm -rf node_modules/.vite
-```
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----

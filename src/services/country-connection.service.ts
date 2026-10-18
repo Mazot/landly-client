@@ -1,61 +1,28 @@
 import apiClient from '@/lib/axios'
 import type {
   CountryConnection,
-  PaginatedResponse,
+  CountryConnectionsQuery,
   CreateCountryConnectionRequest,
+  ListResponse,
   UpdateCountryConnectionRequest,
+  Uuid,
 } from '@/types/api'
 
-export interface CountryConnectionFilters {
-  embassy_org_id?: string
-  consulate_org_id?: string
-  location_country_id?: string
-  limit?: number
-  offset?: number
-}
-
+/** Reads are public; writes are admin only. */
 export const countryConnectionApi = {
-  // Get all country connections with filters
-  getCountryConnections: async (
-    filters?: CountryConnectionFilters
-  ): Promise<PaginatedResponse<CountryConnection>> => {
-    const response = await apiClient.get('/api/country-connection/list', {
-      params: filters,
-    })
-    return response.data
-  },
+  list: async (query?: CountryConnectionsQuery): Promise<ListResponse<CountryConnection>> =>
+    (await apiClient.get('/api/country-connection/list', { params: query })).data,
 
-  // Get country connection by ID
-  getCountryConnection: async (id: string): Promise<CountryConnection> => {
-    const response = await apiClient.get(`/api/country-connection/fetch/${id}`)
-    return response.data
-  },
+  fetch: async (id: Uuid): Promise<CountryConnection> =>
+    (await apiClient.get(`/api/country-connection/fetch/${id}`)).data,
 
-  // Create country connection
-  createCountryConnection: async (
-    data: CreateCountryConnectionRequest
-  ): Promise<CountryConnection> => {
-    const response = await apiClient.post(
-      '/api/country-connection/create',
-      data
-    )
-    return response.data
-  },
+  create: async (body: CreateCountryConnectionRequest): Promise<CountryConnection> =>
+    (await apiClient.post('/api/country-connection/create', body)).data,
 
-  // Update country connection
-  updateCountryConnection: async (
-    id: string,
-    data: UpdateCountryConnectionRequest
-  ): Promise<CountryConnection> => {
-    const response = await apiClient.put(
-      `/api/country-connection/update/${id}`,
-      data
-    )
-    return response.data
-  },
+  update: async (id: Uuid, body: UpdateCountryConnectionRequest): Promise<CountryConnection> =>
+    (await apiClient.put(`/api/country-connection/update/${id}`, body)).data,
 
-  // Delete country connection
-  deleteCountryConnection: async (id: string): Promise<void> => {
+  remove: async (id: Uuid): Promise<void> => {
     await apiClient.delete(`/api/country-connection/delete/${id}`)
   },
 }

@@ -1,46 +1,49 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { authApi } from '@/services/auth.service'
+import { userApi } from '@/services/user.service'
 import { useAuthStore } from '@/stores/authStore'
-import type { LoginCredentials, SignupCredentials } from '@/types/api'
+import type { AuthUser, OAuthExchangeRequest, SignInRequest, SignUpRequest } from '@/types/api'
 
-export const useLogin = () => {
+/** Stores the session and drops every cached query of the previous one. */
+function useStartSession() {
   const queryClient = useQueryClient()
   const setAuth = useAuthStore((state) => state.setAuth)
+  return (authUser: AuthUser) => {
+    queryClient.clear()
+    setAuth(authUser)
+  }
+}
 
+export const useSignIn = () => {
+  const startSession = useStartSession()
   return useMutation({
-    mutationFn: (credentials: LoginCredentials) => authApi.login(credentials),
-    onSuccess: (data) => {
-      localStorage.setItem('auth_token', data.token)
-      setAuth(data)
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-    },
+    mutationFn: (body: SignInRequest) => userApi.signIn(body),
+    onSuccess: startSession,
   })
 }
 
-export const useSignup = () => {
-  const queryClient = useQueryClient()
-  const setAuth = useAuthStore((state) => state.setAuth)
-
+export const useSignUp = () => {
+  const startSession = useStartSession()
   return useMutation({
-    mutationFn: (credentials: SignupCredentials) =>
-      authApi.signup(credentials),
-    onSuccess: (data) => {
-      localStorage.setItem('auth_token', data.token)
-      setAuth(data)
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-    },
+    mutationFn: (body: SignUpRequest) => userApi.signUp(body),
+    onSuccess: startSession,
   })
 }
 
-export const useLogout = () => {
+/** Trades the `code` of the Google callback redirect for a session. */
+export const useGoogleExchange = () => {
+  const startSession = useStartSession()
+  return useMutation({
+    mutationFn: (body: OAuthExchangeRequest) => userApi.exchangeGoogleCode(body),
+    onSuccess: startSession,
+  })
+}
+
+/** JWTs are stateless: signing out only forgets the token client-side. */
+export const useSignOut = () => {
   const queryClient = useQueryClient()
   const clearAuth = useAuthStore((state) => state.clearAuth)
-
-  return {
-    mutate: () => {
-      localStorage.removeItem('auth_token')
-      clearAuth()
-      queryClient.clear()
-    },
+  return () => {
+    clearAuth()
+    queryClient.clear()
   }
 }

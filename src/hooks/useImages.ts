@@ -1,31 +1,47 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '@/lib/queryKeys'
 import { imageApi } from '@/services/image.service'
+import type { PaginationParams, UploadImageInput, Uuid } from '@/types/api'
 
-export const useOrgImages = (organisationId: string) => {
-  return useQuery({
-    queryKey: ['images', organisationId],
-    queryFn: () => imageApi.listImages(organisationId),
+export const useOrganisationImages = (organisationId: Uuid | undefined, query?: PaginationParams) =>
+  useQuery({
+    queryKey: queryKeys.images.list(organisationId ?? '', query),
+    queryFn: () => imageApi.list(organisationId!, query),
     enabled: !!organisationId,
   })
+
+export const useImage = (id: Uuid | undefined) =>
+  useQuery({
+    queryKey: queryKeys.images.detail(id ?? ''),
+    queryFn: () => imageApi.fetch(id!),
+    enabled: !!id,
+  })
+
+const useInvalidateImages = (organisationId: Uuid) => {
+  const queryClient = useQueryClient()
+  return () => queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) })
 }
 
-export const useUploadImage = (organisationId: string) => {
-  const queryClient = useQueryClient()
+export const useUploadImage = (organisationId: Uuid) => {
+  const invalidate = useInvalidateImages(organisationId)
   return useMutation({
-    mutationFn: ({ file, isPrimary }: { file: File; isPrimary?: boolean }) =>
-      imageApi.uploadImage(organisationId, file, isPrimary),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images', organisationId] })
-    },
+    mutationFn: (input: UploadImageInput) => imageApi.upload(organisationId, input),
+    onSuccess: invalidate,
   })
 }
 
-export const useDeleteImage = (organisationId: string) => {
-  const queryClient = useQueryClient()
+export const useSetPrimaryImage = (organisationId: Uuid) => {
+  const invalidate = useInvalidateImages(organisationId)
   return useMutation({
-    mutationFn: (id: string) => imageApi.deleteImage(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['images', organisationId] })
-    },
+    mutationFn: (id: Uuid) => imageApi.setPrimary(id),
+    onSuccess: invalidate,
+  })
+}
+
+export const useDeleteImage = (organisationId: Uuid) => {
+  const invalidate = useInvalidateImages(organisationId)
+  return useMutation({
+    mutationFn: (id: Uuid) => imageApi.remove(id),
+    onSuccess: invalidate,
   })
 }
