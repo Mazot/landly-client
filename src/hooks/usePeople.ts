@@ -29,7 +29,11 @@ export const useVouchPerson = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, body }: { id: Uuid; body?: VouchPersonRequest }) => personApi.vouch(id, body),
-    onSuccess: (person) => queryClient.setQueryData(queryKeys.people.detail(person.id), person),
+    // Lists carry `vouches` too.
+    onSuccess: (person) => {
+      queryClient.setQueryData(queryKeys.people.detail(person.id), person)
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.lists })
+    },
   })
 }
 

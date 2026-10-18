@@ -17,9 +17,16 @@ export const useImage = (id: Uuid | undefined) =>
     enabled: !!id,
   })
 
+/**
+ * Refreshes the organisation's lists and every cached image detail: setting a
+ * primary flips `isPrimary` on the previous primary too.
+ */
 const useInvalidateImages = (organisationId: Uuid) => {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) })
+  return () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) })
+    queryClient.invalidateQueries({ queryKey: queryKeys.images.details })
+  }
 }
 
 export const useUploadImage = (organisationId: Uuid) => {
@@ -39,9 +46,13 @@ export const useSetPrimaryImage = (organisationId: Uuid) => {
 }
 
 export const useDeleteImage = (organisationId: Uuid) => {
+  const queryClient = useQueryClient()
   const invalidate = useInvalidateImages(organisationId)
   return useMutation({
     mutationFn: (id: Uuid) => imageApi.remove(id),
-    onSuccess: invalidate,
+    onSuccess: (_, id) => {
+      queryClient.removeQueries({ queryKey: queryKeys.images.detail(id) })
+      invalidate()
+    },
   })
 }

@@ -3,7 +3,15 @@ import { queryKeys } from '@/lib/queryKeys'
 import { commonApi } from '@/services/common.service'
 import type { CountriesQuery, CreateOrganisationTypeRequest, Uuid } from '@/types/api'
 
-const COUNTRIES_PAGE_SIZE = 20
+// The server clamps `offset` to 150 and `limit` to 250. Pages of 50 land
+// exactly on offset 150, and that last reachable page asks for the max limit,
+// so up to 400 rows are paged without overlap or a never-ending last page.
+const COUNTRIES_PAGE_SIZE = 50
+const COUNTRIES_MAX_OFFSET = 150
+const COUNTRIES_MAX_LIMIT = 250
+
+const countriesPageLimit = (offset: number) =>
+  offset >= COUNTRIES_MAX_OFFSET ? COUNTRIES_MAX_LIMIT : COUNTRIES_PAGE_SIZE
 
 /** Reference data rarely changes — cached for the whole session. */
 export const useCountries = (query?: CountriesQuery) =>
@@ -13,15 +21,17 @@ export const useCountries = (query?: CountriesQuery) =>
     staleTime: Infinity,
   })
 
-/** Paged country search for pickers (offset is capped at 150 by the server). */
+/** Paged country search for pickers; `pageParam` is the offset. */
 export const useCountriesInfinite = (name: string) =>
   useInfiniteQuery({
     queryKey: queryKeys.countries.infinite(name),
     queryFn: ({ pageParam }) =>
-      commonApi.getCountries({ limit: COUNTRIES_PAGE_SIZE, offset: pageParam, name: name || undefined }),
+      commonApi.getCountries({ limit: countriesPageLimit(pageParam), offset: pageParam, name: name || undefined }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.length < COUNTRIES_PAGE_SIZE ? undefined : allPages.length * COUNTRIES_PAGE_SIZE,
+    getNextPageParam: (lastPage, _allPages, lastOffset) => {
+      if (lastOffset >= COUNTRIES_MAX_OFFSET || lastPage.length < countriesPageLimit(lastOffset)) return undefined
+      return Math.min(lastOffset + COUNTRIES_PAGE_SIZE, COUNTRIES_MAX_OFFSET)
+    },
     staleTime: 30_000,
   })
 

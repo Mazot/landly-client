@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore'
 import { toQueryString } from './query'
+import { endSession } from './session'
 
 /**
  * Backend origin without a trailing slash and without `/api`
@@ -34,7 +35,7 @@ apiClient.interceptors.response.use(
     // revoked. A 401 without one (e.g. a wrong password on signin) is left to
     // the caller.
     if (axios.isAxiosError(error) && error.response?.status === 401 && error.config?.headers?.Authorization) {
-      useAuthStore.getState().clearAuth()
+      endSession()
     }
     return Promise.reject(error)
   },

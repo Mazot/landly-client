@@ -23,6 +23,8 @@ export const queryKeys = {
     all: ['countries'] as const,
     list: (query?: CountriesQuery) => ['countries', 'list', query ?? {}] as const,
     infinite: (name: string) => ['countries', 'infinite', name] as const,
+    /** Every country detail — they carry live-place counts. */
+    details: ['countries', 'detail'] as const,
     detail: (id: Uuid) => ['countries', 'detail', id] as const,
   },
   organisationTypes: ['organisation-types'] as const,
@@ -38,12 +40,15 @@ export const queryKeys = {
     list: (organisationId: Uuid, query?: PaginationParams) =>
       ['images', 'list', organisationId, query ?? {}] as const,
     byOrganisation: (organisationId: Uuid) => ['images', 'list', organisationId] as const,
+    details: ['images', 'detail'] as const,
     detail: (id: Uuid) => ['images', 'detail', id] as const,
   },
 
   corridors: {
     all: ['corridors'] as const,
     list: ['corridors', 'list'] as const,
+    /** Every corridor's stats — they carry live-place counts. */
+    allStats: ['corridors', 'stats'] as const,
     stats: (id: Uuid) => ['corridors', 'stats', id] as const,
   },
   countryConnections: {
@@ -54,6 +59,7 @@ export const queryKeys = {
 
   people: {
     all: ['people'] as const,
+    lists: ['people', 'list'] as const,
     list: (query?: PeopleListQuery) => ['people', 'list', query ?? {}] as const,
     detail: (id: Uuid) => ['people', 'detail', id] as const,
     claim: (token: string) => ['people', 'claim', token] as const,

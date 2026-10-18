@@ -81,7 +81,7 @@ Source of truth is the server's OpenAPI spec (`/api-docs/openapi.json`; per-feat
 
 ### Authentication
 
-`authStore` keeps the JWT in `localStorage`; the axios request interceptor adds `Authorization: Bearer`. A 401 on a request that carried the token clears the session (no redirect — screens decide). The user id is never sent in bodies: the server takes it from the token.
+`authStore` keeps the JWT in `localStorage`; the axios request interceptor adds `Authorization: Bearer`. Sessions start and end only through `lib/session.ts` (`startSession` / `endSession`), which also clears the React Query cache (`lib/queryClient.ts`) — disabled queries would otherwise keep serving the previous account's data. A 401 on a request that carried the token calls `endSession` (no redirect — screens decide). The user id is never sent in bodies: the server takes it from the token.
 
 Google sign-in is a top-level navigation to `GOOGLE_LOGIN_URL`; the server redirects back to `GOOGLE_CALLBACK_PATH` (`/auth/google/callback?code=…`), where `useGoogleExchange` trades the single-use code for the session. It needs Redis on the server.
 

@@ -14,12 +14,15 @@ export const useCorridors = () => {
   })
 }
 
-export const useCorridorStats = (id: Uuid | undefined) =>
-  useQuery({
+/** Needs a session: stats exist only for the caller's own corridors. */
+export const useCorridorStats = (id: Uuid | undefined) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  return useQuery({
     queryKey: queryKeys.corridors.stats(id ?? ''),
     queryFn: () => corridorApi.stats(id!),
-    enabled: !!id,
+    enabled: isAuthenticated && !!id,
   })
+}
 
 const useInvalidateCorridors = () => {
   const queryClient = useQueryClient()

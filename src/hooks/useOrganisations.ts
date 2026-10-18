@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { invalidatePlaceSummaries } from '@/lib/invalidation'
 import { queryKeys } from '@/lib/queryKeys'
 import { organisationApi } from '@/services/organisation.service'
 import type {
@@ -36,12 +37,16 @@ export const useOrganisation = (id: Uuid | undefined) =>
     enabled: !!id,
   })
 
-/** Lists, search results and the creator's stats change with any write. */
+/**
+ * Lists, search results, the creator's stats and the country/corridor place
+ * counts change with any write (delete, country change, live → pending).
+ */
 const useInvalidateOrganisations = () => {
   const queryClient = useQueryClient()
   return () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all })
     queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    invalidatePlaceSummaries(queryClient)
   }
 }
 
