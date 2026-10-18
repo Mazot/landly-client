@@ -1,6 +1,7 @@
 import type {
   CountriesQuery,
   CountryConnectionsQuery,
+  LanguagesQuery,
   ModerationQueueQuery,
   OrganisationsListQuery,
   PaginationParams,
@@ -28,6 +29,7 @@ export const queryKeys = {
     detail: (id: Uuid) => ['countries', 'detail', id] as const,
   },
   organisationTypes: ['organisation-types'] as const,
+  languages: (query?: LanguagesQuery) => ['languages', query ?? {}] as const,
 
   organisations: {
     all: ['organisations'] as const,

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryKeys'
 import { commonApi } from '@/services/common.service'
-import type { CountriesQuery, CreateOrganisationTypeRequest, Uuid } from '@/types/api'
+import type { CountriesQuery, CreateOrganisationTypeRequest, LanguagesQuery, Uuid } from '@/types/api'
 
 // The server clamps `offset` to 150 and `limit` to 250. Pages of 50 land
 // exactly on offset 150, and that last reachable page asks for the max limit,
@@ -9,6 +9,8 @@ import type { CountriesQuery, CreateOrganisationTypeRequest, Uuid } from '@/type
 const COUNTRIES_PAGE_SIZE = 50
 const COUNTRIES_MAX_OFFSET = 150
 const COUNTRIES_MAX_LIMIT = 250
+
+const LANGUAGES_MAX_LIMIT = 500
 
 const countriesPageLimit = (offset: number) =>
   offset >= COUNTRIES_MAX_OFFSET ? COUNTRIES_MAX_LIMIT : COUNTRIES_PAGE_SIZE
@@ -46,6 +48,18 @@ export const useOrganisationTypes = () =>
   useQuery({
     queryKey: queryKeys.organisationTypes,
     queryFn: commonApi.getOrganisationTypes,
+    staleTime: Infinity,
+  })
+
+/**
+ * Language reference list (no API writes) — resolves the ids in
+ * `Person.languageIds` / `UserLanguages.languageIds`. Without a query it asks
+ * for the server's max page (500), which covers the whole table.
+ */
+export const useLanguages = (query: LanguagesQuery = { limit: LANGUAGES_MAX_LIMIT }) =>
+  useQuery({
+    queryKey: queryKeys.languages(query),
+    queryFn: () => commonApi.getLanguages(query),
     staleTime: Infinity,
   })
 

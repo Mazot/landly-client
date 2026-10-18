@@ -4,6 +4,8 @@ import type {
   Country,
   CountryDetail,
   CreateOrganisationTypeRequest,
+  Language,
+  LanguagesQuery,
   OrganisationType,
   Uuid,
 } from '@/types/api'
@@ -15,6 +17,10 @@ export const commonApi = {
 
   getCountry: async (id: Uuid): Promise<CountryDetail> =>
     (await apiClient.get(`/api/common/countries/${id}`)).data,
+
+  /** Plain array (no list envelope), ordered by name. */
+  getLanguages: async (query?: LanguagesQuery): Promise<Language[]> =>
+    (await apiClient.get('/api/common/languages', { params: query })).data,
 
   /** Plain array (no list envelope). */
   getOrganisationTypes: async (): Promise<OrganisationType[]> =>

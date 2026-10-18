@@ -38,6 +38,25 @@ export interface CountriesQuery extends PaginationParams {
   name?: string
 }
 
+/**
+ * `GET /api/common/languages` item. `id` is what `language_ids` (people) and
+ * `languages_ids` / `languageIds` (users) reference. Organisations list
+ * languages by `name` instead.
+ */
+export interface Language {
+  id: Uuid
+  /** English name, e.g. "Russian". */
+  name: string
+  /** Short code, e.g. "ru". */
+  symbol: string | null
+}
+
+/** Query of `GET /api/common/languages` — ordered by name (limit default 100, max 500; offset unbounded). */
+export interface LanguagesQuery extends PaginationParams {
+  /** Case-insensitive substring filter on the name. */
+  name?: string
+}
+
 /** Stable org-type keys used by search filters and stats. */
 export const ORGANISATION_TYPE_SLUGS = [
   'embassy',
