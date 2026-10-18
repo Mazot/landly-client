@@ -19,7 +19,12 @@ export type LocationSource = (typeof LOCATION_SOURCES)[number]
 export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 export type Weekday = (typeof WEEKDAYS)[number]
 
-/** One opening interval, local time of the place: `["09:00", "13:00"]`. */
+/**
+ * One opening interval in the place's local time, 24-hour `"HH:MM"`:
+ * `["09:00", "13:00"]`. The close time is exclusive, so a full day is
+ * `["00:00", "24:00"]`. The server compares the strings, so an interval must
+ * not cross midnight — split it across two days. Hours are not validated on write.
+ */
 export type OpeningInterval = [open: string, close: string]
 
 /** Weekly hours: `{ "mon": [["09:00","13:00"], ["14:00","18:00"]], … }`. */

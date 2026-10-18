@@ -1,7 +1,11 @@
 // Organisation photos — server feature `images` (files live in S3/R2).
 import type { ServerDateTime, Uuid } from './shared'
 
-export const IMAGE_CONTENT_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const
+/**
+ * MIME types the server accepts. It lowercases but does not normalise them, so
+ * the non-standard `image/jpg` can come back in `contentType` as-is.
+ */
+export const IMAGE_CONTENT_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'] as const
 export type ImageContentType = (typeof IMAGE_CONTENT_TYPES)[number]
 
 /** Upload body cap enforced by the server while streaming. */
@@ -13,6 +17,7 @@ export interface OrganisationImage {
   organisationId: Uuid
   /** Original file name from the upload. */
   fileName: string
+  /** jpeg/png/webp/gif, lowercased. */
   contentType: ImageContentType
   /** Size in bytes (max 10 MB). */
   fileSize: number
