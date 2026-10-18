@@ -1,0 +1,31 @@
+{
+  "optional": "Необязательно",
+  "close": "Закрыть",
+  "back": "Назад",
+  "add": "Добавить",
+  "remove": "Удалить {{label}}",
+  "showPassword": "Показать пароль",
+  "hidePassword": "Скрыть пароль",
+  "openNow": "Открыто",
+  "closed": "Закрыто",
+  "noReviews": "Пока нет отзывов",
+  "ratingOutOf": "{{value}} из 5",
+  "stars_one": "{{count}} звезда",
+  "stars_few": "{{count}} звезды",
+  "stars_many": "{{count}} звёзд",
+  "stars_other": "{{count}} звезды",
+  "stepOf": "Шаг {{current}} из {{total}}",
+  "dropzone": {
+    "title": "Перетащите фото или выберите файл",
+    "hint": "JPEG, PNG, WebP или GIF · до 10 МБ каждый"
+  },
+  "status": {
+    "pending": "На модерации",
+    "live": "Опубликовано",
+    "rejected": "Отклонено",
+    "awaiting": "Ждёт подтверждения",
+    "confirmed": "Подтверждено",
+    "claimed": "Профиль подтверждён",
+    "declined": "Отказ"
+  }
+}

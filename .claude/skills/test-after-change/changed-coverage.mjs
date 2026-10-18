@@ -40,6 +40,7 @@ const changed = new Set([
 const isSource = (file) =>
   /^src\/.*\.(ts|tsx)$/.test(file) &&
   !/\.test\.tsx?$/.test(file) &&
+  !file.endsWith('.stories.tsx') &&
   !file.startsWith('src/test/') &&
   file !== 'src/main.tsx' &&
   !file.endsWith('.d.ts')

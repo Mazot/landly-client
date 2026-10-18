@@ -1,0 +1,29 @@
+{
+  "optional": "Optional",
+  "close": "Close",
+  "back": "Back",
+  "add": "Add",
+  "remove": "Remove {{label}}",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "openNow": "Open now",
+  "closed": "Closed",
+  "noReviews": "No reviews yet",
+  "ratingOutOf": "{{value}} out of 5",
+  "stars_one": "{{count}} star",
+  "stars_other": "{{count}} stars",
+  "stepOf": "Step {{current}} of {{total}}",
+  "dropzone": {
+    "title": "Drop photos here or browse",
+    "hint": "JPEG, PNG, WebP or GIF · up to 10 MB each"
+  },
+  "status": {
+    "pending": "Pending review",
+    "live": "Live",
+    "rejected": "Rejected",
+    "awaiting": "Awaiting confirmation",
+    "confirmed": "Confirmed",
+    "claimed": "Claimed",
+    "declined": "Declined"
+  }
+}

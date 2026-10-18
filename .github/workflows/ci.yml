@@ -29,6 +29,8 @@ jobs:
       run: npm run lint
     - name: Type-check and build
       run: npm run build
+    - name: Build Storybook
+      run: npm run build-storybook
 
   # Vitest (jsdom + MSW, no backend needed) with v8 coverage uploaded to Codecov.
   coverage:

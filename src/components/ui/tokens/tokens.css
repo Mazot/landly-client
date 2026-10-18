@@ -1,0 +1,95 @@
+/* Landly design tokens as CSS variables — mirror of tokens.ts (checked by tokens.test.ts). */
+:root {
+  /* Surface */
+  --bg: #F6F4EF;
+  --bg-sunken: #EFEBE2;
+  --surface: #FFFFFF;
+  --surface-2: #FBF9F4;
+  --surface-elev: #FFFFFF;
+  --overlay: rgba(20, 18, 14, 0.35);
+
+  /* Ink */
+  --ink-1: #1B1A17;
+  --ink-2: #3F3D38;
+  --ink-3: #6E6A62;
+  --ink-4: #9B9588;
+
+  /* Border */
+  --border-1: #E8E2D6;
+  --border-2: #D9D2C2;
+  --border-strong: #1B1A17;
+
+  /* Brand */
+  --accent: #D97757;
+  --accent-hover: #C7613F;
+  --accent-soft: #F4D7C9;
+  --accent-tint: #FBEAE0;
+  --accent-ink: #8C3F24;
+
+  /* Semantic */
+  --success: #4F7F5C;
+  --success-hover: #41704D;
+  --success-soft: #DDE9D9;
+  --success-ink: #2F5A3A;
+  --warning: #C8923A;
+  --warning-soft: #F2E2BD;
+  --warning-fg: #8A6420;
+  --warning-ink: #6B4C14;
+  --danger: #B14C3A;
+  --danger-soft: #F3D9D3;
+  --danger-ink: #7A2F22;
+  --info: #4A6D8C;
+  --info-soft: #DCE5EC;
+  --info-ink: #2E4A63;
+
+  /* Ratings, notes, third-party brands */
+  --star: #C8923A;
+  --star-soft: #FBF1DD;
+  --note: #FBF4E4;
+  --whatsapp: #25A366;
+  --whatsapp-hover: #1E8F58;
+  --google-blue: #4285F4;
+  --google-green: #34A853;
+  --google-yellow: #FBBC05;
+  --google-red: #EA4335;
+
+  /* Org types */
+  --type-embassy: #4A6D8C;
+  --type-embassy-soft: #D9E2EA;
+  --type-business: #B8814A;
+  --type-business-soft: #F1E3D0;
+  --type-helper: #4F7F5C;
+  --type-helper-soft: #DDE9D9;
+  --type-community: #8B5A8C;
+  --type-community-soft: #E8D9E9;
+  --type-volunteer: #C7613F;
+  --type-volunteer-soft: #F4D7C9;
+
+  /* Pastel country fills */
+  --country-1: #F0E4D3;
+  --country-2: #E7E3D2;
+  --country-3: #E5DDC9;
+  --country-4: #EBD9C9;
+  --country-5: #DCE3D5;
+  --country-6: #E2DACB;
+  --country-7: #EFE0D0;
+  --country-water: #E8E9E4;
+
+  /* Radii */
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 14px;
+  --r-4: 20px;
+  --r-pill: 999px;
+
+  /* Shadow */
+  --shadow-1: 0 1px 2px rgba(20,18,14,0.04), 0 1px 1px rgba(20,18,14,0.03);
+  --shadow-2: 0 4px 12px rgba(20,18,14,0.06), 0 2px 4px rgba(20,18,14,0.04);
+  --shadow-3: 0 12px 32px rgba(20,18,14,0.10), 0 4px 12px rgba(20,18,14,0.06);
+  --shadow-pop: 0 24px 56px rgba(20,18,14,0.18), 0 8px 20px rgba(20,18,14,0.08);
+
+  /* Type */
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}

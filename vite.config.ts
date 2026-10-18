@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
-        exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/vite-env.d.ts'],
+        exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.stories.tsx', 'src/test/**', 'src/main.tsx', 'src/vite-env.d.ts'],
         reporter: ['text', 'html', 'lcov', 'json-summary'],
         reportsDirectory: './coverage',
       },
