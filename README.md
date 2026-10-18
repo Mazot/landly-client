@@ -1,12 +1,15 @@
 # 🌍 Landly Client
 
+[![CI](https://github.com/Mazot/landly-client/actions/workflows/ci.yml/badge.svg)](https://github.com/Mazot/landly-client/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Mazot/landly-client/branch/master/graph/badge.svg)](https://codecov.io/gh/Mazot/landly-client)
+
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
 > **Status:** the old screens and UI components were removed together with the old design. What remains is the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — and the Google Maps setup. Screens are rebuilt on top of it.
 
 ## 🛠️ Stack
 
-- **React 18** + **TypeScript** + **Vite**
+- **React 19** + **TypeScript 6** + **Vite 8**
 - **TanStack Query** — server state; **Zustand** — client state (session, guest corridor)
 - **Axios** — HTTP client (`src/lib/axios.ts`)
 - **React Router** — routing
@@ -16,7 +19,7 @@ React client for Landly — a map of businesses, helpers, communities and offici
 
 ## 📋 Prerequisites
 
-- Node.js 18+
+- Node.js 22.13+ or 24 (24 recommended, used in CI) — Vite 8 and ESLint 10 need 20.19+/22.13+, Vitest 5 needs 22.12+/24
 - [landly-server](../landly-server) on `http://localhost:8080` with `FRONTEND_ORIGIN=http://localhost:5173`
 - A Google Maps Platform browser key (Maps JavaScript API + Places API (New))
 
@@ -44,14 +47,18 @@ src/
 ├── services/       # one API object per server feature (all endpoints)
 ├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
 ├── lib/
-│   ├── axios.ts    # client: base URL, Bearer token, comma-separated query arrays
+│   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
+│   ├── queryClient.ts  # the app's React Query client
+│   ├── session.ts      # startSession / endSession (also clear the query cache)
 │   ├── queryKeys.ts
-│   ├── maps.ts     # Google Maps config + bbox/marker/place helpers
-│   ├── errors.ts   # landly-server error bodies
-│   ├── dates.ts    # server timestamps (UTC without a zone)
+│   ├── invalidation.ts # refresh country/corridor place counts
+│   ├── maps.ts         # Google Maps config + bbox/marker/place helpers
+│   ├── errors.ts       # landly-server error bodies
+│   ├── dates.ts        # server timestamps (UTC without a zone)
 │   └── query.ts
 ├── stores/         # authStore (JWT session), corridorStore (guest corridor)
 ├── i18n/
+├── test/           # test helpers (MSW server, factories, render helpers, setup)
 ├── App.tsx         # routes (empty until screens are rebuilt)
 └── main.tsx        # providers: React Query, Google Maps APIProvider, Router
 ```
@@ -64,11 +71,32 @@ Contracts follow the server's OpenAPI spec (`http://localhost:8080/api-docs/open
 
 The server stores only a place's `google_place_id` and a refreshable copy of its point. Hours, photos and the Google rating are fetched live in the browser (`usePlaceDetails`) and must be shown on a Google map with Google's attribution — never send them to the server.
 
+## 🧪 Tests
+
+[Vitest](https://vitest.dev/) in jsdom, no backend needed: requests go through the real axios client and are answered by [MSW](https://mswjs.io/) handlers; hooks are rendered with Testing Library's `renderHook`.
+
+```bash
+npm test               # run once
+npm run test:watch     # watch mode
+npm run coverage       # + v8 coverage → coverage/ (lcov, html, summary)
+node .claude/skills/test-after-change/changed-coverage.mjs   # after coverage: files changed since origin/master must be at 100%
+```
+
+New or changed code is tested right after it is written — the workflow (what to test per layer, regression check, the gate) is the `test-after-change` skill in `.claude/skills/`.
+
+- Tests live next to the code as `*.test.ts(x)`; shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`).
+- An unhandled request fails the test; session, `localStorage` and the query cache are reset after every test (`src/test/setup.ts`).
+- `src/types/api/contract.test.ts` pins the enum values and limits shared with the server — update both sides together.
+
+CI (`.github/workflows/ci.yml`, Node 24) runs lint, type-check + build, and the tests with coverage uploaded to [Codecov](https://app.codecov.io/gh/Mazot/landly-client) (`codecov.yml`, same settings as landly-server).
+
 ## 🎯 Scripts
 
 ```bash
-npm run dev       # dev server
-npm run build     # tsc + production build
-npm run lint      # ESLint
-npm run preview   # preview the build
+npm run dev          # dev server
+npm run build        # tsc + production build
+npm run lint         # ESLint
+npm test             # Vitest
+npm run coverage     # Vitest + coverage
+npm run preview      # preview the build
 ```

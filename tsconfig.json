@@ -20,8 +20,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Path aliases */
-    "baseUrl": ".",
+    /* Global type packages — TS 6 no longer loads every @types/* by default.
+       vite/client is referenced from src/vite-env.d.ts. */
+    "types": ["google.maps"],
+
+    /* Path aliases (relative to this file; `baseUrl` is deprecated since TS 6) */
     "paths": {
       "@/*": ["./src/*"]
     }

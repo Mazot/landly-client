@@ -14,15 +14,29 @@ npm run dev
 # Type-check without emitting
 npx tsc --noEmit
 
-# Lint (ESLint v9 flat config)
+# Lint (ESLint v10 flat config)
 npm run lint
 
 # Production build
 npm run build
 
+# Tests (Vitest, jsdom + MSW — no backend needed)
+npm test
+
+# Tests in watch mode
+npm run test:watch
+
+# Tests + v8 coverage (coverage/, lcov for Codecov)
+npm run coverage
+
+# Run one test file / tests matching a name
+npx vitest run src/hooks/useCommon.test.tsx -t "pages by 50"
+
 # Preview production build
 npm run preview
 ```
+
+Node.js 22.13+ or 24 (CI uses 24): Vitest 5 needs `^22.12 || ^24`.
 
 ## Environment Variables
 
@@ -40,9 +54,45 @@ Everything `VITE_*` ends up in the public bundle — never put server secrets he
 
 Screens and visual components were deleted with the old design; `App.tsx` has no routes yet. The data layer is complete and mirrors the current landly-server. Translation files still hold the old screens' copy.
 
+## Documentation is part of every change
+
+**Every code change includes checking and updating the `.md` files.** Before you finish (and before any commit), go through every Markdown file in the repo and update whatever the change made stale — a doc that disagrees with the code is a bug.
+
+Files and what usually affects them:
+
+| File | Update when you change |
+|---|---|
+| `AGENTS.md` | architecture, directory layout, conventions, auth/session flow, env vars, commands, stack |
+| `README.md` | setup, env vars, scripts, structure, features, how to run |
+| `.claude/skills/library-first/SKILL.md` | dependencies (added/removed/bumped packages, APIs now used), project helpers in `src/lib` |
+| `.claude/skills/design-system/SKILL.md` | tokens (`tailwind.config.ts`, `src/index.css`), DS components / `src/components/ui`, breakpoints, layout patterns, verification steps |
+| `.claude/skills/test-after-change/SKILL.md` | test helpers in `src/test/`, test layout per layer, test/coverage commands, `vite.config.ts` → `test.coverage` excludes (mirrored in `changed-coverage.mjs`) |
+| `.env.example` (not Markdown, same rule) | any `import.meta.env.VITE_*` added, renamed or removed |
+
+How:
+
+1. List them (tracked and new): `git ls-files --cached --others --exclude-standard '*.md'`.
+2. Grep the docs for every name you renamed, moved or removed (files, functions, hooks, env vars, routes, packages) — no stale references may remain.
+3. New behaviour, convention or file a future reader needs → document it in the matching file in the same change.
+4. Say in your final message which `.md` files you updated — or that you checked them and none needed changes.
+
+## Library-first (skill `library-first`)
+
+Before writing code, follow `.claude/skills/library-first/SKILL.md`: use the functions the installed libraries and `src/lib` already provide (listed there, verified against the installed versions), re-check an API against the installed version before using it, and for new functionality install an npm package — TanStack first, versions at least 14 days old — instead of writing it. Keep its lists in sync when dependencies change.
+
+## UI: design system, mobile-first (skill `design-system`)
+
+For anything visible, follow `.claude/skills/design-system/SKILL.md`: screens are composed only of design-system components (`src/components/ui/`, inventory in its `index.ts`) and tokens (`tailwind.config.ts` + `src/index.css`); never duplicate an existing component — extend it with a variant; phone layout is the base and `md`/`lg` adapt it; and every UI change is verified in the browser at phone (375, 320) and desktop (1440) sizes with screenshots and `.claude/skills/design-system/layout-check.js` before it is called done.
+
+## Test every change (skill `test-after-change`)
+
+After writing or changing any code in `src/`, follow `.claude/skills/test-after-change/SKILL.md` before calling it done: add tests for the behaviour in the layer's test file (contract pins, the services table, hook tests, lib/store tests, component tests), prove they fail without the change (bug fixes: regression test first), then pass the gate — `npm test`, `npm run coverage` + `node .claude/skills/test-after-change/changed-coverage.mjs` (every changed source file at 100%), `npm run lint`, `npm run build` — and report what was tested and anything left unverified.
+
 ## Architecture
 
-React 18 + TypeScript + Vite SPA with Tailwind CSS.
+React 19 + TypeScript 6 + Vite 8 SPA with Tailwind CSS 4.
+
+TypeScript is pinned to `~6.0` (typescript-eslint supports only `<6.1`). TS 6 loads no `@types/*` globals implicitly — global type packages are listed in `compilerOptions.types` (`google.maps`), and `paths` work without `baseUrl`.
 
 ### Stack
 
@@ -61,12 +111,15 @@ src/
 ├── types/api/          # server contracts — one file per server feature + index.ts
 ├── services/           # <feature>.service.ts — one API object per server feature
 ├── hooks/              # use<Feature>.ts — React Query hooks; usePlaceDetails (Google Places)
-├── lib/                # axios, queryKeys, maps, errors, dates, query
+├── lib/                # axios, queryClient, session, queryKeys, invalidation, maps, errors, dates, query
 ├── stores/             # authStore, corridorStore
 ├── i18n/
+├── test/               # test-only helpers: MSW server, factories, render helpers, setup
 ├── App.tsx             # routes
 └── main.tsx            # providers
 ```
+
+Tests sit next to the code they cover as `*.test.ts(x)`.
 
 ### API contracts (`src/types/api`)
 
@@ -110,6 +163,23 @@ In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localho
 1. Add/adjust the types in `src/types/api/<feature>.ts`
 2. Add the call to `src/services/<feature>.service.ts`
 3. Add a hook in `src/hooks/use<Feature>.ts` (keys in `src/lib/queryKeys.ts`; invalidate the feature root on writes)
+4. Add a row to the table in `src/services/services.test.ts` (its "covers every service method" test fails until you do) and tests for the hook in `src/hooks/use<Feature>.test.tsx` — what it requests, when it stays idle, what it writes to / invalidates in the cache
+
+## Tests
+
+Every code change comes with tests (workflow: skill `test-after-change`); CI keeps coverage on Codecov (currently 100% of lines, branches and functions). Locally, `node .claude/skills/test-after-change/changed-coverage.mjs [base]` (after `npm run coverage`) shows the coverage of the files changed since `origin/master` — the same idea as Codecov's patch status.
+
+- **Stack:** Vitest 5 (configured in `vite.config.ts` → `test`), jsdom, `@testing-library/react` (`renderHook`), MSW 3 for HTTP, `@vitest/coverage-v8`.
+- **HTTP:** requests go through the real `apiClient` (interceptors, `paramsSerializer`) to `http://api.test` and are answered by MSW. Register handlers per test with `capture(method, path, response, status)` from `src/test/server.ts` — it records method, path, query, headers and body (JSON, or multipart parts). An unhandled request fails the test (`onUnhandledFrame: 'error'`). jsdom runs on the API origin because its XHR enforces CORS.
+- **Hooks:** `renderQueryHook` gives each test a fresh `QueryClient` (no retries); `runMutation(client, hook, variables)` runs a mutation; `seed` + `isInvalidated` check what a mutation invalidated. Session hooks use the app's module `queryClient` (`lib/session.ts` clears it).
+- **Fixtures:** `src/test/factories.ts` builds typed server payloads (`organisation()`, `person()`, `authUser()`, … and `list()` for `{ items, total }`).
+- **Isolation:** `src/test/setup.ts` resets MSW handlers, the session, `localStorage` and the query cache after each test. Env-dependent modules are tested with `vi.stubEnv` + `vi.resetModules` + a dynamic `import()` (envs are unstubbed automatically).
+- **Contract pins:** `src/types/api/contract.test.ts` holds the enum values and limits shared with the server (migration `CHECK`s, Rust constants) — a failure means one side changed.
+- **Gotcha:** with React 19, don't wrap `fetchNextPage()` in `act()` — the observer update never reaches the hook; call it and `await waitFor(...)` (TanStack's documented pattern).
+
+## CI
+
+`.github/workflows/ci.yml` (push/PR to `master`, Node 24): job `build` runs `npm ci`, `npm run lint`, `npm run build` (tsc + Vite); job `coverage` runs `npm run coverage` and uploads `coverage/lcov.info` to Codecov with the `CODECOV_TOKEN` secret (`codecov.yml` mirrors landly-server's settings). `codeql.yml` and `dependency-review.yml` run alongside.
 
 ### Adding a new translation key
 
@@ -120,12 +190,12 @@ In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localho
 
 ## ESLint
 
-The project uses ESLint v9 with a flat config (`eslint.config.js`).
+The project uses ESLint v10 with a flat config (`eslint.config.js`).
 
 Rules enforced:
 
 - `@typescript-eslint/recommended` — strict TypeScript checks
-- `react-hooks/recommended` — rules of hooks
+- `react-hooks/recommended` (v7) — rules of hooks plus the React Compiler rules (purity, refs, set-state-in-effect, …)
 - `react-refresh/only-export-components` — fast-refresh compatibility
 - `@typescript-eslint/consistent-type-imports` — enforce `import type` for type-only imports
 - `@typescript-eslint/no-explicit-any` — warn on `any` usage
