@@ -1,34 +1,43 @@
 import { create } from 'zustand'
-import type { AuthResponse } from '@/types/api'
+import type { AuthUser } from '@/types/api'
+
+/** The signed-in account as returned by signin/signup/exchange, without the JWT. */
+export type SessionUser = Omit<AuthUser, 'token'>
 
 interface AuthState {
-  user: {
-    id: string
-    username: string
-    email: string
-  } | null
+  user: SessionUser | null
   token: string | null
   isAuthenticated: boolean
-  setAuth: (authResponse: AuthResponse) => void
+  setAuth: (authUser: AuthUser) => void
   clearAuth: () => void
 }
 
-const storedUser = localStorage.getItem('auth_user')
+const TOKEN_KEY = 'auth_token'
+const USER_KEY = 'auth_user'
+
+function readStoredUser(): SessionUser | null {
+  try {
+    const raw = localStorage.getItem(USER_KEY)
+    return raw ? (JSON.parse(raw) as SessionUser) : null
+  } catch {
+    return null
+  }
+}
+
+const storedToken = localStorage.getItem(TOKEN_KEY)
 
 export const useAuthStore = create<AuthState>((set) => ({
-  user: storedUser ? JSON.parse(storedUser) : null,
-  token: localStorage.getItem('auth_token'),
-  isAuthenticated: !!localStorage.getItem('auth_token'),
-  setAuth: (authResponse) => {
-    const { id, username, email, token } = authResponse
-    const user = { id, username, email }
-    localStorage.setItem('auth_token', token)
-    localStorage.setItem('auth_user', JSON.stringify(user))
+  user: readStoredUser(),
+  token: storedToken,
+  isAuthenticated: !!storedToken,
+  setAuth: ({ token, ...user }) => {
+    localStorage.setItem(TOKEN_KEY, token)
+    localStorage.setItem(USER_KEY, JSON.stringify(user))
     set({ user, token, isAuthenticated: true })
   },
   clearAuth: () => {
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('auth_user')
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
     set({ user: null, token: null, isAuthenticated: false })
   },
 }))

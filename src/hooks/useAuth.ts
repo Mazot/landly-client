@@ -1,46 +1,26 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { authApi } from '@/services/auth.service'
-import { useAuthStore } from '@/stores/authStore'
-import type { LoginCredentials, SignupCredentials } from '@/types/api'
+import { useMutation } from '@tanstack/react-query'
+import { endSession, startSession } from '@/lib/session'
+import { userApi } from '@/services/user.service'
+import type { OAuthExchangeRequest, SignInRequest, SignUpRequest } from '@/types/api'
 
-export const useLogin = () => {
-  const queryClient = useQueryClient()
-  const setAuth = useAuthStore((state) => state.setAuth)
-
-  return useMutation({
-    mutationFn: (credentials: LoginCredentials) => authApi.login(credentials),
-    onSuccess: (data) => {
-      localStorage.setItem('auth_token', data.token)
-      setAuth(data)
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-    },
+export const useSignIn = () =>
+  useMutation({
+    mutationFn: (body: SignInRequest) => userApi.signIn(body),
+    onSuccess: startSession,
   })
-}
 
-export const useSignup = () => {
-  const queryClient = useQueryClient()
-  const setAuth = useAuthStore((state) => state.setAuth)
-
-  return useMutation({
-    mutationFn: (credentials: SignupCredentials) =>
-      authApi.signup(credentials),
-    onSuccess: (data) => {
-      localStorage.setItem('auth_token', data.token)
-      setAuth(data)
-      queryClient.invalidateQueries({ queryKey: ['auth'] })
-    },
+export const useSignUp = () =>
+  useMutation({
+    mutationFn: (body: SignUpRequest) => userApi.signUp(body),
+    onSuccess: startSession,
   })
-}
 
-export const useLogout = () => {
-  const queryClient = useQueryClient()
-  const clearAuth = useAuthStore((state) => state.clearAuth)
+/** Trades the `code` of the Google callback redirect for a session. */
+export const useGoogleExchange = () =>
+  useMutation({
+    mutationFn: (body: OAuthExchangeRequest) => userApi.exchangeGoogleCode(body),
+    onSuccess: startSession,
+  })
 
-  return {
-    mutate: () => {
-      localStorage.removeItem('auth_token')
-      clearAuth()
-      queryClient.clear()
-    },
-  }
-}
+/** JWTs are stateless: signing out forgets the token and every cached query client-side. */
+export const useSignOut = () => endSession
