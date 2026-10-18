@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+/* Tailwind 4 reads the v3-style JS config (design tokens) from here. */
+@config "../tailwind.config.ts";
 
 /* ============================================================
    Landly v2 — Design Tokens (mirror of design_files/tokens.css)

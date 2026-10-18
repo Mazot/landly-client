@@ -51,6 +51,7 @@ React 18 + TypeScript + Vite SPA with Tailwind CSS.
 - **Client state** — `zustand`: `authStore` (JWT + user, persisted in `localStorage`), `corridorStore` (guest corridor; signed-in users use server corridors)
 - **HTTP client** — `axios` instance in `src/lib/axios.ts`
 - **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx`, config and helpers in `src/lib/maps.ts`
+- **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `tailwind.config.ts`, loaded with `@config` from `src/index.css`, and are mirrored as CSS variables there. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
 - **i18n** — `i18next` + `react-i18next` + `i18next-browser-languagedetector`; languages `en`, `ru`, `uk` (same as the server's `Locale`), files in `src/i18n/locales/{en,ru,uk}/translation.json`
 
 ### Directory structure
