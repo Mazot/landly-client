@@ -73,6 +73,23 @@ describe('TextField', () => {
   })
 })
 
+// The box height includes its 1 px borders, and only the inner control takes taps:
+// below `lg` the box must be 46 px (h-11.5) for a 44 px hit area, small size included.
+describe('touch hit area of the small size', () => {
+  it('TextField and Select keep a 44 px control on touch screens, 40 px box from lg', () => {
+    render(
+      <>
+        <TextField size="sm" aria-label="Name" />
+        <Select size="sm" aria-label="Country" options={COUNTRIES} />
+      </>,
+    )
+    for (const control of [screen.getByRole('textbox', { name: 'Name' }), screen.getByRole('combobox', { name: 'Country' })]) {
+      expect(control.parentElement).toHaveClass('h-11.5', 'lg:h-10')
+      expect(control.parentElement).not.toHaveClass('h-11')
+    }
+  })
+})
+
 describe('TextArea', () => {
   it('accepts text and its own invalid flag', async () => {
     render(<TextArea aria-label="Review" invalid={false} rows={4} />)

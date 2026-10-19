@@ -22,7 +22,7 @@ export function NavTabs({ items, label, compact }: { items: NavTabsItem[]; label
           aria-label={compact ? item.label : undefined}
           className={({ isActive }) =>
             clsx(
-              'inline-flex h-11 touch-manipulation items-center gap-1.5 rounded-r2 border px-3 text-label leading-none font-semibold whitespace-nowrap lg:h-9',
+              'inline-flex h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-r2 border px-3 text-label leading-none font-semibold whitespace-nowrap lg:h-9 lg:min-w-0',
               FOCUS_RING,
               isActive ? 'border-border-1 bg-surface-2 text-ink-1' : 'border-transparent text-ink-3 hover:text-ink-1',
             )

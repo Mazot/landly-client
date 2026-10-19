@@ -15,7 +15,7 @@ React client for Landly — a map of businesses, helpers, communities and offici
 - **React Router** — routing
 - **Google Maps Platform** via [`@vis.gl/react-google-maps`](https://visgl.github.io/react-google-maps/) — map, markers, Places
 - **i18next** — `en`, `ru`, `uk`
-- **Tailwind CSS** + design system in `src/components/ui` (tokens in `tokens/tokens.ts`, see [its README](src/components/ui/README.md))
+- **Tailwind CSS** + design system in `src/components/ui` (tokens in `tokens/tokens.ts`, see [its README](src/components/ui/README.md)), browsable in **Storybook**
 
 ## 📋 Prerequisites
 
@@ -99,5 +99,7 @@ npm run build        # tsc + production build
 npm run lint         # ESLint
 npm test             # Vitest
 npm run coverage     # Vitest + coverage
+npm run storybook    # design-system catalogue on http://localhost:6006
+npm run build-storybook  # static Storybook → storybook-static/ (also in CI)
 npm run preview      # preview the build
 ```

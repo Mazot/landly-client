@@ -134,7 +134,10 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 ### Testing: Vitest 5.0, Testing Library, MSW 3 (dev only)
 
 - **Vitest 5.0** (`vitest`, `@vitest/coverage-v8`, jsdom 30) — config in `vite.config.ts` → `test`. `describe` / `it` / `it.each` / `expect` / `beforeEach` / `afterEach` / `beforeAll` / `afterAll`; `vi.fn`, `vi.spyOn`, `vi.mock` + `vi.mocked`, `vi.hoisted`, `vi.importActual`, `vi.stubEnv` (auto-unstubbed), `vi.stubGlobal`, `vi.resetModules`, `vi.useFakeTimers` + `vi.advanceTimersByTimeAsync`, `vi.waitFor`. Coverage: `npm run coverage` (v8).
-- **@testing-library/react 16.3** (+ `@testing-library/dom` 10.4): `renderHook`, `render`, `waitFor`, `act`, `screen`, `cleanup`. No `jest-dom` matchers are installed — add `@testing-library/jest-dom` when the first component tests need them.
+- **@testing-library/react 16.3** (+ `@testing-library/dom` 10.4): `renderHook`, `render`, `waitFor`, `act`, `screen`, `within`, `cleanup`.
+- **@testing-library/user-event 14.6**: `userEvent.click` / `type` / `keyboard` / `upload` — real user interaction in component tests (prefer it over `fireEvent`).
+- **@testing-library/jest-dom 7.0** (loaded in `src/test/setup.ts`): `toBeInTheDocument`, `toHaveClass`, `toHaveAttribute`, `toHaveAccessibleName`, `toHaveStyle`, `toHaveTextContent`, `toBeDisabled`, …
+- **Storybook 10.6** (`storybook`, `@storybook/react-vite`, `addon-docs`, `addon-a11y`; dev only): CSF3 stories (`Meta`, `StoryObj`, `satisfies Meta<typeof X>`), `fn()` from `storybook/test` for callback args, portable stories `composeStories` / `setProjectAnnotations` + `Story.run()` (used by `src/components/ui/stories.test.tsx`), `parameters.viewport.options` / `globals.viewport`, `parameters.backgrounds.options`, `parameters.a11y.test`.
 - **MSW 3.0**: `http.get/post/put/delete`, `HttpResponse.json`, `delay`, `bypass`; `setupServer` from `msw/node` with `listen` / `use` / `resetHandlers` / `close`. MSW 3 renamed `onUnhandledRequest` → **`onUnhandledFrame`** (`'error' | 'warn' | 'bypass'`); resolvers get `{ request, params, cookies }`.
 - **Project test helpers — reuse, don't re-implement:** `capture()` + `server` + `API` (`src/test/server.ts`), payload factories (`src/test/factories.ts`), `renderQueryHook`, `runMutation`, `seed`, `isInvalidated`, `createTestQueryClient` (`src/test/render.tsx`).
 
@@ -161,7 +164,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 | String-building query strings / URLs | `toQueryString`, `createSearchParams`, `generatePath` |
 | Filters/tabs kept in `useState` | `useSearchParams` (shareable, back-button safe) |
 | Manual date/number formatting | `Intl.*` with `i18n.language` |
-| A `cn()`/classnames helper | install `clsx` (+ `tailwind-merge` if classes must override each other) |
+| A `cn()`/classnames helper | `clsx` (installed); add `tailwind-merge` only if classes must override each other |
 
 ## 3. Installing a package for new functionality
 

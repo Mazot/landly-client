@@ -75,4 +75,10 @@ describe('TabBar / NavTabs', () => {
     expect(screen.getByRole('link', { name: 'People' })).toBeInTheDocument()
     expect(screen.getByText('Map')).toBeInTheDocument()
   })
+
+  it('NavTabs keeps icon-only links at least 44 px wide on touch screens', () => {
+    const items = [{ to: '/', label: 'Map', icon: 'pin' as const, end: true }, { to: '/people', label: 'People', icon: 'users' as const }]
+    render(<MemoryRouter><NavTabs label="Main" items={items} compact /></MemoryRouter>)
+    expect(screen.getByRole('link', { name: 'People' })).toHaveClass('min-w-11', 'justify-center')
+  })
 })

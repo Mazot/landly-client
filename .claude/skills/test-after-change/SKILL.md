@@ -36,7 +36,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 | A helper in `src/lib` | `src/lib/<name>.test.ts` | inputs → outputs including edge cases; env-dependent code via `vi.stubEnv` + `vi.resetModules` + `await import()` |
 | A store (`src/stores`) | `src/stores/<name>.test.ts` | state transitions, persistence (`localStorage`), restoring on load (`vi.resetModules`) |
 | i18n keys / config | `src/i18n/i18n.test.ts` | the key exists in all three locales; switching languages works |
-| A component / screen | `<Component>.test.tsx` next to it | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. The first component tests add `@testing-library/user-event` and `@testing-library/jest-dom` via the library-first install procedure |
+| A component / screen | `<Component>.test.tsx` next to it | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. Use `@testing-library/user-event` + `jest-dom` matchers (installed). A DS component also needs a `<Name>.stories.tsx` — `src/components/ui/stories.test.tsx` renders every story with axe |
 | A bug fix | the test file of the layer where the bug lived | a regression test that reproduces the bug (§4) |
 
 ### Cases to cover

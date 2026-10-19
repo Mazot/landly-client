@@ -9,7 +9,8 @@ export const FIELD_VARIANTS = {
   filled: 'border-border-1 bg-surface-2',
   floating: 'rounded-r3 border-transparent bg-surface shadow-2',
 } as const
-export const FIELD_SIZES = { md: 'h-11.5 px-3.5', sm: 'h-11 px-3 lg:h-10' } as const
+// Heights include the 1 px borders: h-11.5 (46 px) leaves a 44 px control for touch.
+export const FIELD_SIZES = { md: 'h-11.5 px-3.5', sm: 'h-11.5 px-3 lg:h-10' } as const
 export const FIELD_ERROR = 'border-danger focus-within:border-danger focus-within:ring-danger/12'
 /** 16 px on phones so iOS does not zoom into the field, 14 px from `lg`. */
 export const FIELD_CONTROL =

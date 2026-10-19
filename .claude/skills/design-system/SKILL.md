@@ -180,6 +180,18 @@ After every UI change, check each touched screen in the Browser pane.
    browser could not be used or a viewport was skipped, say so explicitly —
    never describe an unverified layout as working.
 
+### Components: verify in Storybook
+
+DS components have no route — check them in Storybook: `npm run storybook` in the
+background, then open a single story at
+`http://localhost:6006/iframe.html?id=<story-id>&viewMode=story` (ids are in
+`http://localhost:6006/index.json`; add `&globals=locale:ru` for Russian). Use the same
+viewports and `layout-check.js` as above. To sweep every story at once, load each id in
+an `<iframe>` of the target width on that page and run the layout-check logic on
+`iframe.contentWindow` (a story is rendered when its `<body>` has `sb-show-main`).
+`stories.test.tsx` already guards rendering errors and axe; the browser pass catches
+layout (overflow, tap targets, wrapping of long ru/uk copy).
+
 ## 6. Checklist before handing over
 
 - [ ] Screen built only from DS components; visual styling only in `src/components/ui/`.
@@ -187,4 +199,4 @@ After every UI change, check each touched screen in the Browser pane.
 - [ ] No duplicate component — existing one reused or extended; new primitives live in `src/components/ui/` and are exported from `index.ts`.
 - [ ] Phone layout is the base; `md`/`lg` change the layout per §4.
 - [ ] 375, 320 (new screens), 1440 (+768/1024 when relevant) checked with screenshots, `layout-check.js` clean, console clean, viewport reset.
-- [ ] Components and screens have tests per the **test-after-change** skill (render, interactions, loading/empty/error states).
+- [ ] Components and screens have tests per the **test-after-change** skill (render, interactions, loading/empty/error states); every new DS component has a story.
