@@ -25,6 +25,8 @@ src/components/ui/
 - Variants and sizes are props (`variant="accent"`, `size="sm"`); `className` is for layout only.
 - Inputs work controlled (`value` + `onChange`) and uncontrolled (`default*`). Group controls
   (`ChipGroup`, `Segmented`, `RadioGroup`, `ColorSwatches`, `StarInput`) call `onChange` with the value, not an event.
+- Radio groups (`Segmented`, `RadioGroup`, `ColorSwatches`, `StarInput`) follow the ARIA pattern: one tab stop, arrows / Home / End move and select (`onRadioGroupKeyDown`, `radioTabIndex` in `lib/internal.ts`).
+- Variants set their own border colour — never combine a base `border-transparent` with a variant `border-*` (CSS order, not class order, decides).
 - Mobile-first: every interactive element has a ≥ 44 px hit area below `lg`; inputs use 16 px text on phones.
 - No text under 12 px. Colours from tokens only; data colours (`avatar_color`, `OrganisationType.color`) go through props.
 - Built-in strings live in the `ui` i18n namespace; product copy is passed in by the caller.
@@ -56,7 +58,7 @@ src/components/ui/
 | | `Chip` / `ChipGroup` | `selected`, `orgType`, `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` |
 | | `Segmented` | `options` (+`count`), `block`, `size` |
 | | `Switch`, `Checkbox`, `RadioGroup` | boolean / boolean + description / one of options |
-| | `ColorSwatches`, `StarInput` | avatar colour · review rating |
+| | `ColorSwatches`, `StarInput` | avatar colour (`colorLabel` gives swatches readable names) · review rating |
 | | `Dropzone` | `onFiles`, `onReject` (type / 10 MB like the server), `upload` progress |
 | | `Progress`, `StepBar` | upload progress · sign-up steps |
 | Containers | `Card` | `variant` default · selected · dashed · sunken · elevated, `padding` |

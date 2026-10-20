@@ -7,9 +7,9 @@ export type IconButtonVariant = 'plain' | 'outline' | 'floating'
 export type IconButtonSize = 'sm' | 'md' | 'lg'
 
 const VARIANTS: Record<IconButtonVariant, string> = {
-  plain: 'rounded-full hover:bg-surface-2',
+  plain: 'rounded-full border-transparent hover:bg-surface-2',
   outline: 'rounded-full border-border-1 bg-surface-2 hover:bg-bg',
-  floating: 'rounded-r3 bg-surface shadow-2',
+  floating: 'rounded-r3 border-transparent bg-surface shadow-2',
 }
 const SIZES: Record<IconButtonSize, string> = { sm: 'size-11 lg:size-8', md: 'size-11 lg:size-9', lg: 'size-11.5' }
 const ICON_SIZE: Record<IconButtonSize, number> = { sm: 15, md: 17, lg: 20 }
@@ -33,7 +33,7 @@ export function IconButton({ icon, label, variant = 'plain', size = 'md', presse
       title={label}
       aria-pressed={pressed}
       className={clsx(
-        'inline-flex shrink-0 touch-manipulation items-center justify-center border border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+        'inline-flex shrink-0 touch-manipulation items-center justify-center border transition-colors disabled:cursor-not-allowed disabled:opacity-45',
         FOCUS_RING,
         VARIANTS[variant],
         SIZES[size],

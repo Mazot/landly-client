@@ -7,14 +7,16 @@ import { Spinner } from './Spinner'
 export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'success' | 'danger' | 'whatsapp'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 
+// Each variant sets its own border colour: two border-colour utilities on one element
+// resolve by CSS order, not class order, so the base must not set one.
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-ink-1 text-surface hover:bg-ink-2',
-  accent: 'bg-accent text-surface hover:bg-accent-hover',
+  primary: 'border-transparent bg-ink-1 text-surface hover:bg-ink-2',
+  accent: 'border-transparent bg-accent text-surface hover:bg-accent-hover',
   secondary: 'border-border-2 bg-surface text-ink-1 hover:bg-surface-2',
-  ghost: 'bg-transparent text-ink-1 hover:bg-surface-2',
-  success: 'bg-success text-surface hover:bg-success-hover',
+  ghost: 'border-transparent bg-transparent text-ink-1 hover:bg-surface-2',
+  success: 'border-transparent bg-success text-surface hover:bg-success-hover',
   danger: 'border-border-2 bg-surface text-danger hover:bg-danger-soft',
-  whatsapp: 'bg-whatsapp text-surface hover:bg-whatsapp-hover',
+  whatsapp: 'border-transparent bg-whatsapp text-surface hover:bg-whatsapp-hover',
 }
 // Phones get a 44 px hit area for every size; `sm` shrinks to 36 px from `lg`.
 const SIZES: Record<ButtonSize, string> = {
@@ -45,7 +47,7 @@ export function Button({ variant = 'primary', size = 'md', icon, iconRight, bloc
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={clsx(
-        'inline-flex shrink-0 touch-manipulation items-center justify-center rounded-r2 border border-transparent leading-none font-semibold whitespace-nowrap transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0',
+        'inline-flex shrink-0 touch-manipulation items-center justify-center rounded-r2 border leading-none font-semibold whitespace-nowrap transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0',
         FOCUS_RING,
         VARIANTS[variant],
         SIZES[size],

@@ -199,3 +199,29 @@ describe('StepList / Menu / EmptyState', () => {
     expect(screen.getByText('Try another filter')).not.toHaveClass('max-w-sm')
   })
 })
+
+describe('keys and fragments', () => {
+  it('Menu renders actions that share a label without React key warnings', async () => {
+    const error = vi.spyOn(console, 'error')
+    const first = vi.fn()
+    const second = vi.fn()
+    render(<Menu label="Photos" items={[{ label: 'Delete', onSelect: first }, { label: 'Delete', onSelect: second }]} />)
+    expect(error).not.toHaveBeenCalled()
+    await userEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1])
+    expect(second).toHaveBeenCalledOnce()
+    expect(first).not.toHaveBeenCalled()
+  })
+
+  it('a labelled List unwraps fragments, so every row is its own listitem', () => {
+    render(
+      <List label="Places">
+        <>
+          <ListItem title="Embassy" />
+          <ListItem title="Bakery" />
+          <ListItem title="Club" />
+        </>
+      </List>,
+    )
+    expect(within(screen.getByRole('list', { name: 'Places' })).getAllByRole('listitem').map((li) => li.textContent)).toEqual(['Embassy', 'Bakery', 'Club'])
+  })
+})

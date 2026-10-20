@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { Checkbox } from './Checkbox'
@@ -139,5 +139,90 @@ describe('ColorSwatches / StarInput', () => {
   it('StarInput shows a controlled value', () => {
     render(<StarInput label="Rating" value={5} />)
     expect(screen.getByRole('radio', { name: '5 stars' })).toHaveAttribute('aria-checked', 'true')
+  })
+})
+
+describe('radiogroup keyboard pattern', () => {
+  it('Segmented: one tab stop on the checked radio; arrows move and select, wrapping around', async () => {
+    const onChange = vi.fn()
+    render(<Segmented label="View" options={[{ value: 'map', label: 'Map' }, { value: 'list', label: 'List' }, { value: 'grid', label: 'Grid' }]} defaultValue="list" onChange={onChange} />)
+    const [map, list, grid] = screen.getAllByRole('radio')
+    expect([map.tabIndex, list.tabIndex, grid.tabIndex]).toEqual([-1, 0, -1])
+    await userEvent.tab()
+    expect(list).toHaveFocus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(grid).toHaveFocus()
+    expect(onChange).toHaveBeenLastCalledWith('grid')
+    await userEvent.keyboard('{ArrowRight}')
+    expect(map).toHaveFocus()
+    await userEvent.keyboard('{ArrowLeft}')
+    expect(grid).toHaveFocus()
+    await userEvent.keyboard('{Home}')
+    expect(map).toHaveAttribute('aria-checked', 'true')
+    await userEvent.keyboard('{End}')
+    expect(grid).toHaveAttribute('aria-checked', 'true')
+    await userEvent.keyboard('x')
+    expect(grid).toHaveFocus()
+  })
+
+  it('Segmented renders nothing selected (no crash) while options are empty', () => {
+    render(<Segmented label="Tabs" options={[]} />)
+    expect(screen.getByRole('radiogroup', { name: 'Tabs' })).toBeEmptyDOMElement()
+  })
+
+  it('RadioGroup: first radio is the tab stop when none is checked; ArrowDown selects', async () => {
+    const onChange = vi.fn()
+    render(<RadioGroup label="Reason" options={[{ value: 'spam', label: 'Spam' }, { value: 'closed', label: 'Closed' }]} onChange={onChange} />)
+    const [spam, closed] = screen.getAllByRole('radio')
+    expect([spam.tabIndex, closed.tabIndex]).toEqual([0, -1])
+    spam.focus()
+    await userEvent.keyboard('{ArrowDown}')
+    expect(closed).toHaveFocus()
+    expect(onChange).toHaveBeenCalledWith('closed')
+    await userEvent.keyboard('{ArrowUp}')
+    expect(onChange).toHaveBeenLastCalledWith('spam')
+  })
+
+  it('ColorSwatches: arrows select colours; swatches can carry readable names', async () => {
+    const onChange = vi.fn()
+    const names: Record<string, string> = { '#111111': 'Black', '#222222': 'Graphite' }
+    render(<ColorSwatches label="Colour" colors={['#111111', '#222222']} colorLabel={(c) => names[c]} onChange={onChange} />)
+    const black = screen.getByRole('radio', { name: 'Black' })
+    expect(black.tabIndex).toBe(0)
+    black.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(screen.getByRole('radio', { name: 'Graphite' })).toHaveFocus()
+    expect(onChange).toHaveBeenCalledWith('#222222')
+  })
+
+  it('StarInput: arrows change the rating; the tab stop follows it', async () => {
+    const onChange = vi.fn()
+    render(<StarInput label="Rating" defaultValue={2} onChange={onChange} />)
+    const stars = screen.getAllByRole('radio')
+    expect(stars.map((s) => s.tabIndex)).toEqual([-1, 0, -1, -1, -1])
+    stars[1].focus()
+    await userEvent.keyboard('{ArrowRight}')
+    expect(onChange).toHaveBeenCalledWith(3)
+    expect(stars[2]).toHaveFocus()
+  })
+
+  it('ignores keys from elements that are not radios', () => {
+    render(<Segmented label="View" options={[{ value: 'a', label: 'A' }]} />)
+    const group = screen.getByRole('radiogroup')
+    group.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
+    expect(screen.getByRole('radio')).toHaveAttribute('aria-checked', 'true')
+  })
+})
+
+describe('StarInput hover preview', () => {
+  it('previews on mouse hover but not on a touch tap', () => {
+    render(<StarInput label="Rating" value={0} />)
+    const stars = screen.getAllByRole('radio')
+    fireEvent.pointerEnter(stars[3], { pointerType: 'touch' })
+    expect(stars[3].querySelector('svg')).toHaveAttribute('fill', 'none')
+    fireEvent.pointerEnter(stars[3], { pointerType: 'mouse' })
+    expect(stars[3].querySelector('svg')).toHaveAttribute('fill', 'currentColor')
+    fireEvent.pointerLeave(screen.getByRole('radiogroup'))
+    expect(stars[3].querySelector('svg')).toHaveAttribute('fill', 'none')
   })
 })

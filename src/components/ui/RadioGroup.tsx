@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
-import { useControllableState } from './lib/internal'
+import { onRadioGroupKeyDown, radioTabIndex, useControllableState } from './lib/internal'
 
 export interface RadioOption<T extends string = string> {
   value: T
@@ -20,9 +20,10 @@ export interface RadioGroupProps<T extends string> {
 /** Vertical list of mutually exclusive options (report reasons). */
 export function RadioGroup<T extends string>({ options, label, value, defaultValue = null, onChange }: RadioGroupProps<T>) {
   const [current, setCurrent] = useControllableState<T | null | undefined>(value, defaultValue, onChange as (v: T | null | undefined) => void)
+  const checkedIndex = options.findIndex((o) => o.value === current)
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-col">
-      {options.map((o) => {
+    <div role="radiogroup" aria-label={label} onKeyDown={(e) => onRadioGroupKeyDown(e, (i) => setCurrent(options[i].value))} className="flex flex-col">
+      {options.map((o, i) => {
         const on = o.value === current
         return (
           <button
@@ -30,6 +31,7 @@ export function RadioGroup<T extends string>({ options, label, value, defaultVal
             type="button"
             role="radio"
             aria-checked={on}
+            tabIndex={radioTabIndex(i, checkedIndex)}
             onClick={() => setCurrent(o.value)}
             className="group flex min-h-11 w-full touch-manipulation items-start gap-3 px-0.5 py-2.75 text-left outline-none"
           >

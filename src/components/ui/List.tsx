@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import { Children, type ReactNode } from 'react'
-import { DividedListContext } from './lib/internal'
+import type { ReactNode } from 'react'
+import { DividedListContext, flattenChildren } from './lib/internal'
 
 export interface ListProps {
   /** `stack` — separate rows with a gap; `divided` — one card, rows split by hairlines. */
@@ -28,7 +28,7 @@ export function List({ variant = 'stack', gap = 'md', label, className, children
       >
         {/* role="list" must own role="listitem" children, or assistive tech reads an empty list. */}
         {label
-          ? Children.toArray(children).map((child, i) => (
+          ? flattenChildren(children).map((child, i) => (
               <div role="listitem" key={i} className="min-w-0">
                 {child}
               </div>

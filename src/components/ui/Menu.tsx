@@ -21,7 +21,7 @@ export function Menu({ items, label, className }: { items: (MenuAction | 'divide
           <hr key={i} className="mx-1.5 my-1 h-px border-0 bg-border-1" />
         ) : (
           <button
-            key={item.label}
+            key={i}
             type="button"
             onClick={item.onSelect}
             className={clsx(

@@ -165,3 +165,17 @@ describe('Meta / CorridorFlags / ImageFrame', () => {
     expect(container.firstChild).toHaveClass('aspect-4/3', 'rounded-r3')
   })
 })
+
+describe('accessible names of ratings and avatars', () => {
+  it('Stars announces the rating rounded to one decimal, like Rating shows it', () => {
+    render(<Stars value={4.666666} />)
+    expect(screen.getByRole('img')).toHaveAccessibleName('4.7 out of 5')
+  })
+
+  it('Avatar shows "?" instead of an empty circle for a blank name, and skips emoji', () => {
+    const { rerender } = render(<Avatar name="   " />)
+    expect(screen.getByRole('img')).toHaveTextContent('?')
+    rerender(<Avatar name="🇩🇪 Club" />)
+    expect(screen.getByRole('img')).toHaveTextContent('C')
+  })
+})

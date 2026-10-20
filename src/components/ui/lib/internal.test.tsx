@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { initialsOf, useControllableState } from './internal'
+import { flattenChildren, initialsOf, useControllableState } from './internal'
 
 describe('useControllableState', () => {
   it('keeps its own state when uncontrolled', () => {
@@ -23,6 +23,26 @@ describe('initialsOf', () => {
     ['Anna Morozova', 'AM'],
     ['igor', 'I'],
     ['  Daria  Kuznetsova  Petrovna ', 'DK'],
-    ['', ''],
+    ['', '?'],
+    ['   ', '?'],
+    ['🇩🇪 Club', 'C'],
+    ['😀 Ann Lee', 'AL'],
+    ['Ёжик в тумане', 'ЁВ'],
   ])('%s → %s', (name, initials) => expect(initialsOf(name)).toBe(initials))
+})
+
+describe('flattenChildren', () => {
+  it('unwraps nested fragments and drops empty children', () => {
+    const items = flattenChildren(
+      <>
+        <b>a</b>
+        <>
+          <i>b</i>
+          {false}
+          <u>c</u>
+        </>
+      </>,
+    )
+    expect(items).toHaveLength(3)
+  })
 })

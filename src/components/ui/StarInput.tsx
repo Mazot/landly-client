@@ -5,7 +5,7 @@ import { MAX_RATING, MIN_RATING } from '@/types/api'
 import { UI_NS } from './i18n'
 import { Icon } from './Icon'
 import { FOCUS_RING } from './lib/classes'
-import { useControllableState } from './lib/internal'
+import { onRadioGroupKeyDown, radioTabIndex, useControllableState } from './lib/internal'
 
 export interface StarInputProps {
   /** 1–5 (`MIN_RATING`–`MAX_RATING`); 0 = nothing chosen. */
@@ -26,7 +26,7 @@ export function StarInput({ value, defaultValue = 0, onChange, label, size = 'lg
   const [hover, setHover] = useState(0)
   const shown = hover || rating
   return (
-    <div role="radiogroup" aria-label={label} className="flex gap-2" onMouseLeave={() => setHover(0)}>
+    <div role="radiogroup" aria-label={label} className="flex gap-2" onPointerLeave={() => setHover(0)} onKeyDown={(e) => onRadioGroupKeyDown(e, (i) => setRating(STEPS[i]))}>
       {STEPS.map((i) => (
         <button
           key={i}
@@ -34,7 +34,9 @@ export function StarInput({ value, defaultValue = 0, onChange, label, size = 'lg
           role="radio"
           aria-checked={rating === i}
           aria-label={t('stars', { count: i })}
-          onMouseEnter={() => setHover(i)}
+          tabIndex={radioTabIndex(STEPS.indexOf(i), STEPS.indexOf(rating))}
+          // Preview only for a real hover: a touch tap fires enter without a matching leave.
+          onPointerEnter={(e) => e.pointerType === 'mouse' && setHover(i)}
           onClick={() => setRating(i)}
           className={clsx(
             'inline-flex touch-manipulation items-center justify-center rounded-r3 border border-border-1 transition-colors',

@@ -74,3 +74,31 @@ describe('IconButton', () => {
     expect(btn).toHaveAttribute('aria-pressed', 'true')
   })
 })
+
+// Two border-colour utilities on one element resolve by CSS order, not class order
+// (border-transparent used to win over border-border-2): exactly one per variant.
+const borderColours = (el: HTMLElement) => [...el.classList].filter((c) => /^border-(transparent|border-|danger|ink-|accent|success)/.test(c))
+
+describe('border colour of buttons', () => {
+  it.each(['primary', 'accent', 'secondary', 'ghost', 'success', 'danger', 'whatsapp'] as const)('Button %s sets exactly one border colour', (variant) => {
+    render(<Button variant={variant}>Go</Button>)
+    expect(borderColours(screen.getByRole('button', { name: 'Go' }))).toHaveLength(1)
+  })
+
+  it('secondary and danger buttons keep a visible border', () => {
+    render(<><Button variant="secondary">A</Button><Button variant="danger">B</Button></>)
+    expect(screen.getByRole('button', { name: 'A' })).not.toHaveClass('border-transparent')
+    expect(screen.getByRole('button', { name: 'B' })).not.toHaveClass('border-transparent')
+  })
+
+  it.each(['plain', 'outline', 'floating'] as const)('IconButton %s sets exactly one border colour', (variant) => {
+    render(<IconButton icon="close" label="Close" variant={variant} />)
+    expect(borderColours(screen.getByRole('button', { name: 'Close' }))).toHaveLength(1)
+  })
+
+  it('outline IconButton has a visible border', () => {
+    render(<IconButton icon="close" label="Close" variant="outline" />)
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveClass('border-border-1')
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveClass('border-transparent')
+  })
+})
