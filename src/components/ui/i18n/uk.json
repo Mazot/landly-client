@@ -1,0 +1,31 @@
+{
+  "optional": "Необовʼязково",
+  "close": "Закрити",
+  "back": "Назад",
+  "add": "Додати",
+  "remove": "Видалити {{label}}",
+  "showPassword": "Показати пароль",
+  "hidePassword": "Сховати пароль",
+  "openNow": "Відчинено",
+  "closed": "Зачинено",
+  "noReviews": "Ще немає відгуків",
+  "ratingOutOf": "{{value}} з 5",
+  "stars_one": "{{count}} зірка",
+  "stars_few": "{{count}} зірки",
+  "stars_many": "{{count}} зірок",
+  "stars_other": "{{count}} зірки",
+  "stepOf": "Крок {{current}} з {{total}}",
+  "dropzone": {
+    "title": "Перетягніть фото або виберіть файл",
+    "hint": "JPEG, PNG, WebP або GIF · до 10 МБ кожен"
+  },
+  "status": {
+    "pending": "На модерації",
+    "live": "Опубліковано",
+    "rejected": "Відхилено",
+    "awaiting": "Чекає підтвердження",
+    "confirmed": "Підтверджено",
+    "claimed": "Профіль підтверджено",
+    "declined": "Відмова"
+  }
+}

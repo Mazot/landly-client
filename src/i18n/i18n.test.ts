@@ -26,4 +26,23 @@ describe('i18n', () => {
     await i18n.changeLanguage('de')
     expect(i18n.t('header.profile')).toBe('Profile')
   })
+
+  it('keeps <html lang> on the language actually shown (screen readers, hyphenation)', async () => {
+    await i18n.changeLanguage('uk')
+    expect(document.documentElement.lang).toBe('uk')
+    await i18n.changeLanguage('de')
+    expect(document.documentElement.lang).toBe('en')
+  })
+
+  it('falls back to "en" for <html lang> while no language is resolved yet', () => {
+    const resolved = i18n.resolvedLanguage
+    i18n.resolvedLanguage = undefined
+    try {
+      document.documentElement.lang = 'ru'
+      i18n.emit('languageChanged', 'xx')
+      expect(document.documentElement.lang).toBe('en')
+    } finally {
+      i18n.resolvedLanguage = resolved
+    }
+  })
 })

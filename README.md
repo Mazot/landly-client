@@ -5,7 +5,7 @@
 
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-> **Status:** the old screens and UI components were removed together with the old design. What remains is the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — and the Google Maps setup. Screens are rebuilt on top of it.
+> **Status:** the old screens were removed together with the old design. In place: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the new design system in `src/components/ui`. Screens are rebuilt on top of them.
 
 ## 🛠️ Stack
 
@@ -15,7 +15,7 @@ React client for Landly — a map of businesses, helpers, communities and offici
 - **React Router** — routing
 - **Google Maps Platform** via [`@vis.gl/react-google-maps`](https://visgl.github.io/react-google-maps/) — map, markers, Places
 - **i18next** — `en`, `ru`, `uk`
-- **Tailwind CSS** + design tokens in `src/index.css`
+- **Tailwind CSS** + design system in `src/components/ui` (tokens in `tokens/tokens.ts`, see [its README](src/components/ui/README.md)), browsable in **Storybook**
 
 ## 📋 Prerequisites
 
@@ -46,6 +46,7 @@ src/
 ├── types/api/      # landly-server contracts, one file per server feature
 ├── services/       # one API object per server feature (all endpoints)
 ├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
+├── components/ui/  # design system: tokens, components, constants, `ui` i18n namespace
 ├── lib/
 │   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
 │   ├── queryClient.ts  # the app's React Query client
@@ -98,5 +99,7 @@ npm run build        # tsc + production build
 npm run lint         # ESLint
 npm test             # Vitest
 npm run coverage     # Vitest + coverage
+npm run storybook    # design-system catalogue on http://localhost:6006
+npm run build-storybook  # static Storybook → storybook-static/ (also in CI)
 npm run preview      # preview the build
 ```

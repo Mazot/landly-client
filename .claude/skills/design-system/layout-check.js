@@ -20,9 +20,17 @@
   }
   const all = [...document.querySelectorAll('body *')].filter((el) => !ignore(el))
 
+  // Content of a horizontal scroller (chip rail, carousel) may extend past the edge on purpose.
+  const inScroller = (el) => {
+    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      if (/(auto|scroll)/.test(getComputedStyle(p).overflowX) && !outside(p)) return true
+    }
+    return false
+  }
+
   // Outermost elements sticking out of the viewport (children of an offender are skipped).
   const overflow = all
-    .filter((el) => outside(el) && !(el.parentElement && el.parentElement !== document.body && outside(el.parentElement)))
+    .filter((el) => outside(el) && !inScroller(el) && !(el.parentElement && el.parentElement !== document.body && outside(el.parentElement)))
     .filter((el) => getComputedStyle(el).position !== 'fixed' || outside(el))
     .slice(0, 15)
     .map((el) => label(el) + ' right=' + Math.round(el.getBoundingClientRect().right))

@@ -52,7 +52,7 @@ Everything `VITE_*` ends up in the public bundle — never put server secrets he
 
 ## Status
 
-Screens and visual components were deleted with the old design; `App.tsx` has no routes yet. The data layer is complete and mirrors the current landly-server. Translation files still hold the old screens' copy.
+The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`); screens are not rebuilt yet and `App.tsx` has no routes. The data layer is complete and mirrors the current landly-server. Translation files still hold the old screens' copy.
 
 ## Documentation is part of every change
 
@@ -65,7 +65,7 @@ Files and what usually affects them:
 | `AGENTS.md` | architecture, directory layout, conventions, auth/session flow, env vars, commands, stack |
 | `README.md` | setup, env vars, scripts, structure, features, how to run |
 | `.claude/skills/library-first/SKILL.md` | dependencies (added/removed/bumped packages, APIs now used), project helpers in `src/lib` |
-| `.claude/skills/design-system/SKILL.md` | tokens (`tailwind.config.ts`, `src/index.css`), DS components / `src/components/ui`, breakpoints, layout patterns, verification steps |
+| `.claude/skills/design-system/SKILL.md` and `src/components/ui/README.md` | tokens (`src/components/ui/tokens/`), DS components / `src/components/ui`, breakpoints, layout patterns, verification steps |
 | `.claude/skills/test-after-change/SKILL.md` | test helpers in `src/test/`, test layout per layer, test/coverage commands, `vite.config.ts` → `test.coverage` excludes (mirrored in `changed-coverage.mjs`) |
 | `.env.example` (not Markdown, same rule) | any `import.meta.env.VITE_*` added, renamed or removed |
 
@@ -82,7 +82,7 @@ Before writing code, follow `.claude/skills/library-first/SKILL.md`: use the fun
 
 ## UI: design system, mobile-first (skill `design-system`)
 
-For anything visible, follow `.claude/skills/design-system/SKILL.md`: screens are composed only of design-system components (`src/components/ui/`, inventory in its `index.ts`) and tokens (`tailwind.config.ts` + `src/index.css`); never duplicate an existing component — extend it with a variant; phone layout is the base and `md`/`lg` adapt it; and every UI change is verified in the browser at phone (375, 320) and desktop (1440) sizes with screenshots and `.claude/skills/design-system/layout-check.js` before it is called done.
+For anything visible, follow `.claude/skills/design-system/SKILL.md`: screens are composed only of design-system components (`src/components/ui/`, inventory in its `index.ts`) and tokens (`src/components/ui/tokens/tokens.ts` + `tokens.css`); never duplicate an existing component — extend it with a variant; phone layout is the base and `md`/`lg` adapt it; and every UI change is verified in the browser at phone (375, 320) and desktop (1440) sizes with screenshots and `.claude/skills/design-system/layout-check.js` before it is called done.
 
 ## Test every change (skill `test-after-change`)
 
@@ -101,8 +101,8 @@ TypeScript is pinned to `~6.0` (typescript-eslint supports only `<6.1`). TS 6 lo
 - **Client state** — `zustand`: `authStore` (JWT + user, persisted in `localStorage`), `corridorStore` (guest corridor; signed-in users use server corridors)
 - **HTTP client** — `axios` instance in `src/lib/axios.ts`
 - **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx`, config and helpers in `src/lib/maps.ts`
-- **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `tailwind.config.ts`, loaded with `@config` from `src/index.css`, and are mirrored as CSS variables there. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
-- **i18n** — `i18next` + `react-i18next` + `i18next-browser-languagedetector`; languages `en`, `ru`, `uk` (same as the server's `Locale`), files in `src/i18n/locales/{en,ru,uk}/translation.json`
+- **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `src/components/ui/tokens/tokens.ts` (single source; `tailwind.config.ts` builds the theme from it and is loaded with `@config` from `src/index.css`) and are mirrored as CSS variables in `src/components/ui/tokens/tokens.css` (`tokens.test.ts` checks the two match). Class names are joined with `clsx`. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
+- **i18n** — `i18next` + `react-i18next` + `i18next-browser-languagedetector`; languages `en`, `ru`, `uk` (same as the server's `Locale`), files in `src/i18n/locales/{en,ru,uk}/translation.json`; the design system's own strings are the `ui` namespace in `src/components/ui/i18n/{en,ru,uk}.json`
 
 ### Directory structure
 
@@ -111,6 +111,7 @@ src/
 ├── types/api/          # server contracts — one file per server feature + index.ts
 ├── services/           # <feature>.service.ts — one API object per server feature
 ├── hooks/              # use<Feature>.ts — React Query hooks; usePlaceDetails (Google Places)
+├── components/ui/      # design system: tokens/, constants/, i18n/ (`ui` namespace), lib/, one component per file, barrel index.ts
 ├── lib/                # axios, queryClient, session, queryKeys, invalidation, maps, errors, dates, query
 ├── stores/             # authStore, corridorStore
 ├── i18n/
@@ -169,7 +170,8 @@ In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localho
 
 Every code change comes with tests (workflow: skill `test-after-change`); CI keeps coverage on Codecov (currently 100% of lines, branches and functions). Locally, `node .claude/skills/test-after-change/changed-coverage.mjs [base]` (after `npm run coverage`) shows the coverage of the files changed since `origin/master` — the same idea as Codecov's patch status.
 
-- **Stack:** Vitest 5 (configured in `vite.config.ts` → `test`), jsdom, `@testing-library/react` (`renderHook`), MSW 3 for HTTP, `@vitest/coverage-v8`.
+- **Stack:** Vitest 5 (configured in `vite.config.ts` → `test`), jsdom, `@testing-library/react` (`render`, `renderHook`), `@testing-library/user-event`, `@testing-library/jest-dom` matchers (loaded in `src/test/setup.ts`), MSW 3 for HTTP, `@vitest/coverage-v8`.
+- **Components:** DS tests sit in `src/components/ui/*.test.tsx`, grouped by area (primitives, display, fields, choices, upload, containers, shell). jsdom has no `HTMLDialogElement.showModal` — `shell.test.tsx` polyfills it for `Sheet`.
 - **HTTP:** requests go through the real `apiClient` (interceptors, `paramsSerializer`) to `http://api.test` and are answered by MSW. Register handlers per test with `capture(method, path, response, status)` from `src/test/server.ts` — it records method, path, query, headers and body (JSON, or multipart parts). An unhandled request fails the test (`onUnhandledFrame: 'error'`). jsdom runs on the API origin because its XHR enforces CORS.
 - **Hooks:** `renderQueryHook` gives each test a fresh `QueryClient` (no retries); `runMutation(client, hook, variables)` runs a mutation; `seed` + `isInvalidated` check what a mutation invalidated. Session hooks use the app's module `queryClient` (`lib/session.ts` clears it).
 - **Fixtures:** `src/test/factories.ts` builds typed server payloads (`organisation()`, `person()`, `authUser()`, … and `list()` for `{ items, total }`).
@@ -200,3 +202,7 @@ Rules enforced:
 - `@typescript-eslint/consistent-type-imports` — enforce `import type` for type-only imports
 - `@typescript-eslint/no-explicit-any` — warn on `any` usage
 - `@typescript-eslint/no-unused-vars` — error (args prefixed with `_` are ignored)
+
+## Storybook (design-system catalogue)
+
+`npm run storybook` (http://localhost:6006) shows every DS component; `npm run build-storybook` builds it (also in CI). Config in `.storybook/` (tokens, i18n toolbar en/ru/uk, router, viewports 320/375/768/1024/1440, a11y addon). Every component exported from `src/components/ui/index.ts` needs a `<Name>.stories.tsx` next to it — `src/components/ui/stories.test.tsx` fails otherwise, and runs every story checking for React console errors and axe violations. Stories are excluded from coverage.

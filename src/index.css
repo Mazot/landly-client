@@ -1,88 +1,10 @@
 @import "tailwindcss";
-/* Tailwind 4 reads the v3-style JS config (design tokens) from here. */
+/* Design tokens as CSS variables — source of truth is src/components/ui/tokens/tokens.ts */
+@import "./components/ui/tokens/tokens.css";
+/* Tailwind 4 reads the v3-style JS config (built from the same tokens) from here. */
 @config "../tailwind.config.ts";
 
-/* ============================================================
-   Landly v2 — Design Tokens (mirror of design_files/tokens.css)
-   Hex values are also hardcoded in tailwind.config.ts so that
-   Tailwind opacity modifiers work; keep both in sync.
-   ============================================================ */
 :root {
-  /* Surface */
-  --bg: #F6F4EF;
-  --bg-sunken: #EFEBE2;
-  --surface: #FFFFFF;
-  --surface-2: #FBF9F4;
-  --surface-elev: #FFFFFF;
-  --overlay: rgba(20, 18, 14, 0.35);
-
-  /* Ink */
-  --ink-1: #1B1A17; /* primary */
-  --ink-2: #3F3D38; /* secondary */
-  --ink-3: #6E6A62; /* tertiary / muted */
-  --ink-4: #9B9588; /* placeholder */
-
-  /* Border */
-  --border-1: #E8E2D6;
-  --border-2: #D9D2C2;
-  --border-strong: #1B1A17;
-
-  /* Brand */
-  --accent: #D97757; /* terracotta */
-  --accent-hover: #C7613F;
-  --accent-soft: #F4D7C9;
-  --accent-tint: #FBEAE0;
-
-  /* Semantic */
-  --success: #4F7F5C;
-  --success-soft: #DDE9D9;
-  --warning: #C8923A;
-  --warning-soft: #F2E2BD;
-  --danger: #B14C3A;
-  --info: #4A6D8C;
-  --info-soft: #DCE5EC;
-
-  /* Org type accents (pastel) — pinned, also used on map */
-  --type-embassy: #4A6D8C; /* deep blue */
-  --type-embassy-soft: #D9E2EA;
-  --type-business: #B8814A; /* amber */
-  --type-business-soft: #F1E3D0;
-  --type-helper: #4F7F5C; /* green */
-  --type-helper-soft: #DDE9D9;
-  --type-community: #8B5A8C; /* plum */
-  --type-community-soft: #E8D9E9;
-  --type-volunteer: #C7613F; /* terracotta */
-  --type-volunteer-soft: #F4D7C9;
-
-  /* Pastel country fills */
-  --country-1: #F0E4D3;
-  --country-2: #E7E3D2;
-  --country-3: #E5DDC9;
-  --country-4: #EBD9C9;
-  --country-5: #DCE3D5;
-  --country-6: #E2DACB;
-  --country-7: #EFE0D0;
-  --country-water: #E8E9E4;
-
-  /* Radii */
-  --r-1: 6px;
-  --r-2: 10px;
-  --r-3: 14px;
-  --r-4: 20px;
-  --r-pill: 999px;
-
-  /* Shadow */
-  --shadow-1: 0 1px 2px rgba(20,18,14,0.04), 0 1px 1px rgba(20,18,14,0.03);
-  --shadow-2: 0 4px 12px rgba(20,18,14,0.06), 0 2px 4px rgba(20,18,14,0.04);
-  --shadow-3: 0 12px 32px rgba(20,18,14,0.10), 0 4px 12px rgba(20,18,14,0.06);
-  --shadow-pop: 0 24px 56px rgba(20,18,14,0.18), 0 8px 20px rgba(20,18,14,0.08);
-
-  /* Type */
-  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
-
-  /* Base */
   color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -104,4 +26,3 @@ body {
   color: var(--ink-1);
   background-color: var(--bg);
 }
-
