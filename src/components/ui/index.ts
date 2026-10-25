@@ -16,6 +16,9 @@ export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from '.
 export { IconButton, type IconButtonProps, type IconButtonVariant, type IconButtonSize } from './IconButton'
 export { TextLink, type TextLinkProps, type TextLinkTone } from './TextLink'
 export { Divider } from './Divider'
+export { InlineStatus } from './InlineStatus'
+export { Logo, type LogoProps } from './Logo'
+export { MapBackdrop, type MapBackdropProps } from './MapBackdrop'
 
 // Data display
 export { Avatar, type AvatarProps, type AvatarSize } from './Avatar'
@@ -30,12 +33,14 @@ export { OpenStatus, type OpenStatusProps } from './OpenStatus'
 export { Meta } from './Meta'
 export { CorridorFlags, type CorridorFlagsProps } from './CorridorFlags'
 export { ImageFrame, type ImageFrameProps } from './ImageFrame'
+export { TypeBar, type TypeBarProps, type TypeBarSegment } from './TypeBar'
 
 // Forms
 export { Field, type FieldProps } from './Field'
 export { TextField, type TextFieldProps } from './TextField'
 export { SearchField } from './SearchField'
 export { TextArea, type TextAreaProps } from './TextArea'
+export { FormNote } from './FormNote'
 export { Select, type SelectProps, type SelectOption } from './Select'
 export { Chip, type ChipProps } from './Chip'
 export { ChipGroup, type ChipGroupProps, type ChipOption } from './ChipGroup'
@@ -48,6 +53,7 @@ export { StarInput, type StarInputProps } from './StarInput'
 export { Dropzone, type DropzoneProps } from './Dropzone'
 export { Progress, type ProgressProps } from './Progress'
 export { StepBar } from './StepBar'
+export { CorridorFields, type CorridorFieldsProps } from './CorridorFields'
 
 // Containers & lists
 export { Card, type CardProps, type CardVariant } from './Card'
@@ -68,3 +74,5 @@ export { Sheet, type SheetProps } from './Sheet'
 export { MobileHeader, type MobileHeaderProps } from './MobileHeader'
 export { TabBar, type TabBarItem } from './TabBar'
 export { NavTabs, type NavTabsItem } from './NavTabs'
+export { TopBar, type TopBarProps } from './TopBar'
+export { AuthLayout, type AuthLayoutProps } from './AuthLayout'

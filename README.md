@@ -5,7 +5,7 @@
 
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-> **Status:** the old screens were removed together with the old design. In place: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the new design system in `src/components/ui`. Screens are rebuilt on top of them.
+> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback). In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
 
 ## 🛠️ Stack
 
@@ -13,6 +13,7 @@ React client for Landly — a map of businesses, helpers, communities and offici
 - **TanStack Query** — server state; **Zustand** — client state (session, guest corridor)
 - **Axios** — HTTP client (`src/lib/axios.ts`)
 - **React Router** — routing
+- **TanStack Form** + **zod** — forms and validation
 - **Google Maps Platform** via [`@vis.gl/react-google-maps`](https://visgl.github.io/react-google-maps/) — map, markers, Places
 - **i18next** — `en`, `ru`, `uk`
 - **Tailwind CSS** + design system in `src/components/ui` (tokens in `tokens/tokens.ts`, see [its README](src/components/ui/README.md)), browsable in **Storybook**
@@ -47,6 +48,8 @@ src/
 ├── services/       # one API object per server feature (all endpoints)
 ├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
 ├── components/ui/  # design system: tokens, components, constants, `ui` i18n namespace
+├── components/     # auth/, corridor/, layout/ — domain blocks composed from DS components
+├── pages/          # one file per route
 ├── lib/
 │   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
 │   ├── queryClient.ts  # the app's React Query client
@@ -56,11 +59,14 @@ src/
 │   ├── maps.ts         # Google Maps config + bbox/marker/place helpers
 │   ├── errors.ts       # landly-server error bodies
 │   ├── dates.ts        # server timestamps (UTC without a zone)
+│   ├── routes.ts       # ROUTES (landing, sign in/up, map)
+│   ├── locales.ts      # native language names + select options
+│   ├── navigation.ts   # redirectTo — top-level navigation (Google sign-in)
 │   └── query.ts
 ├── stores/         # authStore (JWT session), corridorStore (guest corridor)
 ├── i18n/
 ├── test/           # test helpers (MSW server, factories, render helpers, setup)
-├── App.tsx         # routes (empty until screens are rebuilt)
+├── App.tsx         # routes (sign in & sign up done; the rest comes with the other design sections)
 └── main.tsx        # providers: React Query, Google Maps APIProvider, Router
 ```
 
@@ -85,7 +91,7 @@ node .claude/skills/test-after-change/changed-coverage.mjs   # after coverage: f
 
 New or changed code is tested right after it is written — the workflow (what to test per layer, regression check, the gate) is the `test-after-change` skill in `.claude/skills/`.
 
-- Tests live in a `__test__/` folder next to the code they cover (`src/<area>/__test__/*.test.ts(x)`); shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`).
+- Tests live in a `__test__/` folder next to the code they cover (`src/<area>/__test__/*.test.ts(x)`); shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`, `renderApp` for components and screens).
 - An unhandled request fails the test; session, `localStorage` and the query cache are reset after every test (`src/test/setup.ts`).
 - `src/types/api/__test__/contract.test.ts` pins the enum values and limits shared with the server — update both sides together.
 

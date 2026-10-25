@@ -57,6 +57,9 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 | Server timestamps | `parseServerDateTime` (`lib/dates.ts`) — never `new Date(serverString)` |
 | API errors | `apiErrorStatus`, `apiErrorMessage`, `apiErrorConstraint` (`lib/errors.ts`) |
 | Map ↔ API | `boundsToSearchBox`, `organisationPosition`, `placeToOrganisationLocation`, `GOOGLE_MAPS_MAP_ID` (`lib/maps.ts`); live Google data via `usePlaceDetails` |
+| Country list for pickers / guest corridor | `useAllCountries()` (all countries sorted, ≤ 2 requests, `brief: true` — no `geoJson`, ~45 KB instead of ~12 MB), `useGuestCorridor({ persist })` (`corridorStore` resolved against it; Russia → Germany by default, the first countries if those are missing; `persist: false` keeps picks in a draft until a form is submitted) |
+| UI language as a server `Locale` / language options | `useUiLocale()`, `LOCALE_OPTIONS` / `LOCALE_NAMES` (`lib/locales.ts`) |
+| Client routes / leaving the SPA | `ROUTES` (`lib/routes.ts`), `redirectTo(url)` (`lib/navigation.ts`) |
 | Enum values / limits | the `as const` arrays and limit constants in `types/api/*` (`ORGANISATION_STATUSES`, `LOCALES`, `PASSWORD_MIN_CHARS`, `MAX_IMAGE_BYTES`, …) |
 
 ### @tanstack/react-query 5.104 (+ react-query-devtools 5.104)
@@ -71,6 +74,16 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 - Utilities: `hashKey`, `matchQuery`, `matchMutation`, `isCancelledError`
 - Built-in behaviours you must not re-implement: retries, dedupe, cache/`staleTime`/`gcTime`, `select` (derive data), `refetchInterval` (polling), `signal` in `queryFn` (pass it to axios for cancellation), optimistic updates via `onMutate`
 - Devtools: `ReactQueryDevtools` (mounted in `main.tsx`), `ReactQueryDevtoolsPanel`
+
+### @tanstack/react-form 1.33 + zod 4.6
+
+Used by the sign-in / sign-up forms (`components/auth/`). Re-checked against the installed versions:
+
+- `useForm({ defaultValues, validators: { onSubmit: schema }, onSubmit })` — `schema` is a zod object covering **all** of `defaultValues` (a partial schema fails the type check); `form.handleSubmit()`; `<form.Field name>{(field) => …}</form.Field>` with `field.state.value`, `field.state.meta.errors`, `field.handleChange`, `field.handleBlur`.
+- Standard-Schema issues arrive as `{ message }`; our messages are i18n keys (`firstErrorKey` in `components/auth/schemas.ts` reads the first; `FormTextField` in `components/auth/` binds a field to a DS `Field` + `TextField` and translates it). zod's `.trim()` is not applied to the submitted `value` — trim again in `onSubmit`.
+- zod 4: `z.object`, `z.string().trim().min().max().regex().refine()`, `.pipe(z.email(msg))`, `z.enum(CONST_ARRAY)`.
+- Server answers (401, 422 constraint, 429, network) are not form validation: keep them in the mutation state and map them with `components/auth/authErrors.ts`.
+- `<Trans>` tag names must not be HTML void elements (`<link>`, `<br>`, `<img>`…): the text after them escapes the component. Use `<cta>` / `<accent>`.
 
 ### axios 1.20
 
@@ -139,7 +152,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 - **@testing-library/jest-dom 7.0** (loaded in `src/test/setup.ts`): `toBeInTheDocument`, `toHaveClass`, `toHaveAttribute`, `toHaveAccessibleName`, `toHaveStyle`, `toHaveTextContent`, `toBeDisabled`, …
 - **Storybook 10.6** (`storybook`, `@storybook/react-vite`, `addon-docs`, `addon-a11y`; dev only): CSF3 stories (`Meta`, `StoryObj`, `satisfies Meta<typeof X>`), `fn()` from `storybook/test` for callback args, portable stories `composeStories` / `setProjectAnnotations` + `Story.run()` (used by `src/components/ui/__test__/stories.test.tsx`), `parameters.viewport.options` / `globals.viewport`, `parameters.backgrounds.options`, `parameters.a11y.test`.
 - **MSW 3.0**: `http.get/post/put/delete`, `HttpResponse.json`, `delay`, `bypass`; `setupServer` from `msw/node` with `listen` / `use` / `resetHandlers` / `close`. MSW 3 renamed `onUnhandledRequest` → **`onUnhandledFrame`** (`'error' | 'warn' | 'bypass'`); resolvers get `{ request, params, cookies }`.
-- **Project test helpers — reuse, don't re-implement:** `capture()` + `server` + `API` (`src/test/server.ts`), payload factories (`src/test/factories.ts`), `renderQueryHook`, `runMutation`, `seed`, `isInvalidated`, `createTestQueryClient` (`src/test/render.tsx`).
+- **Project test helpers — reuse, don't re-implement:** `capture()` + `server` + `API` (`src/test/server.ts`), payload factories (`src/test/factories.ts`), `renderQueryHook`, `runMutation`, `seed`, `isInvalidated`, `createTestQueryClient`, `renderApp` (QueryClient + MemoryRouter for components/screens) (`src/test/render.tsx`).
 
 ### Platform APIs (no package needed)
 
@@ -156,7 +169,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 | `forwardRef` wrappers in new components | `ref` as a regular prop (React 19) |
 | A document-head library (helmet) | render `<title>` / `<meta>` directly (React 19 hoists them) |
 | `setTimeout` debounce/throttle helpers | `useDeferredValue`; for real debounce/throttle/rate-limit install `@tanstack/react-pacer` |
-| Hand-made form state + validation | install `@tanstack/react-form` (+ a Standard Schema validator such as `zod`) |
+| Hand-made form state + validation | `@tanstack/react-form` + `zod` (installed — see above) |
 | Hand-made table sorting/filtering/pagination | install `@tanstack/react-table` |
 | Rendering hundreds of rows/markers in a list | install `@tanstack/react-virtual` |
 | Own marker clustering | install `@googlemaps/markerclusterer` |

@@ -30,7 +30,7 @@ export interface TextLinkProps {
 export function TextLink({ to, href, onClick, tone = 'accent', size = 'sm', icon, iconRight, className, children }: TextLinkProps) {
   const iconSize = size === 'sm' ? 13 : 14
   const cls = clsx(
-    'inline-flex min-h-11 touch-manipulation items-center gap-1.5 rounded-r1 whitespace-nowrap underline-offset-3 hover:underline lg:min-h-0',
+    'inline-flex min-h-11 min-w-11 touch-manipulation items-center justify-center gap-1.5 rounded-r1 whitespace-nowrap underline-offset-3 hover:underline lg:min-h-0 lg:min-w-0',
     FOCUS_RING,
     TONES[tone],
     size === 'sm' ? 'text-label' : 'text-sm',

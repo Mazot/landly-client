@@ -10,6 +10,7 @@ describe('queryKeys', () => {
     const pairs: [readonly unknown[], readonly unknown[]][] = [
       [queryKeys.countries.all, queryKeys.countries.list({ name: 'ger' })],
       [queryKeys.countries.all, queryKeys.countries.infinite('ger')],
+      [queryKeys.countries.all, queryKeys.countries.everything],
       [queryKeys.countries.details, queryKeys.countries.detail('c1')],
       [queryKeys.organisations.all, queryKeys.organisations.list({ name: 'x' })],
       [queryKeys.organisations.all, queryKeys.organisations.search({ lat: 1, lng: 2 })],

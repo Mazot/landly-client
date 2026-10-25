@@ -39,10 +39,12 @@ src/components/ui/
 |---|---|---|
 | Primitives | `Icon` | line icons · `name`, `size`, `filled`, `label` |
 | | `Spinner` | `size`, `label` |
-| | `Button` | `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
+| | `Button` | `to` (router link looking like a button); `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
 | | `IconButton` | `icon`, `label` (required), `variant` plain · outline · floating, `size`, `pressed` |
 | | `TextLink` | `to` (router) / `href` / `onClick`; `tone` accent · muted · strong · danger |
 | | `Divider` | optional `label` |
+| | `InlineStatus` | spinner + message announced as a status ("Signing you in…") |
+| | `Logo` | mark + serif wordmark · `size`, `variant` full / mark, `to` (home link) |
 | Data | `Avatar` | `name` → initials, `color`, `src`, `size` xs–2xl, `square` |
 | | `Badge` / `StatusBadge` | `tone`, `icon`, `size` / `status` (OrganisationStatus · PersonStatus) |
 | | `Tag` | services, languages, skills · `orgType` dot, `onRemove` |
@@ -53,8 +55,11 @@ src/components/ui/
 | | `Meta` | icon + short text |
 | | `CorridorFlags` | `from` / `to` flag emoji, `label` |
 | | `ImageFrame` | `src`, `alt`, `ratio`, `badge`, `action` |
+| | `MapBackdrop` | map area behind landing / sign-in (placeholder until the Google map is mounted) · `variant` plain / hero (readability fade from `lg`), sized by `className` |
+| | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
+| | `FormNote` | centred muted line under a form · `size` md / sm |
 | | `TextArea`, `Select` | `Select`: `options`, `placeholder` (native select) |
 | | `Chip` / `ChipGroup` | `selected`, `orgType`, `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` |
 | | `Segmented` | `options` (+`count`), `block`, `size` |
@@ -62,14 +67,17 @@ src/components/ui/
 | | `ColorSwatches`, `StarInput` | avatar colour (`colorLabel` gives swatches readable names) · review rating |
 | | `Dropzone` | `onFiles`, `onReject` (type / 10 MB like the server), `upload` progress |
 | | `Progress`, `StepBar` | upload progress · sign-up steps |
+| | `CorridorFields` | `from` / `to` slots (Fields with Selects) joined by the accent arrow · `stackOnPhone` |
 | Containers | `Card` | `variant` default · selected · dashed · sunken · elevated, `padding` |
 | | `ListItem` / `List` / `ToggleRow` | `leading`, `title`, `adornment`, `subtitle`, `meta`, `trailing`, `footer`, `active`, `to`/`href`/`onClick` · `List variant="divided"` |
 | | `Stat`, `KeyValueList` | number tile · label → value rows |
-| | `Section`, `PageHeader` (+ `Accent`) | heading row with action · eyebrow + display title + lede + actions |
+| | `Section`, `PageHeader` (+ `Accent`) | heading row with action · eyebrow + display title + lede + actions; `size` sm · md · lg · xl · hero |
 | | `Callout` | `tone`, `title`, `actions`, default icon per tone |
 | | `StepList`, `Menu`, `EmptyState` | process steps · action panel · empty / error states with `code` |
 | Shell | `Sheet` | bottom sheet on phones, modal from `md` (native `<dialog>`) |
 | | `MobileHeader`, `TabBar`, `NavTabs` | phone header · phone bottom nav · top-bar nav (router links) |
+| | `TopBar` | page banner: `brand`, `nav` (from `md`), `actions` |
+| | `AuthLayout` | sign-in / sign-up frame: plain page → form card on the map (`md`) → map panel with `aside` hero + form column (`lg`) |
 
 ## Storybook
 

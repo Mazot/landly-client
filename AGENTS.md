@@ -52,7 +52,7 @@ Everything `VITE_*` ends up in the public bundle — never put server secrets he
 
 ## Status
 
-The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`); screens are not rebuilt yet and `App.tsx` has no routes. The data layer is complete and mirrors the current landly-server. Translation files still hold the old screens' copy.
+The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`). Screens are rebuilt one design section at a time (design: "Landly v3 (API-aligned)"); done so far: **1 · Sign in & Sign up** — the guest landing (`/`), `/signin`, `/signup` (two steps; all three under `GuestOnly`, which sends a signed-in user to `/map`) and the Google callback (`/auth/google/callback`). A signed-in user lands on `ROUTES.map` (`/map`), which is not built yet (empty route). The data layer is complete and mirrors the current landly-server. Translation files still hold some copy of the old screens (`header`, `home`, …); the new screens use the `landing`, `auth`, `corridor` and `language` keys.
 
 ## Documentation is part of every change
 
@@ -102,6 +102,7 @@ TypeScript is pinned to `~6.0` (typescript-eslint supports only `<6.1`). TS 6 lo
 - **HTTP client** — `axios` instance in `src/lib/axios.ts`
 - **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx`, config and helpers in `src/lib/maps.ts`
 - **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `src/components/ui/tokens/tokens.ts` (single source; `tailwind.config.ts` builds the theme from it and is loaded with `@config` from `src/index.css`) and are mirrored as CSS variables in `src/components/ui/tokens/tokens.css` (`tokens.test.ts` checks the two match). Class names are joined with `clsx`. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
+- **Forms** — `@tanstack/react-form` with `zod` schemas as the Standard Schema validator (`validators.onSubmit`); schemas live next to the form (`components/auth/schemas.ts`) and carry i18n keys as messages; `FormTextField` binds a field to the DS and translates them
 - **i18n** — `i18next` + `react-i18next` + `i18next-browser-languagedetector`; languages `en`, `ru`, `uk` (same as the server's `Locale`), files in `src/i18n/locales/{en,ru,uk}/translation.json`; the design system's own strings are the `ui` namespace in `src/components/ui/i18n/{en,ru,uk}.json`
 
 ### Directory structure
@@ -112,7 +113,9 @@ src/
 ├── services/           # <feature>.service.ts — one API object per server feature
 ├── hooks/              # use<Feature>.ts — React Query hooks; usePlaceDetails (Google Places)
 ├── components/ui/      # design system: tokens/, constants/, i18n/ (`ui` namespace), lib/, one component per file, barrel index.ts
-├── lib/                # axios, queryClient, session, queryKeys, invalidation, maps, errors, dates, query
+├── components/<feature>/ # domain blocks composed from DS components: auth/ (forms, schemas), corridor/ (CorridorPicker), layout/ (LanguageSelect)
+├── pages/              # one file per route (LandingPage, SignInPage, SignUpPage, GoogleCallbackPage); tests in pages/__test__
+├── lib/                # axios, queryClient, session, queryKeys, invalidation, maps, errors, dates, query, routes (ROUTES), locales (LOCALE_OPTIONS), navigation (redirectTo)
 ├── stores/             # authStore, corridorStore
 ├── i18n/
 ├── test/               # test-only helpers: MSW server, factories, render helpers, setup
@@ -138,7 +141,9 @@ Source of truth is the server's OpenAPI spec (`/api-docs/openapi.json`; per-feat
 
 `authStore` keeps the JWT in `localStorage`; the axios request interceptor adds `Authorization: Bearer`. Sessions start and end only through `lib/session.ts` (`startSession` / `endSession`), which also clears the React Query cache (`lib/queryClient.ts`) — disabled queries would otherwise keep serving the previous account's data. A 401 on a request that carried the token calls `endSession` (no redirect — screens decide). The user id is never sent in bodies: the server takes it from the token.
 
-Google sign-in is a top-level navigation to `GOOGLE_LOGIN_URL`; the server redirects back to `GOOGLE_CALLBACK_PATH` (`/auth/google/callback?code=…`), where `useGoogleExchange` trades the single-use code for the session. It needs Redis on the server.
+Screens: `/signin` (`SignInForm`) and `/signup` sit under `GuestOnly`, which sends a signed-in user to `ROUTES.map`. Sign-up is two steps on one URL held in `SignUpPage` state — step 1 (username, email, password; validated by `components/auth/schemas.ts`, which mirrors `user/entities.rs`) and step 2 (corridor, name, "I'm here as", language, avatar colour; all optional) — and **one** `POST /api/user/signup` after step 2 ("Skip for now" sends just the account + the UI locale). The password never leaves the component's state. The corridor sent is the guest corridor (`useGuestCorridor`: `corridorStore` resolved against `useAllCountries`, default Russia → Germany); `home_country_id` is set to the "from" country. Username/email are only checked by the server: a 422 whose `constraint` is in `SIGNUP_CONFLICT_CONSTRAINTS` sends the user back to step 1 with the field marked; sign-in shows one message for a 401 (unknown email and wrong password are indistinguishable). Messages are translated client-side (`auth.errors.*`), never the server's English text. The landing's "Open the map · N places" and type breakdown come from the public `GET /api/common/countries/{id}` (`useCountry`) — `/corridor/stats` needs a session.
+
+Google sign-in is a top-level navigation (`redirectTo(GOOGLE_LOGIN_URL)`, `lib/navigation.ts`); the server redirects back to `GOOGLE_CALLBACK_PATH` (`/auth/google/callback?code=…`), where `useGoogleExchange` trades the single-use code for the session. It needs Redis on the server.
 
 ### Google Maps
 
@@ -154,8 +159,8 @@ In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localho
 
 ### Adding a new page
 
-1. Create the component in `src/pages/`
-2. Add a `<Route>` in `src/App.tsx`
+1. Create the component in `src/pages/` (domain blocks in `src/components/<feature>/`, built only from DS components) and a test in `src/pages/__test__/`
+2. Add a `<Route>` in `src/App.tsx` (path in `src/lib/routes.ts` when other code links to it)
 3. Add translation keys to all three locale files
 4. Gate it on `useAuthStore` / `useMe().data?.role` if it needs auth or a role
 
@@ -173,6 +178,7 @@ Every code change comes with tests (workflow: skill `test-after-change`); CI kee
 - **Stack:** Vitest 5 (configured in `vite.config.ts` → `test`), jsdom, `@testing-library/react` (`render`, `renderHook`), `@testing-library/user-event`, `@testing-library/jest-dom` matchers (loaded in `src/test/setup.ts`), MSW 3 for HTTP, `@vitest/coverage-v8`.
 - **Components:** DS tests sit in `src/components/ui/__test__/*.test.tsx`, grouped by area (primitives, display, fields, choices, upload, containers, shell). jsdom has no `HTMLDialogElement.showModal` — `shell.test.tsx` polyfills it for `Sheet`.
 - **HTTP:** requests go through the real `apiClient` (interceptors, `paramsSerializer`) to `http://api.test` and are answered by MSW. Register handlers per test with `capture(method, path, response, status)` from `src/test/server.ts` — it records method, path, query, headers and body (JSON, or multipart parts). An unhandled request fails the test (`onUnhandledFrame: 'error'`). jsdom runs on the API origin because its XHR enforces CORS.
+- **Screens and components with providers:** `renderApp(ui, { route, client })` (`src/test/render.tsx`) wraps in a fresh `QueryClient` + `MemoryRouter`; add routes inside `ui` when the test navigates. `lib/navigation` is mocked with `vi.mock` where a test would leave the SPA.
 - **Hooks:** `renderQueryHook` gives each test a fresh `QueryClient` (no retries); `runMutation(client, hook, variables)` runs a mutation; `seed` + `isInvalidated` check what a mutation invalidated. Session hooks use the app's module `queryClient` (`lib/session.ts` clears it).
 - **Fixtures:** `src/test/factories.ts` builds typed server payloads (`organisation()`, `person()`, `authUser()`, … and `list()` for `{ items, total }`).
 - **Isolation:** `src/test/setup.ts` resets MSW handlers, the session, `localStorage` and the query cache after each test. Env-dependent modules are tested with `vi.stubEnv` + `vi.resetModules` + a dynamic `import()` (envs are unstubbed automatically).

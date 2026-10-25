@@ -40,6 +40,7 @@ Tokens available today (Tailwind class → use):
 - Org types (badges, pins): `type-embassy|business|helper|community|volunteer` and `…-soft`; prefer the server's `OrganisationType.color` when present
 - Map fills: `country-1` … `country-7`, `country-water`
 - Fonts: `font-sans` (Manrope), `font-display` (Instrument Serif), `font-mono`
+- Display sizes (serif titles): `text-display-xs` 28 · `sm` 32 · `md` 40 · `lg` 48 · `xl` 56 · `2xl` 72 — normally through `PageHeader size` (`hero` = 40 → 56 → 72)
 - Radii: `rounded-r1` 6 · `r2` 10 · `r3` 14 · `r4` 20 · `rounded-full` (pill)
 - Shadows: `shadow-1`, `shadow-2`, `shadow-3`, `shadow-pop`
 - Opacity modifiers work on tokens: `bg-ink-1/28`, `bg-surface/85`
@@ -138,6 +139,11 @@ variants only for a rare phone-only exception.
 - Copy is translated (`en`/`ru`/`uk`); Russian/Ukrainian strings are longer —
   layouts must survive them.
 
+**Two gotchas found building the auth screens:**
+
+- A DS component's own display class beats a `hidden` / `md:hidden` you add through `className` (both set `display`; CSS order decides, not class order). To show a `Button`, `TextLink` or `Select` only at some breakpoints, wrap it in a `div` that is `hidden md:flex` / `md:hidden`.
+- `Button block` is `w-full flex-1` — right in a row (Sheet footer, two side-by-side buttons), wrong in a column: `flex-1` makes the height collapse. In a `flex-col` use `className="w-full"`.
+
 ### Re-check a class before using it
 
 Tailwind silently ignores unknown classes. Confirm a token/utility exists in
@@ -160,6 +166,7 @@ After every UI change, check each touched screen in the Browser pane.
 1. **Run the app.** `npm run dev` in the background (or `preview_start` with the
    `dev` config of `.claude/launch.json` when the session's folder is
    landly-client), then open `http://localhost:5173/<route>`.
+   `layout-check.js` can be loaded without pasting: `JSON.stringify(eval(await (await fetch('/.claude/skills/design-system/layout-check.js')).text()))` in `javascript_tool` (the dev server serves it).
 2. **Viewports** (`resize_window`):
 
    | Viewport | How | Required |

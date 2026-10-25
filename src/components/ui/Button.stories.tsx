@@ -49,3 +49,5 @@ export const Block: Story = { args: { block: true, variant: 'accent', children: 
 
 /** No children → square icon button; give it an accessible name. */
 export const IconOnly: Story = { args: { children: undefined, icon: 'sliders', 'aria-label': 'Filters', variant: 'secondary' } }
+
+export const AsLink: Story = { args: { to: '/signup', variant: 'accent', children: 'Sign up' } }
