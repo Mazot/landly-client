@@ -18,10 +18,21 @@ export const USERNAME_MIN_CHARS = 3
 export const USERNAME_MAX_CHARS = 50
 export const PASSWORD_MIN_CHARS = 8
 export const PASSWORD_MAX_BYTES = 72
+export const EMAIL_MAX_CHARS = 254
 export const NAME_MAX_CHARS = 100
 export const CITY_MAX_CHARS = 100
 export const BIO_MAX_CHARS = 1000
 export const AVATAR_COLOR_MAX_CHARS = 32
+
+/**
+ * Unique constraints a signup can violate (422 `constraint`): the original
+ * `users.username` / `users.email` UNIQUEs and the case-insensitive
+ * `lower(email)` index that replaced the email one.
+ */
+export const SIGNUP_CONFLICT_CONSTRAINTS = {
+  username: ['users_username_key'],
+  email: ['users_email_key', 'users_email_lower_key'],
+} as const
 
 /** `AuthUserContent` — answer of signin, signup and the Google code exchange. */
 export interface AuthUser {

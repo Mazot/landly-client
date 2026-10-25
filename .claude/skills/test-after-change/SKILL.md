@@ -36,7 +36,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 | A helper in `src/lib` | `src/lib/__test__/<name>.test.ts` | inputs → outputs including edge cases; env-dependent code via `vi.stubEnv` + `vi.resetModules` + `await import()` |
 | A store (`src/stores`) | `src/stores/__test__/<name>.test.ts` | state transitions, persistence (`localStorage`), restoring on load (`vi.resetModules`) |
 | i18n keys / config | `src/i18n/__test__/i18n.test.ts` | the key exists in all three locales; switching languages works |
-| A component / screen | `src/components/ui/__test__/<area>.test.tsx` (DS) or `__test__/<Component>.test.tsx` next to it | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. Use `@testing-library/user-event` + `jest-dom` matchers (installed). A DS component also needs a `<Name>.stories.tsx` — `src/components/ui/__test__/stories.test.tsx` renders every story with axe |
+| A component / screen | `src/components/ui/__test__/<area>.test.tsx` (DS), `src/components/<feature>/__test__/<Component>.test.tsx` or `src/pages/__test__/<Page>.test.tsx` — rendered with `renderApp` (providers + `route`), HTTP through `capture()` | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. Use `@testing-library/user-event` + `jest-dom` matchers (installed). A DS component also needs a `<Name>.stories.tsx` — `src/components/ui/__test__/stories.test.tsx` renders every story with axe |
 | A bug fix | the test file of the layer where the bug lived | a regression test that reproduces the bug (§4) |
 
 ### Cases to cover
@@ -50,6 +50,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 
 ## 3. How to write them
 
+- **Leaving the SPA:** `lib/navigation.ts` (`redirectTo`) is the seam — `vi.mock('@/lib/navigation')` and assert the call; jsdom cannot fake `window.location.assign`.
 - **Through the public surface:** services via their methods, hooks via `renderQueryHook` / `runMutation`, never by reaching into internals or library state.
 - **HTTP only through MSW:** `capture()` from `src/test/server.ts`; for dynamic answers `server.use(http.get(\`${API}/…\`, resolver))`. An unhandled request fails the test — that is intended, don't bypass it.
 - **No sleeps:** wait with `waitFor`; for timers use `vi.useFakeTimers()`.

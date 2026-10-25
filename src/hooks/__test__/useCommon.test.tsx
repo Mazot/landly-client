@@ -6,6 +6,7 @@ import { country } from '@/test/factories'
 import { isInvalidated, renderQueryHook, seed } from '@/test/render'
 import { API, capture, server } from '@/test/server'
 import {
+  useAllCountries,
   useCountries,
   useCountriesInfinite,
   useCountry,
@@ -23,6 +24,38 @@ describe('useCountries', () => {
 
     await waitFor(() => expect(result.current.data).toEqual([germany]))
     expect(requests[0].query.get('name')).toBe('ger')
+  })
+})
+
+describe('useAllCountries', () => {
+  it('loads a short table in one request, sorted by name', async () => {
+    const requests = capture('get', '/api/common/countries', [country({ name: 'Poland' }), country({ name: 'Germany' })])
+
+    const { result } = renderQueryHook(() => useAllCountries())
+
+    await waitFor(() => expect(result.current.data?.map((c) => c.name)).toEqual(['Germany', 'Poland']))
+    expect(requests).toHaveLength(1)
+    expect(Object.fromEntries(requests[0].query)).toEqual({ limit: '150', offset: '0' })
+  })
+
+  it('asks for the rest from the server offset cap (150) when the first page is full', async () => {
+    const asked: { offset: string | null; limit: string | null }[] = []
+    server.use(
+      http.get(`${API}/api/common/countries`, ({ request }) => {
+        const q = new URL(request.url).searchParams
+        asked.push({ offset: q.get('offset'), limit: q.get('limit') })
+        const size = q.get('offset') === '0' ? 150 : 12
+        return HttpResponse.json(Array.from({ length: size }, () => country()))
+      }),
+    )
+
+    const { result } = renderQueryHook(() => useAllCountries())
+
+    await waitFor(() => expect(result.current.data).toHaveLength(162))
+    expect(asked).toEqual([
+      { offset: '0', limit: '150' },
+      { offset: '150', limit: '250' },
+    ])
   })
 })
 

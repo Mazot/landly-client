@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
 
-export type PageHeaderSize = 'sm' | 'md' | 'lg' | 'xl'
+export type PageHeaderSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero'
 
 // Mobile-first: each size steps up at md / lg.
 const SIZES: Record<PageHeaderSize, string> = {
@@ -9,6 +9,7 @@ const SIZES: Record<PageHeaderSize, string> = {
   md: 'text-display-sm lg:text-display-md',
   lg: 'text-display-sm md:text-display-md lg:text-display-lg',
   xl: 'text-display-md md:text-display-lg lg:text-display-xl',
+  hero: 'text-display-md md:text-display-xl lg:text-display-2xl',
 }
 
 export interface PageHeaderProps {

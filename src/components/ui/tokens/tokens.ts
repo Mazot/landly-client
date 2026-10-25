@@ -52,6 +52,7 @@ export const fontSize: Record<string, [string, { lineHeight: string; letterSpaci
   'display-md': ['40px', { lineHeight: '1.05', letterSpacing: '-0.01em' }],
   'display-lg': ['48px', { lineHeight: '1.04', letterSpacing: '-0.01em' }],
   'display-xl': ['56px', { lineHeight: '1.04', letterSpacing: '-0.01em' }],
+  'display-2xl': ['72px', { lineHeight: '1.02', letterSpacing: '-0.015em' }],
 }
 
 /** `rounded-r1` 6 · `r2` 10 · `r3` 14 · `r4` 20; `rounded-full` is the pill. */

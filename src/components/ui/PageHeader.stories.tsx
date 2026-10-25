@@ -3,7 +3,7 @@ import { Button } from './Button'
 import { Accent, PageHeader, type PageHeaderSize } from './PageHeader'
 import { TextLink } from './TextLink'
 
-const SIZES: PageHeaderSize[] = ['sm', 'md', 'lg', 'xl']
+const SIZES: PageHeaderSize[] = ['sm', 'md', 'lg', 'xl', 'hero']
 
 const meta = {
   title: 'Containers/PageHeader',

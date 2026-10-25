@@ -23,6 +23,23 @@ export const useCountries = (query?: CountriesQuery) =>
     staleTime: Infinity,
   })
 
+/**
+ * Every country in one list, sorted by name — for plain `<select>` pickers
+ * (landing, sign-up corridor). Two requests at most: the first page stops at the
+ * server's offset cap (150), the second asks for the max limit from there.
+ */
+export const useAllCountries = () =>
+  useQuery({
+    queryKey: queryKeys.countries.everything,
+    queryFn: async () => {
+      const first = await commonApi.getCountries({ limit: COUNTRIES_MAX_OFFSET, offset: 0 })
+      if (first.length < COUNTRIES_MAX_OFFSET) return first
+      return [...first, ...(await commonApi.getCountries({ limit: COUNTRIES_MAX_LIMIT, offset: COUNTRIES_MAX_OFFSET }))]
+    },
+    select: (countries) => [...countries].sort((a, b) => a.name.localeCompare(b.name)),
+    staleTime: Infinity,
+  })
+
 /** Paged country search for pickers; `pageParam` is the offset. */
 export const useCountriesInfinite = (name: string) =>
   useInfiniteQuery({
