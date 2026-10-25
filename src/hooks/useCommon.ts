@@ -3,14 +3,14 @@ import { queryKeys } from '@/lib/queryKeys'
 import { commonApi } from '@/services/common.service'
 import type { CountriesQuery, CreateOrganisationTypeRequest, LanguagesQuery, Uuid } from '@/types/api'
 
-// The server clamps `offset` to 150 and `limit` to 250. Pages of 50 land
-// exactly on offset 150, and that last reachable page asks for the max limit,
+// The server clamps `offset` to 20 and `limit` to 100. Pages of 20 land
+// exactly on offset 50, and that last reachable page asks for the max limit,
 // so up to 400 rows are paged without overlap or a never-ending last page.
-const COUNTRIES_PAGE_SIZE = 50
-const COUNTRIES_MAX_OFFSET = 150
-const COUNTRIES_MAX_LIMIT = 250
+const COUNTRIES_PAGE_SIZE = 20
+const COUNTRIES_MAX_OFFSET = 50
+const COUNTRIES_MAX_LIMIT = 100
 
-const LANGUAGES_MAX_LIMIT = 500
+const LANGUAGES_MAX_LIMIT = 150
 
 const countriesPageLimit = (offset: number) =>
   offset >= COUNTRIES_MAX_OFFSET ? COUNTRIES_MAX_LIMIT : COUNTRIES_PAGE_SIZE
