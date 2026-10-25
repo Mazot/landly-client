@@ -20,8 +20,8 @@ coverage:
 
 # Mirrors the Vitest coverage excludes (vite.config.ts → test.coverage).
 ignore:
-  - "src/**/*.test.ts"
-  - "src/**/*.test.tsx"
+  - "src/**/__test__/*.test.ts"
+  - "src/**/__test__/*.test.tsx"
   - "src/test/**/*"
   - "src/main.tsx"
   - "src/vite-env.d.ts"

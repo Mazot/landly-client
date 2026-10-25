@@ -189,7 +189,7 @@ background, then open a single story at
 viewports and `layout-check.js` as above. To sweep every story at once, load each id in
 an `<iframe>` of the target width on that page and run the layout-check logic on
 `iframe.contentWindow` (a story is rendered when its `<body>` has `sb-show-main`).
-`stories.test.tsx` already guards rendering errors and axe; the browser pass catches
+`__test__/stories.test.tsx` already guards rendering errors and axe; the browser pass catches
 layout (overflow, tap targets, wrapping of long ru/uk copy).
 
 ## 6. Checklist before handing over

@@ -22,7 +22,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 ## 1. Order of work
 
 1. Write the code (library-first, design-system rules apply).
-2. Write the tests next to it (`*.test.ts(x)` beside the file) — or first, for a bug fix (§4).
+2. Write the tests next to it (`*.test.ts(x)` in a `__test__/` folder next to the file) — or first, for a bug fix (§4).
 3. Iterate fast on just the affected tests: `npx vitest related <changed files> --run`.
 4. Prove the tests bite (§4), then run the full gate (§5).
 
@@ -30,13 +30,13 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 
 | You changed | Test it in | Assert |
 |---|---|---|
-| A type / enum / limit shared with the server (`src/types/api`) | `src/types/api/contract.test.ts` | the exact values, with the server source (migration `CHECK`, Rust constant) in the test name |
-| A service method (`src/services/*.service.ts`) | a row in the table in `src/services/services.test.ts` (its "covers every service method" test fails until you add it) | HTTP method, path, query, JSON body, returned value; special bodies (multipart, `DELETE` with body) get their own test |
-| A hook (`src/hooks/use<Feature>.ts`) | `src/hooks/use<Feature>.test.tsx` | the request it sends (`capture`), when it stays idle (guest / no id / wrong role → `fetchStatus: 'idle'`), what it writes to the cache (`getQueryData`), what it invalidates and what it must **not** (`seed` + `isInvalidated`), error states |
-| A helper in `src/lib` | `src/lib/<name>.test.ts` | inputs → outputs including edge cases; env-dependent code via `vi.stubEnv` + `vi.resetModules` + `await import()` |
-| A store (`src/stores`) | `src/stores/<name>.test.ts` | state transitions, persistence (`localStorage`), restoring on load (`vi.resetModules`) |
-| i18n keys / config | `src/i18n/i18n.test.ts` | the key exists in all three locales; switching languages works |
-| A component / screen | `<Component>.test.tsx` next to it | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. Use `@testing-library/user-event` + `jest-dom` matchers (installed). A DS component also needs a `<Name>.stories.tsx` — `src/components/ui/stories.test.tsx` renders every story with axe |
+| A type / enum / limit shared with the server (`src/types/api`) | `src/types/api/__test__/contract.test.ts` | the exact values, with the server source (migration `CHECK`, Rust constant) in the test name |
+| A service method (`src/services/*.service.ts`) | a row in the table in `src/services/__test__/services.test.ts` (its "covers every service method" test fails until you add it) | HTTP method, path, query, JSON body, returned value; special bodies (multipart, `DELETE` with body) get their own test |
+| A hook (`src/hooks/use<Feature>.ts`) | `src/hooks/__test__/use<Feature>.test.tsx` | the request it sends (`capture`), when it stays idle (guest / no id / wrong role → `fetchStatus: 'idle'`), what it writes to the cache (`getQueryData`), what it invalidates and what it must **not** (`seed` + `isInvalidated`), error states |
+| A helper in `src/lib` | `src/lib/__test__/<name>.test.ts` | inputs → outputs including edge cases; env-dependent code via `vi.stubEnv` + `vi.resetModules` + `await import()` |
+| A store (`src/stores`) | `src/stores/__test__/<name>.test.ts` | state transitions, persistence (`localStorage`), restoring on load (`vi.resetModules`) |
+| i18n keys / config | `src/i18n/__test__/i18n.test.ts` | the key exists in all three locales; switching languages works |
+| A component / screen | `src/components/ui/__test__/<area>.test.tsx` (DS) or `__test__/<Component>.test.tsx` next to it | renders from props/hook data, user interactions, loading / empty / error states; plus the design-system browser check at phone and desktop sizes. Use `@testing-library/user-event` + `jest-dom` matchers (installed). A DS component also needs a `<Name>.stories.tsx` — `src/components/ui/__test__/stories.test.tsx` renders every story with axe |
 | A bug fix | the test file of the layer where the bug lived | a regression test that reproduces the bug (§4) |
 
 ### Cases to cover
@@ -55,7 +55,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 - **No sleeps:** wait with `waitFor`; for timers use `vi.useFakeTimers()`.
 - **Deterministic:** factories, fixed ids/dates; no real time zones or randomness in assertions.
 - **One behaviour per test**, named as the behaviour (`'stays idle for guests'`, not `'test 3'`).
-- **Typed:** no `any` / `as any` / eslint-disable in tests; heterogeneous `it.each` rows become typed closures (see `runMutation` usage in `src/hooks/*.test.tsx`).
+- **Typed:** no `any` / `as any` / eslint-disable in tests; heterogeneous `it.each` rows become typed closures (see `runMutation` usage in `src/hooks/__test__/*.test.tsx`).
 - **Never** delete, skip (`it.skip`), weaken (`toBeTruthy` instead of the real value) or comment out a failing test to get green — fix the code, or stop and explain why the expectation changed. No `it.only` left behind.
 - Known traps: with React 19 don't wrap `fetchNextPage()` in `act()` (call it, then `await waitFor`); MSW 3 option is `onUnhandledFrame`; jsdom runs on the API origin (`http://api.test`) because its XHR enforces CORS; multipart bodies are read by the helper's own parser.
 

@@ -36,14 +36,14 @@ export default defineConfig(({ mode }) => {
       // missing CORS headers would fail every mocked request).
       environmentOptions: { jsdom: { url: 'http://api.test/' } },
       setupFiles: ['./src/test/setup.ts'],
-      include: ['src/**/*.test.{ts,tsx}'],
+      include: ['src/**/__test__/*.test.{ts,tsx}'],
       env: { VITE_API_URL: 'http://api.test' },
       restoreMocks: true,
       unstubEnvs: true,
       coverage: {
         provider: 'v8',
         include: ['src/**/*.{ts,tsx}'],
-        exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.stories.tsx', 'src/test/**', 'src/main.tsx', 'src/vite-env.d.ts'],
+        exclude: ['src/**/__test__/*.test.{ts,tsx}', 'src/**/*.stories.tsx', 'src/test/**', 'src/main.tsx', 'src/vite-env.d.ts'],
         reporter: ['text', 'html', 'lcov', 'json-summary'],
         reportsDirectory: './coverage',
       },

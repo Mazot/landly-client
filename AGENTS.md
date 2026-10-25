@@ -12,7 +12,7 @@ npm install
 npm run dev
 
 # Type-check without emitting
-npx tsc --noEmit
+npm run typecheck
 
 # Lint (ESLint v10 flat config)
 npm run lint
@@ -30,7 +30,7 @@ npm run test:watch
 npm run coverage
 
 # Run one test file / tests matching a name
-npx vitest run src/hooks/useCommon.test.tsx -t "pages by 50"
+npx vitest run src/hooks/__test__/useCommon.test.tsx -t "pages by 50"
 
 # Preview production build
 npm run preview
@@ -120,7 +120,7 @@ src/
 └── main.tsx            # providers
 ```
 
-Tests sit next to the code they cover as `*.test.ts(x)`.
+Tests sit in a `__test__/` folder next to the code they cover (`src/<area>/__test__/*.test.ts(x)`; vitest only picks up `src/**/__test__/*.test.{ts,tsx}`).
 
 ### API contracts (`src/types/api`)
 
@@ -164,19 +164,19 @@ In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localho
 1. Add/adjust the types in `src/types/api/<feature>.ts`
 2. Add the call to `src/services/<feature>.service.ts`
 3. Add a hook in `src/hooks/use<Feature>.ts` (keys in `src/lib/queryKeys.ts`; invalidate the feature root on writes)
-4. Add a row to the table in `src/services/services.test.ts` (its "covers every service method" test fails until you do) and tests for the hook in `src/hooks/use<Feature>.test.tsx` — what it requests, when it stays idle, what it writes to / invalidates in the cache
+4. Add a row to the table in `src/services/__test__/services.test.ts` (its "covers every service method" test fails until you do) and tests for the hook in `src/hooks/__test__/use<Feature>.test.tsx` — what it requests, when it stays idle, what it writes to / invalidates in the cache
 
 ## Tests
 
 Every code change comes with tests (workflow: skill `test-after-change`); CI keeps coverage on Codecov (currently 100% of lines, branches and functions). Locally, `node .claude/skills/test-after-change/changed-coverage.mjs [base]` (after `npm run coverage`) shows the coverage of the files changed since `origin/master` — the same idea as Codecov's patch status.
 
 - **Stack:** Vitest 5 (configured in `vite.config.ts` → `test`), jsdom, `@testing-library/react` (`render`, `renderHook`), `@testing-library/user-event`, `@testing-library/jest-dom` matchers (loaded in `src/test/setup.ts`), MSW 3 for HTTP, `@vitest/coverage-v8`.
-- **Components:** DS tests sit in `src/components/ui/*.test.tsx`, grouped by area (primitives, display, fields, choices, upload, containers, shell). jsdom has no `HTMLDialogElement.showModal` — `shell.test.tsx` polyfills it for `Sheet`.
+- **Components:** DS tests sit in `src/components/ui/__test__/*.test.tsx`, grouped by area (primitives, display, fields, choices, upload, containers, shell). jsdom has no `HTMLDialogElement.showModal` — `shell.test.tsx` polyfills it for `Sheet`.
 - **HTTP:** requests go through the real `apiClient` (interceptors, `paramsSerializer`) to `http://api.test` and are answered by MSW. Register handlers per test with `capture(method, path, response, status)` from `src/test/server.ts` — it records method, path, query, headers and body (JSON, or multipart parts). An unhandled request fails the test (`onUnhandledFrame: 'error'`). jsdom runs on the API origin because its XHR enforces CORS.
 - **Hooks:** `renderQueryHook` gives each test a fresh `QueryClient` (no retries); `runMutation(client, hook, variables)` runs a mutation; `seed` + `isInvalidated` check what a mutation invalidated. Session hooks use the app's module `queryClient` (`lib/session.ts` clears it).
 - **Fixtures:** `src/test/factories.ts` builds typed server payloads (`organisation()`, `person()`, `authUser()`, … and `list()` for `{ items, total }`).
 - **Isolation:** `src/test/setup.ts` resets MSW handlers, the session, `localStorage` and the query cache after each test. Env-dependent modules are tested with `vi.stubEnv` + `vi.resetModules` + a dynamic `import()` (envs are unstubbed automatically).
-- **Contract pins:** `src/types/api/contract.test.ts` holds the enum values and limits shared with the server (migration `CHECK`s, Rust constants) — a failure means one side changed.
+- **Contract pins:** `src/types/api/__test__/contract.test.ts` holds the enum values and limits shared with the server (migration `CHECK`s, Rust constants) — a failure means one side changed.
 - **Gotcha:** with React 19, don't wrap `fetchNextPage()` in `act()` — the observer update never reaches the hook; call it and `await waitFor(...)` (TanStack's documented pattern).
 
 ## CI
@@ -205,4 +205,4 @@ Rules enforced:
 
 ## Storybook (design-system catalogue)
 
-`npm run storybook` (http://localhost:6006) shows every DS component; `npm run build-storybook` builds it (also in CI). Config in `.storybook/` (tokens, i18n toolbar en/ru/uk, router, viewports 320/375/768/1024/1440, a11y addon). Every component exported from `src/components/ui/index.ts` needs a `<Name>.stories.tsx` next to it — `src/components/ui/stories.test.tsx` fails otherwise, and runs every story checking for React console errors and axe violations. Stories are excluded from coverage.
+`npm run storybook` (http://localhost:6006) shows every DS component; `npm run build-storybook` builds it (also in CI). Config in `.storybook/` (tokens, i18n toolbar en/ru/uk, router, viewports 320/375/768/1024/1440, a11y addon). Every component exported from `src/components/ui/index.ts` needs a `<Name>.stories.tsx` next to it — `src/components/ui/__test__/stories.test.tsx` fails otherwise, and runs every story checking for React console errors and axe violations. Stories are excluded from coverage.

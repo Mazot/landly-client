@@ -85,9 +85,9 @@ node .claude/skills/test-after-change/changed-coverage.mjs   # after coverage: f
 
 New or changed code is tested right after it is written — the workflow (what to test per layer, regression check, the gate) is the `test-after-change` skill in `.claude/skills/`.
 
-- Tests live next to the code as `*.test.ts(x)`; shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`).
+- Tests live in a `__test__/` folder next to the code they cover (`src/<area>/__test__/*.test.ts(x)`); shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`).
 - An unhandled request fails the test; session, `localStorage` and the query cache are reset after every test (`src/test/setup.ts`).
-- `src/types/api/contract.test.ts` pins the enum values and limits shared with the server — update both sides together.
+- `src/types/api/__test__/contract.test.ts` pins the enum values and limits shared with the server — update both sides together.
 
 CI (`.github/workflows/ci.yml`, Node 24) runs lint, type-check + build, and the tests with coverage uploaded to [Codecov](https://app.codecov.io/gh/Mazot/landly-client) (`codecov.yml`, same settings as landly-server).
 
@@ -95,6 +95,7 @@ CI (`.github/workflows/ci.yml`, Node 24) runs lint, type-check + build, and the 
 
 ```bash
 npm run dev          # dev server
+npm run typecheck    # tsc --noEmit
 npm run build        # tsc + production build
 npm run lint         # ESLint
 npm test             # Vitest
