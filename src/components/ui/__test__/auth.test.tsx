@@ -35,13 +35,11 @@ describe('Logo', () => {
 })
 
 describe('MapBackdrop', () => {
-  it('is decorative and marks the origin and destination countries', () => {
-    const { container } = render(<MapBackdrop origin="UA" highlight="FR" />)
+  it('is a decorative, className-sized placeholder', () => {
+    const { container } = render(<MapBackdrop className="h-80" />)
     expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true')
-    const paths = [...container.querySelectorAll('path')]
-    expect(paths).toHaveLength(23)
-    expect(paths.filter((p) => p.classList.contains('stroke-accent'))).toHaveLength(1)
-    expect(paths.filter((p) => p.classList.contains('stroke-type-embassy'))).toHaveLength(1)
+    expect(container.firstElementChild).toHaveClass('h-80', 'bg-country-water')
+    expect(container.querySelector('svg, path')).toBeNull()
   })
 
   it('adds the readability fade only for the hero variant', () => {

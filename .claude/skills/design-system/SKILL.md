@@ -144,7 +144,7 @@ variants only for a rare phone-only exception.
 - A DS component's own display class beats a `hidden` / `md:hidden` you add through `className` (both set `display`; CSS order decides, not class order). To show a `Button`, `TextLink` or `Select` only at some breakpoints, wrap it in a `div` that is `hidden md:flex` / `md:hidden`.
 - `Button block` is `w-full flex-1` — right in a row (Sheet footer, two side-by-side buttons), wrong in a column: `flex-1` makes the height collapse. In a `flex-col` use `className="w-full"`.
 
-A decorative layer that is deliberately cropped (`MapBackdrop`'s SVG inside `overflow-hidden`) is ignored by `layout-check.js`.
+`layout-check.js` ignores elements cropped by an `overflow-hidden` box that sits inside the viewport (decoration).
 
 ### Re-check a class before using it
 

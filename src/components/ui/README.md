@@ -54,7 +54,7 @@ src/components/ui/
 | | `Meta` | icon + short text |
 | | `CorridorFlags` | `from` / `to` flag emoji, `label` |
 | | `ImageFrame` | `src`, `alt`, `ratio`, `badge`, `action` |
-| | `MapBackdrop` | decorative pastel map · `highlight` / `origin` country codes, `variant` plain / hero (dim + fade), sized by `className` |
+| | `MapBackdrop` | map area behind landing / sign-in (placeholder until the Google map is mounted) · `variant` plain / hero (readability fade from `lg`), sized by `className` |
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
