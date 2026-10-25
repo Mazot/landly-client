@@ -3,14 +3,14 @@ import { queryKeys } from '@/lib/queryKeys'
 import { commonApi } from '@/services/common.service'
 import type { CountriesQuery, CreateOrganisationTypeRequest, LanguagesQuery, Uuid } from '@/types/api'
 
-// The server clamps `offset` to 20 and `limit` to 100. Pages of 20 land
-// exactly on offset 50, and that last reachable page asks for the max limit,
+// The server clamps `offset` to 150 and `limit` to 250. Pages of 50 land
+// exactly on offset 150, and that last reachable page asks for the max limit,
 // so up to 400 rows are paged without overlap or a never-ending last page.
-const COUNTRIES_PAGE_SIZE = 20
-const COUNTRIES_MAX_OFFSET = 50
-const COUNTRIES_MAX_LIMIT = 100
+const COUNTRIES_PAGE_SIZE = 50
+const COUNTRIES_MAX_OFFSET = 150
+const COUNTRIES_MAX_LIMIT = 250
 
-const LANGUAGES_MAX_LIMIT = 150
+const LANGUAGES_MAX_LIMIT = 500
 
 const countriesPageLimit = (offset: number) =>
   offset >= COUNTRIES_MAX_OFFSET ? COUNTRIES_MAX_LIMIT : COUNTRIES_PAGE_SIZE
@@ -25,27 +25,28 @@ export const useCountries = (query?: CountriesQuery) =>
 
 /**
  * Every country in one list, sorted by name — for plain `<select>` pickers
- * (landing, sign-up corridor). Two requests at most: the first page stops at the
+ * (landing, sign-up corridor), without the ~50 KB-per-country `geoJson` (`brief`: ~50 KB for all
+ * instead of ~12 MB). Two requests at most: the first page stops at the
  * server's offset cap (150), the second asks for the max limit from there.
  */
 export const useAllCountries = () =>
   useQuery({
     queryKey: queryKeys.countries.everything,
     queryFn: async () => {
-      const first = await commonApi.getCountries({ limit: COUNTRIES_MAX_OFFSET, offset: 0 })
+      const first = await commonApi.getCountries({ limit: COUNTRIES_MAX_OFFSET, offset: 0, brief: true })
       if (first.length < COUNTRIES_MAX_OFFSET) return first
-      return [...first, ...(await commonApi.getCountries({ limit: COUNTRIES_MAX_LIMIT, offset: COUNTRIES_MAX_OFFSET }))]
+      return [...first, ...(await commonApi.getCountries({ limit: COUNTRIES_MAX_LIMIT, offset: COUNTRIES_MAX_OFFSET, brief: true }))]
     },
     select: (countries) => [...countries].sort((a, b) => a.name.localeCompare(b.name)),
     staleTime: Infinity,
   })
 
-/** Paged country search for pickers; `pageParam` is the offset. */
+/** Paged country search for pickers (without borders, like `useAllCountries`); `pageParam` is the offset. */
 export const useCountriesInfinite = (name: string) =>
   useInfiniteQuery({
     queryKey: queryKeys.countries.infinite(name),
     queryFn: ({ pageParam }) =>
-      commonApi.getCountries({ limit: countriesPageLimit(pageParam), offset: pageParam, name: name || undefined }),
+      commonApi.getCountries({ limit: countriesPageLimit(pageParam), offset: pageParam, name: name || undefined, brief: true }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastOffset) => {
       if (lastOffset >= COUNTRIES_MAX_OFFSET || lastPage.length < countriesPageLimit(lastOffset)) return undefined

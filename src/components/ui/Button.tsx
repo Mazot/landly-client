@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import type { ComponentProps } from 'react'
+import { Link, type To } from 'react-router-dom'
 import { Icon, type IconName } from './Icon'
 import { FOCUS_RING } from './lib/classes'
 import { Spinner } from './Spinner'
@@ -36,30 +37,39 @@ export interface ButtonProps extends ComponentProps<'button'> {
   block?: boolean
   /** Shows a spinner and disables the button. */
   loading?: boolean
+  /** Renders a router link looking like the button (navigation, not an action); `disabled` / `loading` do not apply. */
+  to?: To
 }
 
 /** Every button in the product. No children → square icon button (give it `aria-label`). */
-export function Button({ variant = 'primary', size = 'md', icon, iconRight, block, loading, disabled, type = 'button', className, children, ...rest }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', icon, iconRight, block, loading, disabled, type = 'button', to, className, children, ...rest }: ButtonProps) {
   const iconSize = ICON_SIZE[size]
-  return (
-    <button
-      type={type}
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      className={clsx(
-        'inline-flex shrink-0 touch-manipulation items-center justify-center rounded-r2 border leading-none font-semibold whitespace-nowrap transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0',
-        FOCUS_RING,
-        VARIANTS[variant],
-        SIZES[size],
-        !children && ['px-0', ICON_ONLY[size]],
-        block && 'w-full flex-1',
-        className,
-      )}
-      {...rest}
-    >
+  const classes = clsx(
+    'inline-flex shrink-0 touch-manipulation items-center justify-center rounded-r2 border leading-none font-semibold whitespace-nowrap transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0',
+    FOCUS_RING,
+    VARIANTS[variant],
+    SIZES[size],
+    !children && ['px-0', ICON_ONLY[size]],
+    block && 'w-full flex-1',
+    className,
+  )
+  const content = (
+    <>
       {loading ? <Spinner size={size === 'lg' ? 'lg' : 'md'} /> : icon && <Icon name={icon} size={iconSize} strokeWidth={1.8} />}
       {children}
       {iconRight && !loading && <Icon name={iconRight} size={iconSize} strokeWidth={1.8} />}
+    </>
+  )
+  if (to !== undefined) {
+    return (
+      <Link to={to} aria-label={rest['aria-label']} className={classes}>
+        {content}
+      </Link>
+    )
+  }
+  return (
+    <button type={type} disabled={disabled || loading} aria-busy={loading || undefined} className={classes} {...rest}>
+      {content}
     </button>
   )
 }

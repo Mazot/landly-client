@@ -39,10 +39,11 @@ src/components/ui/
 |---|---|---|
 | Primitives | `Icon` | line icons · `name`, `size`, `filled`, `label` |
 | | `Spinner` | `size`, `label` |
-| | `Button` | `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
+| | `Button` | `to` (router link looking like a button); `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
 | | `IconButton` | `icon`, `label` (required), `variant` plain · outline · floating, `size`, `pressed` |
 | | `TextLink` | `to` (router) / `href` / `onClick`; `tone` accent · muted · strong · danger |
 | | `Divider` | optional `label` |
+| | `InlineStatus` | spinner + message announced as a status ("Signing you in…") |
 | | `Logo` | mark + serif wordmark · `size`, `variant` full / mark, `to` (home link) |
 | Data | `Avatar` | `name` → initials, `color`, `src`, `size` xs–2xl, `square` |
 | | `Badge` / `StatusBadge` | `tone`, `icon`, `size` / `status` (OrganisationStatus · PersonStatus) |
@@ -58,6 +59,7 @@ src/components/ui/
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
+| | `FormNote` | centred muted line under a form · `size` md / sm |
 | | `TextArea`, `Select` | `Select`: `options`, `placeholder` (native select) |
 | | `Chip` / `ChipGroup` | `selected`, `orgType`, `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` |
 | | `Segmented` | `options` (+`count`), `block`, `size` |

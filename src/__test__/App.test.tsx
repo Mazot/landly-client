@@ -17,16 +17,16 @@ describe('App routes', () => {
     expect(await screen.findByText(heading)).toBeInTheDocument()
   })
 
-  it('/ is the public landing', async () => {
+  it('/ is the public landing for guests', async () => {
     capture('get', '/api/common/countries', [])
     capture('get', '/api/common/org_types', [])
     renderApp(<App />, { route: '/' })
     expect(await screen.findByText('Landly · for people abroad')).toBeInTheDocument()
   })
 
-  it('sends a signed-in user from sign-in and sign-up on to /map (not built yet: empty)', () => {
+  it('sends a signed-in user from the landing, sign-in and sign-up on to /map (not built yet: empty)', () => {
     useAuthStore.getState().setAuth(authUser())
-    for (const route of ['/signin', '/signup']) {
+    for (const route of ['/', '/signin', '/signup']) {
       const { container, unmount } = renderApp(<App />, { route })
       expect(container.innerHTML).toBe('')
       unmount()

@@ -129,6 +129,16 @@ describe('SignUpProfileForm (step 2)', () => {
     expect(onSubmit.mock.calls[0][0]).toMatchObject({ corridor_from_country_id: ukraine.id, corridor_to_country_id: russia.id })
   })
 
+  it('keeps the picked corridor out of the guest corridor store until the account exists', async () => {
+    useCorridorStore.setState({ fromId: russia.id, toId: germany.id })
+    await open()
+
+    await userEvent.selectOptions(screen.getByLabelText('To'), ukraine.id)
+
+    expect(screen.getByLabelText('To')).toHaveValue(ukraine.id)
+    expect(useCorridorStore.getState()).toMatchObject({ fromId: russia.id, toId: germany.id })
+  })
+
   it('leaves out an empty name', async () => {
     const { onSubmit } = await open()
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))

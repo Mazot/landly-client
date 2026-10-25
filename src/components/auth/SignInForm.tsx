@@ -1,11 +1,12 @@
 import { useForm } from '@tanstack/react-form'
 import { Trans, useTranslation } from 'react-i18next'
-import { Button, Callout, Divider, Field, PageHeader, TextField, TextLink } from '@/components/ui'
+import { Button, Callout, Divider, FormNote, PageHeader, TextLink } from '@/components/ui'
 import { useSignIn } from '@/hooks/useAuth'
 import { ROUTES } from '@/lib/routes'
 import { authFailure } from './authErrors'
 import { GoogleButton } from './GoogleButton'
-import { firstErrorKey, signInSchema } from './schemas'
+import { FormTextField } from './FormTextField'
+import { signInSchema } from './schemas'
 
 /** Email + password sign-in (`POST /api/user/signin`) and Google. */
 export function SignInForm({ onSuccess }: { onSuccess: () => void }) {
@@ -39,52 +40,23 @@ export function SignInForm({ onSuccess }: { onSuccess: () => void }) {
       >
         {failure && <Callout tone="danger">{t(`auth.errors.${failure}`)}</Callout>}
         <form.Field name="email">
-          {(field) => {
-            const key = firstErrorKey(field.state.meta.errors)
-            return (
-              <Field label={t('auth.fields.email')} error={key ? t(key) : undefined}>
-                <TextField
-                  icon="mail"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  autoCapitalize="none"
-                  invalid={!!key || rejected}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                />
-              </Field>
-            )
-          }}
+          {(field) => (
+            <FormTextField field={field} label={t('auth.fields.email')} icon="mail" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" invalid={rejected} />
+          )}
         </form.Field>
         <form.Field name="password">
-          {(field) => {
-            const key = firstErrorKey(field.state.meta.errors)
-            return (
-              <Field label={t('auth.fields.password')} error={key ? t(key) : undefined}>
-                <TextField
-                  type="password"
-                  autoComplete="current-password"
-                  invalid={!!key || rejected}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => field.handleChange(event.target.value)}
-                />
-              </Field>
-            )
-          }}
+          {(field) => <FormTextField field={field} label={t('auth.fields.password')} type="password" autoComplete="current-password" invalid={rejected} />}
         </form.Field>
         <Button type="submit" variant="accent" size="lg" className="w-full" loading={signIn.isPending}>
           {t('auth.signIn.submit')}
         </Button>
       </form>
-      <p className="m-0 text-center text-sm font-medium text-ink-3">
+      <FormNote>
         <Trans i18nKey="auth.signIn.switch" components={{ cta: <TextLink to={ROUTES.signUp} tone="strong" size="md">link</TextLink> }} />
-      </p>
-      <p className="m-0 text-center text-label font-medium text-ink-3">
+      </FormNote>
+      <FormNote size="sm">
         <Trans i18nKey="auth.signIn.guest" components={{ cta: <TextLink to={ROUTES.landing} tone="muted">link</TextLink> }} />
-      </p>
+      </FormNote>
     </div>
   )
 }

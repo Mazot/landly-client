@@ -21,7 +21,7 @@ export default function LandingPage() {
   const total = destination.data?.totalPlaces
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bg">
+    <div className="flex min-h-dvh flex-col">
       <TopBar
         brand={<Logo to={ROUTES.landing} size="sm" />}
         actions={
@@ -33,10 +33,10 @@ export default function LandingPage() {
             </div>
             <div className="hidden items-center gap-2 md:flex">
               <LanguageSelect />
-              <Button variant="secondary" size="sm" onClick={() => navigate(ROUTES.signIn)}>
+              <Button to={ROUTES.signIn} variant="secondary" size="sm">
                 {t('auth.signIn.submit')}
               </Button>
-              <Button variant="accent" size="sm" onClick={() => navigate(ROUTES.signUp)}>
+              <Button to={ROUTES.signUp} variant="accent" size="sm">
                 {t('auth.signUp.action')}
               </Button>
             </div>
@@ -72,10 +72,10 @@ export default function LandingPage() {
             </div>
           </Card>
           <div className="mt-auto flex gap-2.5 md:hidden">
-            <Button variant="secondary" block onClick={() => navigate(ROUTES.signIn)}>
+            <Button to={ROUTES.signIn} variant="secondary" block>
               {t('auth.signIn.submit')}
             </Button>
-            <Button variant="primary" block onClick={() => navigate(ROUTES.signUp)}>
+            <Button to={ROUTES.signUp} variant="primary" block>
               {t('auth.signUp.action')}
             </Button>
           </div>

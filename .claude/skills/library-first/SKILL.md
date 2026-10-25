@@ -57,7 +57,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 | Server timestamps | `parseServerDateTime` (`lib/dates.ts`) — never `new Date(serverString)` |
 | API errors | `apiErrorStatus`, `apiErrorMessage`, `apiErrorConstraint` (`lib/errors.ts`) |
 | Map ↔ API | `boundsToSearchBox`, `organisationPosition`, `placeToOrganisationLocation`, `GOOGLE_MAPS_MAP_ID` (`lib/maps.ts`); live Google data via `usePlaceDetails` |
-| Country list for pickers / guest corridor | `useAllCountries()` (all countries sorted, ≤ 2 requests), `useGuestCorridor()` (`corridorStore` resolved against it; Russia → Germany by default) |
+| Country list for pickers / guest corridor | `useAllCountries()` (all countries sorted, ≤ 2 requests, `brief: true` — no `geoJson`, ~45 KB instead of ~12 MB), `useGuestCorridor({ persist })` (`corridorStore` resolved against it; Russia → Germany by default, the first countries if those are missing; `persist: false` keeps picks in a draft until a form is submitted) |
 | UI language as a server `Locale` / language options | `useUiLocale()`, `LOCALE_OPTIONS` / `LOCALE_NAMES` (`lib/locales.ts`) |
 | Client routes / leaving the SPA | `ROUTES` (`lib/routes.ts`), `redirectTo(url)` (`lib/navigation.ts`) |
 | Enum values / limits | the `as const` arrays and limit constants in `types/api/*` (`ORGANISATION_STATUSES`, `LOCALES`, `PASSWORD_MIN_CHARS`, `MAX_IMAGE_BYTES`, …) |
@@ -80,7 +80,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 Used by the sign-in / sign-up forms (`components/auth/`). Re-checked against the installed versions:
 
 - `useForm({ defaultValues, validators: { onSubmit: schema }, onSubmit })` — `schema` is a zod object covering **all** of `defaultValues` (a partial schema fails the type check); `form.handleSubmit()`; `<form.Field name>{(field) => …}</form.Field>` with `field.state.value`, `field.state.meta.errors`, `field.handleChange`, `field.handleBlur`.
-- Standard-Schema issues arrive as `{ message }`; our messages are i18n keys (`firstErrorKey` in `components/auth/schemas.ts` reads the first, the form translates it). zod's `.trim()` is not applied to the submitted `value` — trim again in `onSubmit`.
+- Standard-Schema issues arrive as `{ message }`; our messages are i18n keys (`firstErrorKey` in `components/auth/schemas.ts` reads the first; `FormTextField` in `components/auth/` binds a field to a DS `Field` + `TextField` and translates it). zod's `.trim()` is not applied to the submitted `value` — trim again in `onSubmit`.
 - zod 4: `z.object`, `z.string().trim().min().max().regex().refine()`, `.pipe(z.email(msg))`, `z.enum(CONST_ARRAY)`.
 - Server answers (401, 422 constraint, 429, network) are not form validation: keep them in the mutation state and map them with `components/auth/authErrors.ts`.
 - `<Trans>` tag names must not be HTML void elements (`<link>`, `<br>`, `<img>`…): the text after them escapes the component. Use `<cta>` / `<accent>`.

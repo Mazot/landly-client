@@ -1,12 +1,13 @@
 import { useForm } from '@tanstack/react-form'
 import { useTranslation } from 'react-i18next'
-import { AVATAR_COLORS, Button, Callout, ChipGroup, ColorSwatches, Field, PageHeader, Select, StepBar, TextField, TextLink } from '@/components/ui'
+import { AVATAR_COLORS, Button, Callout, ChipGroup, ColorSwatches, Field, PageHeader, Select, StepBar, TextLink } from '@/components/ui'
 import { CorridorPicker } from '@/components/corridor/CorridorPicker'
 import { useGuestCorridor } from '@/hooks/useGuestCorridor'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { LOCALE_OPTIONS } from '@/lib/locales'
 import { HERE_AS, type HereAs, type Locale, type SignUpRequest } from '@/types/api'
-import { firstErrorKey, signUpProfileSchema } from './schemas'
+import { FormTextField } from './FormTextField'
+import { signUpProfileSchema } from './schemas'
 import type { AuthFailure } from './authErrors'
 import type { AccountValues } from './SignUpAccountForm'
 
@@ -26,7 +27,8 @@ export interface SignUpProfileFormProps {
 /** Sign-up step 2 of 2: default corridor and profile — all optional, "Skip" sends the account alone. */
 export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit }: SignUpProfileFormProps) {
   const { t, i18n } = useTranslation()
-  const corridor = useGuestCorridor()
+  // A draft: picking here must not overwrite the guest corridor before the account is created.
+  const corridor = useGuestCorridor({ persist: false })
   const uiLocale = useUiLocale()
 
   const base: SignUpRequest = { ...account, locale: uiLocale }
@@ -76,16 +78,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
       >
         {/* Stacked on phones: country names ("United Kingdom") do not fit two to a row at 320–390 px. */}
         <CorridorPicker corridor={corridor} fromLabel={t('auth.fields.from')} toLabel={t('auth.fields.to')} stackOnPhone />
-        <form.Field name="name">
-          {(field) => {
-            const key = firstErrorKey(field.state.meta.errors)
-            return (
-              <Field label={t('auth.fields.name')} optional error={key ? t(key) : undefined}>
-                <TextField autoComplete="name" value={field.state.value} onBlur={field.handleBlur} onChange={(event) => field.handleChange(event.target.value)} />
-              </Field>
-            )
-          }}
-        </form.Field>
+        <form.Field name="name">{(field) => <FormTextField field={field} label={t('auth.fields.name')} optional autoComplete="name" />}</form.Field>
         <form.Field name="hereAs">
           {(field) => (
             <Field label={t('auth.fields.hereAs')} optional>

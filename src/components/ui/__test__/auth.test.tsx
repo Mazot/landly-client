@@ -3,6 +3,8 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { AuthLayout } from '../AuthLayout'
 import { CorridorFields } from '../CorridorFields'
+import { FormNote } from '../FormNote'
+import { InlineStatus } from '../InlineStatus'
 import { Logo } from '../Logo'
 import { MapBackdrop } from '../MapBackdrop'
 import { PageHeader } from '../PageHeader'
@@ -129,5 +131,22 @@ describe('PageHeader hero size', () => {
   it('steps the display title up at md and lg', () => {
     render(<PageHeader size="hero" title="Landly" />)
     expect(screen.getByRole('heading', { name: 'Landly' })).toHaveClass('text-display-md', 'md:text-display-xl', 'lg:text-display-2xl')
+  })
+})
+
+describe('FormNote', () => {
+  it('centres a muted paragraph in two sizes', () => {
+    const { rerender } = render(<FormNote>New to Landly?</FormNote>)
+    expect(screen.getByText('New to Landly?')).toHaveClass('text-center', 'text-sm')
+    rerender(<FormNote size="sm">or continue as guest</FormNote>)
+    expect(screen.getByText('or continue as guest')).toHaveClass('text-label')
+  })
+})
+
+describe('InlineStatus', () => {
+  it('announces its message as a status next to a decorative spinner', () => {
+    const { container } = render(<InlineStatus>Signing you in…</InlineStatus>)
+    expect(screen.getByRole('status')).toHaveTextContent('Signing you in…')
+    expect(container.querySelector('[aria-hidden="true"]')).toBeInTheDocument()
   })
 })

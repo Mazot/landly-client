@@ -35,15 +35,15 @@ describe('useAllCountries', () => {
 
     await waitFor(() => expect(result.current.data?.map((c) => c.name)).toEqual(['Germany', 'Poland']))
     expect(requests).toHaveLength(1)
-    expect(Object.fromEntries(requests[0].query)).toEqual({ limit: '150', offset: '0' })
+    expect(Object.fromEntries(requests[0].query)).toEqual({ limit: '150', offset: '0', brief: 'true' })
   })
 
   it('asks for the rest from the server offset cap (150) when the first page is full', async () => {
-    const asked: { offset: string | null; limit: string | null }[] = []
+    const asked: { offset: string | null; limit: string | null; brief: string | null }[] = []
     server.use(
       http.get(`${API}/api/common/countries`, ({ request }) => {
         const q = new URL(request.url).searchParams
-        asked.push({ offset: q.get('offset'), limit: q.get('limit') })
+        asked.push({ offset: q.get('offset'), limit: q.get('limit'), brief: q.get('brief') })
         const size = q.get('offset') === '0' ? 150 : 12
         return HttpResponse.json(Array.from({ length: size }, () => country()))
       }),
@@ -53,8 +53,8 @@ describe('useAllCountries', () => {
 
     await waitFor(() => expect(result.current.data).toHaveLength(162))
     expect(asked).toEqual([
-      { offset: '0', limit: '150' },
-      { offset: '150', limit: '250' },
+      { offset: '0', limit: '150', brief: 'true' },
+      { offset: '150', limit: '250', brief: 'true' },
     ])
   })
 })
@@ -62,11 +62,11 @@ describe('useAllCountries', () => {
 describe('useCountriesInfinite', () => {
   /** Answers as many countries as asked for, like a large table would. */
   function fullPages() {
-    const asked: { offset: string | null; limit: string | null }[] = []
+    const asked: { offset: string | null; limit: string | null; brief: string | null }[] = []
     server.use(
       http.get(`${API}/api/common/countries`, ({ request }) => {
         const q = new URL(request.url).searchParams
-        asked.push({ offset: q.get('offset'), limit: q.get('limit') })
+        asked.push({ offset: q.get('offset'), limit: q.get('limit'), brief: q.get('brief') })
         return HttpResponse.json(Array.from({ length: Number(q.get('limit')) }, () => country()))
       }),
     )
@@ -86,10 +86,10 @@ describe('useCountriesInfinite', () => {
     }
 
     expect(asked).toEqual([
-      { offset: '0', limit: '50' },
-      { offset: '50', limit: '50' },
-      { offset: '100', limit: '50' },
-      { offset: '150', limit: '250' },
+      { offset: '0', limit: '50', brief: 'true' },
+      { offset: '50', limit: '50', brief: 'true' },
+      { offset: '100', limit: '50', brief: 'true' },
+      { offset: '150', limit: '250', brief: 'true' },
     ])
     await waitFor(() => expect(result.current.hasNextPage).toBe(false))
     expect(result.current.data?.pageParams).toEqual([0, 50, 100, 150])

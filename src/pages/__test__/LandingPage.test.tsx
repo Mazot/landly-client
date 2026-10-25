@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import { useCorridorStore } from '@/stores/corridorStore'
 import { country } from '@/test/factories'
@@ -35,13 +35,7 @@ function arrange(over: Record<string, CountryDetail> = {}) {
 }
 
 function LeafPage({ name }: { name: string }) {
-  const navigate = useNavigate()
-  return (
-    <>
-      <p>{name}</p>
-      <button onClick={() => navigate(-1)}>back</button>
-    </>
-  )
+  return <p>{name}</p>
 }
 
 const page = () =>
@@ -103,26 +97,29 @@ describe('LandingPage', () => {
   })
 
   it.each([
-    ['Sign in', 'sign-in page'],
-    ['Sign up', 'sign-up page'],
-  ])('"%s" works from the top bar (md+) and from the phone footer', async (name, target) => {
+    ['Sign in', '/signin'],
+    ['Sign up', '/signup'],
+  ])('"%s" is a real link from the top bar (md+), and so is the phone footer one', (name, href) => {
     arrange()
     page()
-    // Two buttons per action: the top-bar one (shown from md) and the phone footer one.
-    expect(screen.getAllByRole('button', { name })).toHaveLength(2)
+    // Two per action: the top-bar one (shown from md) and the phone footer one; the phone header adds a third "Sign in".
+    const links = screen.getAllByRole('link', { name })
+    expect(links.length).toBeGreaterThanOrEqual(2)
+    for (const link of links) expect(link).toHaveAttribute('href', href)
+    expect(screen.queryByRole('button', { name })).not.toBeInTheDocument()
+  })
 
-    for (const index of [0, 1]) {
-      // Query again each time: the landing is rebuilt after coming back.
-      await userEvent.click(screen.getAllByRole('button', { name })[index])
-      expect(await screen.findByText(target)).toBeInTheDocument()
-      await userEvent.click(screen.getByRole('button', { name: 'back' }))
-    }
+  it('opens the sign-up page from the footer link', async () => {
+    arrange()
+    page()
+    await userEvent.click(screen.getAllByRole('link', { name: 'Sign up' })[0])
+    expect(await screen.findByText('sign-up page')).toBeInTheDocument()
   })
 
   it('reaches sign-in from the phone header link', async () => {
     arrange()
     page()
-    await userEvent.click(screen.getByRole('link', { name: 'Sign in' }))
+    await userEvent.click(screen.getAllByRole('link', { name: 'Sign in' })[0])
     expect(await screen.findByText('sign-in page')).toBeInTheDocument()
   })
 

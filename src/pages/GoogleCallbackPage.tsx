@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { AuthLayout, Button, EmptyState, Spinner } from '@/components/ui'
+import { AuthLayout, Button, EmptyState, InlineStatus } from '@/components/ui'
 import { AuthHero } from '@/components/auth/AuthHero'
 import { useGoogleExchange } from '@/hooks/useAuth'
 import { ROUTES } from '@/lib/routes'
@@ -42,10 +42,7 @@ export default function GoogleCallbackPage() {
           }
         />
       ) : (
-        <div role="status" className="flex items-center gap-3 text-sm font-semibold text-ink-2">
-          <Spinner />
-          {t('auth.callback.working')}
-        </div>
+        <InlineStatus>{t('auth.callback.working')}</InlineStatus>
       )}
     </AuthLayout>
   )

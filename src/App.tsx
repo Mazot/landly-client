@@ -14,8 +14,8 @@ import SignUpPage from '@/pages/SignUpPage'
 function App() {
   return (
     <Routes>
-      <Route path={ROUTES.landing} element={<LandingPage />} />
       <Route element={<GuestOnly />}>
+        <Route path={ROUTES.landing} element={<LandingPage />} />
         <Route path={ROUTES.signIn} element={<SignInPage />} />
         <Route path={ROUTES.signUp} element={<SignUpPage />} />
       </Route>

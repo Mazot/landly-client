@@ -67,6 +67,45 @@ describe('useGuestCorridor', () => {
     expect(useCorridorStore.getState()).toMatchObject({ fromId: ukraine.id, toId: ukraine.id })
   })
 
+  it('falls back to the first two countries when the default ones are not in the list (renamed data)', async () => {
+    const { result } = await load([country({ name: 'Russian Federation' }), country({ name: 'Deutschland' }), country({ name: 'Ukraine' })])
+    expect(result.current.countries.map((c) => c.name)).toEqual(['Deutschland', 'Russian Federation', 'Ukraine'])
+    expect(result.current.from?.name).toBe('Deutschland')
+    expect(result.current.to?.name).toBe('Russian Federation')
+    expect(result.current.ready).toBe(true)
+  })
+
+  it('never offers the same country on both sides by default', async () => {
+    useCorridorStore.setState({ fromId: germany.id, toId: null })
+    const { result } = await load()
+    expect(result.current.from).toEqual(germany)
+    expect(result.current.to).toEqual(russia)
+  })
+
+  describe('persist: false (draft)', () => {
+    async function loadDraft() {
+      capture('get', '/api/common/countries', [russia, germany, ukraine])
+      const hook = renderQueryHook(() => useGuestCorridor({ persist: false }))
+      await waitFor(() => expect(hook.result.current.isPending).toBe(false))
+      return hook
+    }
+
+    it('starts from the stored corridor and keeps picks out of the store', async () => {
+      useCorridorStore.setState({ fromId: ukraine.id, toId: germany.id })
+      const { result } = await loadDraft()
+      expect(result.current.from).toEqual(ukraine)
+
+      act(() => result.current.setTo(russia.id))
+      await waitFor(() => expect(result.current.to).toEqual(russia))
+      act(() => result.current.setFrom(russia.id))
+      await waitFor(() => expect(result.current.from).toEqual(russia))
+      expect(result.current.to).toEqual(ukraine)
+      act(() => result.current.commit())
+
+      expect(useCorridorStore.getState()).toMatchObject({ fromId: ukraine.id, toId: germany.id })
+    })
+  })
+
   it('reports a failed country list', async () => {
     capture('get', '/api/common/countries', { error: 'boom' }, 500)
     const { result } = renderQueryHook(() => useGuestCorridor())

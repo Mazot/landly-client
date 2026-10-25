@@ -28,18 +28,9 @@
     return false
   }
 
-  // Decoration deliberately cropped by an `overflow: hidden` box that itself sits inside the viewport
-  // (MapBackdrop's SVG shapes) never reaches the page edge.
-  const clipped = (el) => {
-    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
-      if (getComputedStyle(p).overflow === 'hidden' && !outside(p)) return true
-    }
-    return false
-  }
-
   // Outermost elements sticking out of the viewport (children of an offender are skipped).
   const overflow = all
-    .filter((el) => outside(el) && !inScroller(el) && !clipped(el) && !(el.parentElement && el.parentElement !== document.body && outside(el.parentElement)))
+    .filter((el) => outside(el) && !inScroller(el) && !(el.parentElement && el.parentElement !== document.body && outside(el.parentElement)))
     .filter((el) => getComputedStyle(el).position !== 'fixed' || outside(el))
     .slice(0, 15)
     .map((el) => label(el) + ' right=' + Math.round(el.getBoundingClientRect().right))
