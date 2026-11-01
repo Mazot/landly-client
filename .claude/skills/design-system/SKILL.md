@@ -21,14 +21,26 @@ Three rules, plus a mandatory check:
 | Layer | Location | Contains |
 |---|---|---|
 | Tokens | `tailwind.config.ts` (`theme.extend`) + the `:root` CSS variables in `src/index.css` | colours, fonts, radii, shadows — keep both files in sync |
-| DS components | `src/components/ui/` | primitives (Button, TextField, Chip, Sheet, Card, …) — the **only** place with visual styling |
-| Inventory | `src/components/ui/index.ts` (barrel) | every DS component is exported here; this file is the list you check first |
+| **DS** — reusable, purely visual components | `src/components/ui/DS/<Name>.tsx`, stories in `src/components/ui/DS/stories/<Name>.stories.tsx` | generic primitives and shells that any product could use, configured only through props (Button, TextField, Sheet, Card, Callout, TabBar, Logo, …) — see the placement rule below |
+| Product components | `src/components/ui/<Name>.tsx`, stories in `src/components/ui/stories/` | styled like the DS but Landly-specific: they know the data (StatusBadge, TypeTag, TypeBar, Chip / Tag / ChipGroup with an org-type colour, Dropzone, StarInput), speak the domain (CorridorFields, CorridorFlags, OpenStatus, Rating) or are a whole-screen frame (AuthLayout, MapBackdrop). Visual styling lives here too, never in screens |
+| Support | `ui/tokens/`, `ui/constants/`, `ui/lib/`, `ui/i18n/`, `ui/__test__/` | tokens (+ `stories/Tokens.stories.tsx`), shared class maps, internals, built-in strings, tests |
+| Inventory | `src/components/ui/index.ts` (barrel) | every component of both groups is exported here; this file is the list you check first |
 | Feature components | `src/components/<feature>/` | domain blocks (OrganisationCard, MapFilters, …) composed from DS components |
 | Screens | `src/pages/` | routes; compose feature + DS components |
 
-The old components were removed with the previous design, so `src/components/ui/`
-starts empty: the first screens create the primitives there (with the barrel)
-— never inline in a page.
+**Placement rule — where a new component goes**
+
+A component goes into **`ui/DS/`** (story in **`ui/DS/stories/`**) only if it is *reusable and purely visual* — all four hold:
+
+1. **No data.** It imports none of `@/types/api` (API enums, limits, ids), the domain constants `ui/constants/orgTypes.ts` / `status.ts`, or anything from `@/hooks`, `@/services`, `@/stores`, `@/lib`.
+2. **No product vocabulary.** Its name, props and built-in copy do not speak Landly's domain (corridor, organisation, review, open hours, claim, …) — a `Rating` that says "No reviews yet" or a `CorridorFields` is a product component even if it takes plain props. Rename and generalise it (`PairedFields`, `Meter`) if the layout is useful elsewhere.
+3. **Not a screen.** It is a building block, not a page frame / template for one screen family (`AuthLayout`) and not a placeholder for a product feature (`MapBackdrop`).
+4. **Configured by props.** No hard-wired product defaults: a palette, labels, routes or brand data come from the caller (`ColorSwatches` takes `colors`). The one deliberate exception is the brand mark `Logo`.
+
+Anything else that still carries visual styling goes into **`ui/`** (story in `ui/stories/`). Check DS purity with
+`grep -l "@/types/api\|@/hooks\|@/services\|@/stores\|@/lib\|constants/\(orgTypes\|status\)" src/components/ui/DS/*.tsx` (must stay empty) and review points 2–4 by hand.
+Generic constants (`TONES`, class maps in `lib/`) and `react-i18next` for the DS's built-in strings are fine in DS.
+Stories follow their component (`DS/stories/` vs `stories/`); `__test__/stories.test.tsx` finds both.
 
 Tokens available today (Tailwind class → use):
 
@@ -40,6 +52,7 @@ Tokens available today (Tailwind class → use):
 - Org types (badges, pins): `type-embassy|business|helper|community|volunteer` and `…-soft`; prefer the server's `OrganisationType.color` when present
 - Map fills: `country-1` … `country-7`, `country-water`
 - Fonts: `font-sans` (Manrope), `font-display` (Instrument Serif), `font-mono`
+- Display sizes (serif titles): `text-display-xs` 28 · `sm` 32 · `md` 40 · `lg` 48 · `xl` 56 · `2xl` 72 — normally through `PageHeader size` (`hero` = 40 → 56 → 72)
 - Radii: `rounded-r1` 6 · `r2` 10 · `r3` 14 · `r4` 20 · `rounded-full` (pill)
 - Shadows: `shadow-1`, `shadow-2`, `shadow-3`, `shadow-pop`
 - Opacity modifiers work on tokens: `bg-ink-1/28`, `bg-surface/85`
@@ -68,7 +81,7 @@ In `src/pages/` and `src/components/<feature>/`:
 Inside `src/components/ui/`:
 
 - Build from tokens only (same restrictions on hex/arbitrary values).
-- Each component: one file, typed props, a one-line doc comment (purpose +
+- Each component: one file in `ui/DS/` or `ui/`, typed props, a one-line doc comment (purpose +
   variants), exported from `index.ts`.
 - Interactive primitives handle focus-visible styles, disabled state, `aria-*`,
   and a ≥44×44 px hit area on touch.
@@ -89,8 +102,8 @@ Before writing any component:
 
 3. Similar component exists → add a variant/prop to it (and update every
    use if the API changes). Don't copy it into a feature folder.
-4. Nothing similar → create it **in `src/components/ui/`**, export it from
-   `index.ts`, then use it. A one-off "local" button/card inside a page is a
+4. Nothing similar → create it **in `src/components/ui/DS/`** (or `ui/` when it is data-aware, see the
+   placement rule in §1) with its story next to it in `stories/`, export it from `index.ts`, then use it. A one-off "local" button/card inside a page is a
    duplicate by definition.
 5. Deleted pre-v2 components are in git history
    (`git log --diff-filter=D --name-only -- src/components`); they're
@@ -138,6 +151,11 @@ variants only for a rare phone-only exception.
 - Copy is translated (`en`/`ru`/`uk`); Russian/Ukrainian strings are longer —
   layouts must survive them.
 
+**Two gotchas found building the auth screens:**
+
+- A DS component's own display class beats a `hidden` / `md:hidden` you add through `className` (both set `display`; CSS order decides, not class order). To show a `Button`, `TextLink` or `Select` only at some breakpoints, wrap it in a `div` that is `hidden md:flex` / `md:hidden`.
+- `Button block` is `w-full flex-1` — right in a row (Sheet footer, two side-by-side buttons), wrong in a column: `flex-1` makes the height collapse. In a `flex-col` use `className="w-full"`.
+
 ### Re-check a class before using it
 
 Tailwind silently ignores unknown classes. Confirm a token/utility exists in
@@ -160,6 +178,7 @@ After every UI change, check each touched screen in the Browser pane.
 1. **Run the app.** `npm run dev` in the background (or `preview_start` with the
    `dev` config of `.claude/launch.json` when the session's folder is
    landly-client), then open `http://localhost:5173/<route>`.
+   `layout-check.js` can be loaded without pasting: `JSON.stringify(eval(await (await fetch('/.claude/skills/design-system/layout-check.js')).text()))` in `javascript_tool` (the dev server serves it).
 2. **Viewports** (`resize_window`):
 
    | Viewport | How | Required |
@@ -196,7 +215,7 @@ layout (overflow, tap targets, wrapping of long ru/uk copy).
 
 - [ ] Screen built only from DS components; visual styling only in `src/components/ui/`.
 - [ ] No hex/arbitrary values, no `primary-*`, no inline visual styles; new classes re-checked (§4).
-- [ ] No duplicate component — existing one reused or extended; new primitives live in `src/components/ui/` and are exported from `index.ts`.
+- [ ] No duplicate component — existing one reused or extended; new primitives live in `src/components/ui/DS/` (data-aware ones in `ui/`) and are exported from `index.ts`.
 - [ ] Phone layout is the base; `md`/`lg` change the layout per §4.
 - [ ] 375, 320 (new screens), 1440 (+768/1024 when relevant) checked with screenshots, `layout-check.js` clean, console clean, viewport reset.
-- [ ] Components and screens have tests per the **test-after-change** skill (render, interactions, loading/empty/error states); every new DS component has a story.
+- [ ] Components and screens have tests per the **test-after-change** skill (render, interactions, loading/empty/error states); every new DS component has a story in the `stories/` folder next to it (`ui/DS/stories/` for DS).

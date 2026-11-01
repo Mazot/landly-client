@@ -54,6 +54,7 @@ describe('values fixed in server code', () => {
       USERNAME_MAX_CHARS: api.USERNAME_MAX_CHARS,
       PASSWORD_MIN_CHARS: api.PASSWORD_MIN_CHARS,
       PASSWORD_MAX_BYTES: api.PASSWORD_MAX_BYTES,
+      EMAIL_MAX_CHARS: api.EMAIL_MAX_CHARS,
       NAME_MAX_CHARS: api.NAME_MAX_CHARS,
       CITY_MAX_CHARS: api.CITY_MAX_CHARS,
       BIO_MAX_CHARS: api.BIO_MAX_CHARS,
@@ -63,10 +64,18 @@ describe('values fixed in server code', () => {
       USERNAME_MAX_CHARS: 50,
       PASSWORD_MIN_CHARS: 8,
       PASSWORD_MAX_BYTES: 72,
+      EMAIL_MAX_CHARS: 254,
       NAME_MAX_CHARS: 100,
       CITY_MAX_CHARS: 100,
       BIO_MAX_CHARS: 1000,
       AVATAR_COLOR_MAX_CHARS: 32,
+    })
+  })
+
+  it('signup unique-violation constraints (users table + users_email_lower_key migration)', () => {
+    expect(api.SIGNUP_CONFLICT_CONSTRAINTS).toEqual({
+      username: ['users_username_key'],
+      email: ['users_email_key', 'users_email_lower_key'],
     })
   })
 })

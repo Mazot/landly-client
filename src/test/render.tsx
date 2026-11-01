@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider, type QueryKey } from '@tanstack/react-query'
-import { act, renderHook, type RenderHookOptions } from '@testing-library/react'
+import { act, render, renderHook, type RenderHookOptions } from '@testing-library/react'
 import type { ReactNode } from 'react'
+import { MemoryRouter } from 'react-router-dom'
 
 /** A fresh client per test: no retries, no shared cache between tests. */
 export const createTestQueryClient = () =>
@@ -40,4 +41,19 @@ export async function runMutation<Variables>(
   const { result } = renderQueryHook(hook, { client })
   await act(() => result.current.mutateAsync(variables))
   return client
+}
+
+/**
+ * Renders a component or screen inside the providers the app has: a fresh QueryClient
+ * and a MemoryRouter at `route`. Pass `client` to seed or inspect the cache.
+ */
+export function renderApp(ui: ReactNode, { route = '/', client = createTestQueryClient() }: { route?: string; client?: QueryClient } = {}) {
+  return {
+    client,
+    ...render(
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+      </QueryClientProvider>,
+    ),
+  }
 }

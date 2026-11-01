@@ -16,6 +16,32 @@ describe('i18n', () => {
     expect(sections('uk')).toEqual(sections('en'))
   })
 
+  it('has the same message keys in every locale for the landing and auth screens', () => {
+    // Plural forms differ per language (`_one` / `_few` / `_many` / `_other`), the key itself must not.
+    const keys = (lng: string, section: string) => {
+      const out = new Set<string>()
+      const walk = (node: unknown, path: string) => {
+        if (node && typeof node === 'object') Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`))
+        else out.add(path.replace(/_(zero|one|two|few|many|other)$/, ''))
+      }
+      walk(i18n.getResourceBundle(lng, 'translation')[section], section)
+      return [...out].sort()
+    }
+    for (const section of ['auth', 'landing', 'corridor']) {
+      expect(keys('ru', section)).toEqual(keys('en', section))
+      expect(keys('uk', section)).toEqual(keys('en', section))
+    }
+  })
+
+  it('pluralises the place count per language', async () => {
+    const open = (count: number) => i18n.t('landing.openMap', { count })
+    expect([1, 2, 5, 21].map(open)).toEqual(['Open the map · 1 place', 'Open the map · 2 places', 'Open the map · 5 places', 'Open the map · 21 places'])
+    await i18n.changeLanguage('ru')
+    expect([1, 2, 5, 21].map(open)).toEqual(['Открыть карту · 1 место', 'Открыть карту · 2 места', 'Открыть карту · 5 мест', 'Открыть карту · 21 место'])
+    await i18n.changeLanguage('uk')
+    expect([1, 2, 5, 21].map(open)).toEqual(['Відкрити мапу · 1 місце', 'Відкрити мапу · 2 місця', 'Відкрити мапу · 5 місць', 'Відкрити мапу · 21 місце'])
+  })
+
   it('translates and remembers the chosen language', async () => {
     await i18n.changeLanguage('ru')
     expect(i18n.t('header.profile')).toBe('Профиль')

@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import type { ComponentProps } from 'react'
 import type { KnownOrganisationTypeSlug } from '@/types/api'
 import { ORG_TYPE_CLASSES } from './constants/orgTypes'
-import { Icon, type IconName } from './Icon'
+import { Icon, type IconName } from './DS/Icon'
 import { FOCUS_RING } from './lib/classes'
 
 export interface ChipProps extends ComponentProps<'button'> {

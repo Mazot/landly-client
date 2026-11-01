@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useTranslation } from 'react-i18next'
 import { UI_NS } from './i18n'
-import { Icon } from './Icon'
+import { Icon } from './DS/Icon'
 
 export interface RatingProps {
   /** `ratingAvg` — null without reviews. */

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { KnownOrganisationTypeSlug } from '@/types/api'
 import { Chip } from './Chip'
 import { UI_NS } from './i18n'
-import type { IconName } from './Icon'
+import type { IconName } from './DS/Icon'
 import { useControllableState } from './lib/internal'
 
 export interface ChipOption<T extends string = string> {

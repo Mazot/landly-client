@@ -38,7 +38,7 @@ const cases: Case[] = [
   { name: 'healthcheck.check', call: () => healthcheckApi.check(), method: 'get', path: '/api/healthcheck', response: 'Healthcheck' },
 
   // common
-  { name: 'common.getCountries', call: () => commonApi.getCountries({ name: 'ger', limit: 20, offset: 0 }), method: 'get', path: '/api/common/countries', query: { name: 'ger', limit: '20', offset: '0' }, response: [OK] },
+  { name: 'common.getCountries', call: () => commonApi.getCountries({ name: 'ger', limit: 20, offset: 0, brief: true }), method: 'get', path: '/api/common/countries', query: { name: 'ger', limit: '20', offset: '0', brief: 'true' }, response: [OK] },
   { name: 'common.getCountry', call: () => commonApi.getCountry(ID), method: 'get', path: `/api/common/countries/${ID}`, response: OK },
   { name: 'common.getLanguages', call: () => commonApi.getLanguages({ limit: 500 }), method: 'get', path: '/api/common/languages', query: { limit: '500' }, response: [OK] },
   { name: 'common.getOrganisationTypes', call: () => commonApi.getOrganisationTypes(), method: 'get', path: '/api/common/org_types', response: [OK] },

@@ -36,6 +36,8 @@ export interface CountryDetail extends Country {
 export interface CountriesQuery extends PaginationParams {
   /** Case-insensitive substring filter on the name. */
   name?: string
+  /** Leave out `geoJson` (it comes back `null`): the full list with borders is ~12 MB. For pickers. */
+  brief?: boolean
 }
 
 /**

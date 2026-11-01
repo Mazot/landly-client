@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { Field } from '../Field'
-import { SearchField } from '../SearchField'
-import { Select } from '../Select'
-import { TextArea } from '../TextArea'
-import { TextField } from '../TextField'
+import { Field } from '../DS/Field'
+import { SearchField } from '../DS/SearchField'
+import { Select } from '../DS/Select'
+import { TextArea } from '../DS/TextArea'
+import { TextField } from '../DS/TextField'
 
 const COUNTRIES = [
   { value: 'ru', label: 'Russia' },

@@ -24,6 +24,8 @@ export const queryKeys = {
     all: ['countries'] as const,
     list: (query?: CountriesQuery) => ['countries', 'list', query ?? {}] as const,
     infinite: (name: string) => ['countries', 'infinite', name] as const,
+    /** The whole table in one list (pickers). */
+    everything: ['countries', 'everything'] as const,
     /** Every country detail — they carry live-place counts. */
     details: ['countries', 'detail'] as const,
     detail: (id: Uuid) => ['countries', 'detail', id] as const,

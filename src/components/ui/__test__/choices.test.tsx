@@ -1,14 +1,15 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { Checkbox } from '../Checkbox'
+import { Checkbox } from '../DS/Checkbox'
+import { AVATAR_COLORS } from '../tokens/tokens'
 import { Chip } from '../Chip'
 import { ChipGroup } from '../ChipGroup'
-import { ColorSwatches } from '../ColorSwatches'
-import { RadioGroup } from '../RadioGroup'
-import { Segmented } from '../Segmented'
+import { ColorSwatches } from '../DS/ColorSwatches'
+import { RadioGroup } from '../DS/RadioGroup'
+import { Segmented } from '../DS/Segmented'
 import { StarInput } from '../StarInput'
-import { Switch } from '../Switch'
+import { Switch } from '../DS/Switch'
 
 const LANGS = [
   { value: 'ru', label: 'Russian' },
@@ -112,7 +113,7 @@ describe('Switch / Checkbox / RadioGroup', () => {
 describe('ColorSwatches / StarInput', () => {
   it('ColorSwatches selects the first colour by default and changes', async () => {
     const onChange = vi.fn()
-    render(<ColorSwatches label="Avatar colour" onChange={onChange} />)
+    render(<ColorSwatches colors={AVATAR_COLORS} label="Avatar colour" onChange={onChange} />)
     expect(screen.getByRole('radio', { name: '#4A6D8C' })).toHaveAttribute('aria-checked', 'true')
     await userEvent.click(screen.getByRole('radio', { name: '#C7613F' }))
     expect(onChange).toHaveBeenCalledWith('#C7613F')

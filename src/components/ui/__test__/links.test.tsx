@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { Divider } from '../Divider'
-import { TextLink } from '../TextLink'
+import { Divider } from '../DS/Divider'
+import { TextLink } from '../DS/TextLink'
 
 describe('TextLink', () => {
   it('renders a router link for `to`', () => {

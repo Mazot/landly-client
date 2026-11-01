@@ -1,11 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { Button } from '../Button'
-import { Icon } from '../Icon'
-import { ICON_NAMES } from '../iconPaths'
-import { IconButton } from '../IconButton'
-import { Spinner } from '../Spinner'
+import { Button } from '../DS/Button'
+import { Icon } from '../DS/Icon'
+import { ICON_NAMES } from '../DS/iconPaths'
+import { IconButton } from '../DS/IconButton'
+import { Spinner } from '../DS/Spinner'
 
 describe('Icon', () => {
   it('is decorative without a label and an image with one', () => {
@@ -43,6 +44,22 @@ describe('Button', () => {
     expect(btn).toHaveAttribute('type', 'button')
     await userEvent.click(btn)
     expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('renders a router link styled as a button when given `to`', () => {
+    render(
+      <MemoryRouter>
+        <Button to="/signup" variant="accent" block iconRight="arrowRight">
+          Sign up
+        </Button>
+        <Button to="/map" icon="pin" aria-label="Map" />
+      </MemoryRouter>,
+    )
+    const link = screen.getByRole('link', { name: 'Sign up' })
+    expect(link).toHaveAttribute('href', '/signup')
+    expect(link).toHaveClass('bg-accent', 'w-full')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Map' })).toHaveAttribute('href', '/map')
   })
 
   it('is busy and disabled while loading', async () => {

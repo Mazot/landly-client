@@ -23,12 +23,30 @@ export const useCountries = (query?: CountriesQuery) =>
     staleTime: Infinity,
   })
 
-/** Paged country search for pickers; `pageParam` is the offset. */
+/**
+ * Every country in one list, sorted by name — for plain `<select>` pickers
+ * (landing, sign-up corridor), without the ~50 KB-per-country `geoJson` (`brief`: ~50 KB for all
+ * instead of ~12 MB). Two requests at most: the first page stops at the
+ * server's offset cap (150), the second asks for the max limit from there.
+ */
+export const useAllCountries = () =>
+  useQuery({
+    queryKey: queryKeys.countries.everything,
+    queryFn: async () => {
+      const first = await commonApi.getCountries({ limit: COUNTRIES_MAX_OFFSET, offset: 0, brief: true })
+      if (first.length < COUNTRIES_MAX_OFFSET) return first
+      return [...first, ...(await commonApi.getCountries({ limit: COUNTRIES_MAX_LIMIT, offset: COUNTRIES_MAX_OFFSET, brief: true }))]
+    },
+    select: (countries) => [...countries].sort((a, b) => a.name.localeCompare(b.name)),
+    staleTime: Infinity,
+  })
+
+/** Paged country search for pickers (without borders, like `useAllCountries`); `pageParam` is the offset. */
 export const useCountriesInfinite = (name: string) =>
   useInfiniteQuery({
     queryKey: queryKeys.countries.infinite(name),
     queryFn: ({ pageParam }) =>
-      commonApi.getCountries({ limit: countriesPageLimit(pageParam), offset: pageParam, name: name || undefined }),
+      commonApi.getCountries({ limit: countriesPageLimit(pageParam), offset: pageParam, name: name || undefined, brief: true }),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastOffset) => {
       if (lastOffset >= COUNTRIES_MAX_OFFSET || lastPage.length < countriesPageLimit(lastOffset)) return undefined

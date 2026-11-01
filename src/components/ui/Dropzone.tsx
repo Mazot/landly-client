@@ -3,9 +3,9 @@ import { useRef, useState, type DragEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IMAGE_CONTENT_TYPES, MAX_IMAGE_BYTES } from '@/types/api'
 import { UI_NS } from './i18n'
-import { IconTile } from './IconTile'
+import { IconTile } from './DS/IconTile'
 import { FOCUS_RING } from './lib/classes'
-import { Progress } from './Progress'
+import { Progress } from './DS/Progress'
 
 export interface DropzoneProps {
   /** Files that pass the server's type and size limits. */

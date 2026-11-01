@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { MAX_IMAGE_BYTES } from '@/types/api'
 import { Dropzone } from '../Dropzone'
-import { Progress } from '../Progress'
-import { StepBar } from '../StepBar'
+import { Progress } from '../DS/Progress'
+import { StepBar } from '../DS/StepBar'
 
 const file = (name: string, type: string, size = 1000) => {
   const f = new File(['x'], name, { type })

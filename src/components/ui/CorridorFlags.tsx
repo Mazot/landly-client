@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
-import { Icon } from './Icon'
+import { Icon } from './DS/Icon'
 
 export interface CorridorFlagsProps {
   /** `Country.flag` emoji of the home country. */

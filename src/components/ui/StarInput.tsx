@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MAX_RATING, MIN_RATING } from '@/types/api'
 import { UI_NS } from './i18n'
-import { Icon } from './Icon'
+import { Icon } from './DS/Icon'
 import { FOCUS_RING } from './lib/classes'
 import { onRadioGroupKeyDown, radioTabIndex, useControllableState } from './lib/internal'
 

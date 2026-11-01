@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Badge, type BadgeProps } from './Badge'
+import { Badge, type BadgeProps } from './DS/Badge'
 import { STATUS_TONES, type EntityStatus } from './constants/status'
 import { UI_NS } from './i18n'
 
