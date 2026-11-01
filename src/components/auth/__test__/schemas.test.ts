@@ -33,6 +33,14 @@ describe('signUpAccountSchema (user/entities.rs rules)', () => {
     expect(messages(signUpAccountSchema.safeParse({ ...valid, username }))).toEqual([message])
   })
 
+  it('counts username code points like the server, not UTF-16 units', () => {
+    const emoji = (n: number) => '😀'.repeat(n)
+    expect(messages(signUpAccountSchema.safeParse({ ...valid, username: emoji(2) }))).toEqual(['auth.errors.usernameLength'])
+    expect(signUpAccountSchema.safeParse({ ...valid, username: emoji(3) }).success).toBe(true)
+    expect(signUpAccountSchema.safeParse({ ...valid, username: emoji(50) }).success).toBe(true)
+    expect(messages(signUpAccountSchema.safeParse({ ...valid, username: emoji(51) }))).toEqual(['auth.errors.usernameLength'])
+  })
+
   it('counts username characters, not bytes, and trims it', () => {
     expect(signUpAccountSchema.safeParse({ ...valid, username: 'Анна' }).success).toBe(true)
     expect(signUpAccountSchema.safeParse({ ...valid, username: '  anna  ' }).success).toBe(true)
@@ -54,6 +62,13 @@ describe('signUpProfileSchema', () => {
     expect(signUpProfileSchema.safeParse(valid).success).toBe(true)
     expect(signUpProfileSchema.safeParse({ ...valid, hereAs: 'tourist' }).success).toBe(false)
     expect(signUpProfileSchema.safeParse({ ...valid, locale: 'de' }).success).toBe(false)
+  })
+
+  it('counts the name in code points: 100 emoji fit, 101 do not', () => {
+    expect(signUpProfileSchema.safeParse({ ...valid, name: '😀'.repeat(100) }).success).toBe(true)
+    expect(messages(signUpProfileSchema.safeParse({ ...valid, name: '😀'.repeat(101) }))).toEqual(['auth.errors.nameLong'])
+    expect(signUpProfileSchema.safeParse({ ...valid, avatarColor: '😀'.repeat(32) }).success).toBe(true)
+    expect(signUpProfileSchema.safeParse({ ...valid, avatarColor: '😀'.repeat(33) }).success).toBe(false)
   })
 
   it('caps name (100) and avatar colour (32) like the server', () => {

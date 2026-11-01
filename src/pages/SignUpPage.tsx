@@ -22,29 +22,7 @@ export default function SignUpPage() {
 
   return (
     <AuthLayout aside={<AuthHero />} home={ROUTES.landing}>
-      {step === 2 && account ? (
-        <SignUpProfileForm
-          account={account}
-          pending={signUp.isPending}
-          failure={signUp.error && !signupConflict(signUp.error) ? authFailure(signUp.error) : undefined}
-          onBack={() => {
-            signUp.reset()
-            setStep(1)
-          }}
-          onSubmit={(request) =>
-            signUp.mutate(request, {
-              onSuccess: () => navigate(ROUTES.map, { replace: true }),
-              // Username and email are only checked by the server: send the user back to the field.
-              onError: (error) => {
-                const taken = signupConflict(error)
-                if (!taken) return
-                setConflict(taken)
-                setStep(1)
-              },
-            })
-          }
-        />
-      ) : (
+      {step === 1 && (
         <SignUpAccountForm
           defaultValues={account}
           conflict={conflict}
@@ -55,6 +33,33 @@ export default function SignUpPage() {
             setStep(2)
           }}
         />
+      )}
+      {/* Mounted from the first visit on and only hidden at step 1, so what was typed on step 2 (and the
+          corridor draft) survives a round trip to step 1 to fix a taken username / email. */}
+      {account && (
+        <div hidden={step !== 2}>
+          <SignUpProfileForm
+            account={account}
+            pending={signUp.isPending}
+            failure={signUp.error && !signupConflict(signUp.error) ? authFailure(signUp.error) : undefined}
+            onBack={() => {
+              signUp.reset()
+              setStep(1)
+            }}
+            onSubmit={(request) =>
+              signUp.mutate(request, {
+                onSuccess: () => navigate(ROUTES.map, { replace: true }),
+                // Username and email are only checked by the server: send the user back to the field.
+                onError: (error) => {
+                  const taken = signupConflict(error)
+                  if (!taken) return
+                  setConflict(taken)
+                  setStep(1)
+                },
+              })
+            }
+          />
+        </div>
       )}
     </AuthLayout>
   )

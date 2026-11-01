@@ -187,14 +187,20 @@ describe('SignUpProfileForm (step 2)', () => {
     expect(request).not.toHaveProperty('home_country_id')
   })
 
-  it('goes back, shows a failure and ignores "Skip" while a request is running', async () => {
+  it('shows a failure and ignores "Skip" and "Back" while a request is running', async () => {
     const { onBack, onSubmit } = await open({ failure: 'tooManyRequests', pending: true })
     expect(screen.getByRole('alert')).toHaveTextContent('Too many attempts')
     expect(screen.getByRole('button', { name: 'Create account' })).toBeDisabled()
 
     await userEvent.click(screen.getByRole('button', { name: 'Skip for now' }))
-    expect(onSubmit).not.toHaveBeenCalled()
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }))
 
+    expect(onSubmit).not.toHaveBeenCalled()
+    expect(onBack).not.toHaveBeenCalled()
+  })
+
+  it('goes back when nothing is running', async () => {
+    const { onBack } = await open()
     await userEvent.click(screen.getByRole('button', { name: 'Back' }))
     expect(onBack).toHaveBeenCalledOnce()
   })

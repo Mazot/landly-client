@@ -56,7 +56,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
           as="h1"
           size="md"
           back={
-            <TextLink icon="arrowLeft" tone="muted" onClick={onBack}>
+            <TextLink icon="arrowLeft" tone="muted" onClick={() => !pending && onBack()}>
               {t('auth.signUp.back')}
             </TextLink>
           }

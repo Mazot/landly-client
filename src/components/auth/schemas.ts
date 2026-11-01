@@ -5,6 +5,9 @@ import { AVATAR_COLOR_MAX_CHARS, EMAIL_MAX_CHARS, HERE_AS, LOCALES, NAME_MAX_CHA
  * Client-side mirror of the server's credential rules (`user/entities.rs`).
  * Messages are `auth.errors.*` i18n keys — the form translates them.
  */
+
+/** Length in Unicode code points, like the server's `chars().count()` (not UTF-16 units: emoji are 2). */
+const chars = (value: string) => [...value].length
 const email = z.string().trim().min(1, 'auth.errors.emailRequired').max(EMAIL_MAX_CHARS, 'auth.errors.emailInvalid').pipe(z.email('auth.errors.emailInvalid'))
 
 /** Signin accepts any non-empty password: accounts created before the length rules still exist. */
@@ -17,21 +20,20 @@ export const signUpAccountSchema = z.object({
   username: z
     .string()
     .trim()
-    .min(USERNAME_MIN_CHARS, 'auth.errors.usernameLength')
-    .max(USERNAME_MAX_CHARS, 'auth.errors.usernameLength')
+    .refine((value) => chars(value) >= USERNAME_MIN_CHARS && chars(value) <= USERNAME_MAX_CHARS, 'auth.errors.usernameLength')
     .regex(/^[^\s\p{Cc}]+$/u, 'auth.errors.usernameSpaces'),
   email,
   password: z
     .string()
-    .refine((value) => [...value].length >= PASSWORD_MIN_CHARS, 'auth.errors.passwordShort')
+    .refine((value) => chars(value) >= PASSWORD_MIN_CHARS, 'auth.errors.passwordShort')
     .refine((value) => new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES, 'auth.errors.passwordLong'),
 })
 
 export const signUpProfileSchema = z.object({
-  name: z.string().trim().max(NAME_MAX_CHARS, 'auth.errors.nameLong'),
+  name: z.string().trim().refine((value) => chars(value) <= NAME_MAX_CHARS, 'auth.errors.nameLong'),
   hereAs: z.enum(HERE_AS),
   locale: z.enum(LOCALES),
-  avatarColor: z.string().max(AVATAR_COLOR_MAX_CHARS),
+  avatarColor: z.string().refine((value) => chars(value) <= AVATAR_COLOR_MAX_CHARS),
 })
 
 /** First validation message of a TanStack Form field (standard-schema issues or plain strings). */

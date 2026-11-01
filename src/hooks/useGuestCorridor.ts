@@ -10,10 +10,13 @@ const DEFAULT_TO_NAME = 'Germany'
 
 const known = (countries: Country[], id: string | null) => countries.find((c) => c.id === id)
 
+/** The country named `name` if it is not `excludeId`, else the first one that is not. */
+const pick = (countries: Country[], name: string, excludeId?: string) => [countries.find((c) => c.name === name), ...countries].find((c) => c && c.id !== excludeId)
+
 /**
  * The guest's "from → to" corridor resolved against the country list: a stale or empty id
- * falls back to the default pair (or, when the default countries are not in the list, to the
- * first countries), and picking the other side's country swaps the two instead of making
+ * falls back to the default pair (or, when the default countries are not in the list or equal the
+ * other side, to the first country that differs), and picking the other side's country swaps the two instead of making
  * them equal.
  *
  * `persist` (default) keeps the choice in `corridorStore`; `persist: false` keeps it in a draft
@@ -27,8 +30,10 @@ export function useGuestCorridor({ persist = true }: { persist?: boolean } = {})
   const [draft, setDraft] = useState(stored)
   const { fromId, toId } = persist ? stored : draft
 
-  const from = known(countries, fromId) ?? countries.find((c) => c.name === DEFAULT_FROM_NAME) ?? countries[0]
-  const to = known(countries, toId) ?? [countries.find((c) => c.name === DEFAULT_TO_NAME), ...countries].find((c) => c && c.id !== from?.id)
+  // A stale side is replaced by a default that differs from the side the guest still has.
+  const storedTo = known(countries, toId)
+  const from = known(countries, fromId) ?? pick(countries, DEFAULT_FROM_NAME, storedTo?.id)
+  const to = storedTo ?? pick(countries, DEFAULT_TO_NAME, from?.id)
 
   const write = (next: { fromId: string; toId?: string } | { fromId?: undefined; toId: string }) => {
     if (!persist) setDraft((d) => ({ ...d, ...next }))

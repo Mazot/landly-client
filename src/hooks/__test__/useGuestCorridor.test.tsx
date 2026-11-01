@@ -82,6 +82,21 @@ describe('useGuestCorridor', () => {
     expect(result.current.to).toEqual(russia)
   })
 
+  it('replaces a stale origin with a country that differs from the stored destination', async () => {
+    useCorridorStore.setState({ fromId: 'deleted-country', toId: russia.id })
+    const { result } = await load()
+    expect(result.current.to).toEqual(russia)
+    expect(result.current.from).toEqual(germany)
+    expect(result.current.ready).toBe(true)
+  })
+
+  it('does the same when no origin was ever stored', async () => {
+    useCorridorStore.setState({ fromId: null, toId: russia.id })
+    const { result } = await load()
+    expect(result.current.from?.id).not.toBe(russia.id)
+    expect(result.current.ready).toBe(true)
+  })
+
   describe('persist: false (draft)', () => {
     async function loadDraft() {
       capture('get', '/api/common/countries', [russia, germany, ukraine])
