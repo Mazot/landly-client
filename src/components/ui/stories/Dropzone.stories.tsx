@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
-import { Dropzone } from '../DS/Dropzone'
+import { Dropzone } from '../Dropzone'
 
 const meta = {
   title: 'Forms/Dropzone',

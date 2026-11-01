@@ -1,10 +1,9 @@
 import clsx from 'clsx'
-import { AVATAR_COLORS } from '../tokens/tokens'
 import { onRadioGroupKeyDown, radioTabIndex, useControllableState } from '../lib/internal'
 
 export interface ColorSwatchesProps {
-  /** Data colours (e.g. `avatar_color` choices). */
-  colors?: readonly string[]
+  /** The palette to choose from (data colours, e.g. the `avatar_color` choices). */
+  colors: readonly string[]
   /** Accessible name of the group. */
   label: string
   value?: string
@@ -15,7 +14,7 @@ export interface ColorSwatchesProps {
 }
 
 /** Pick one colour from a palette — avatar colour on sign-up and profile edit. */
-export function ColorSwatches({ colors = AVATAR_COLORS, label, value, defaultValue, onChange, colorLabel }: ColorSwatchesProps) {
+export function ColorSwatches({ colors, label, value, defaultValue, onChange, colorLabel }: ColorSwatchesProps) {
   const [current, setCurrent] = useControllableState<string>(value, defaultValue ?? colors[0], onChange)
   const checkedIndex = colors.indexOf(current)
   return (

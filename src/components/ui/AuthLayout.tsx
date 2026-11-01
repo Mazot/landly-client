@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Logo } from './Logo'
+import { Logo } from './DS/Logo'
 import { MapBackdrop } from './MapBackdrop'
 
 export interface AuthLayoutProps {

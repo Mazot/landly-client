@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 import { ORGANISATION_TYPE_SLUGS } from '@/types/api'
-import { Chip } from '../DS/Chip'
+import { Chip } from '../Chip'
 
 const meta = {
   title: 'Forms/Chip',

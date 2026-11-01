@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
-import { StarInput } from '../DS/StarInput'
+import { StarInput } from '../StarInput'
 
 const meta = {
   title: 'Forms/StarInput',

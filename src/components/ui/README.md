@@ -2,7 +2,7 @@
 
 The only place in the app with visual styling. Screens (`src/pages`) and feature blocks
 (`src/components/<feature>`) compose these components and add **layout** utilities only
-(see `.claude/skills/design-system/SKILL.md`). Everything is exported from `index.ts`.
+(see `.claude/skills/design-system/SKILL.md`). Everything is exported from `index.ts`. **Placement:** reusable, purely visual components (no data, no product vocabulary, not a screen frame, no hard-wired product defaults) live in `DS/`; the Landly-specific ones live next to `index.ts` — rule in `.claude/skills/design-system/SKILL.md` §1.
 
 ```
 src/components/ui/
@@ -14,9 +14,10 @@ src/components/ui/
 ├── i18n/               # `ui` namespace (en/ru/uk) — the DS's built-in strings
 ├── lib/                # internal: shared class fragments, useControllableState, Field/List contexts
 ├── __test__/           # all DS tests, grouped by area (primitives, display, …); tokens.test.ts fails when tokens.css drifts from tokens.ts
-├── stories/            # all Storybook stories: <Name>.stories.tsx per component, Tokens.stories.tsx for the tokens
-├── DS/                 # the first generation of components (Button, TextField, Sheet, Icon + iconPaths, …), one per file
-└── <Component>.tsx     # components added since (Logo, MapBackdrop, TypeBar, TopBar, CorridorFields, AuthLayout, FormNote, InlineStatus)
+├── DS/                 # reusable, purely visual components (Button, TextField, Sheet, Card, TabBar, Icon + iconPaths, Logo, …), one per file
+│   └── stories/        # their Storybook stories: <Name>.stories.tsx
+├── stories/            # stories of the product components below + Tokens.stories.tsx
+└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop)
 ```
 
 `tailwind.config.ts` builds the theme from `tokens.ts`, so a token is added in one place
@@ -65,7 +66,7 @@ src/components/ui/
 | | `Chip` / `ChipGroup` | `selected`, `orgType`, `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` |
 | | `Segmented` | `options` (+`count`), `block`, `size` |
 | | `Switch`, `Checkbox`, `RadioGroup` | boolean / boolean + description / one of options |
-| | `ColorSwatches`, `StarInput` | avatar colour (`colorLabel` gives swatches readable names) · review rating |
+| | `ColorSwatches`, `StarInput` | pick one colour from `colors` (`colorLabel` gives swatches readable names) · review rating |
 | | `Dropzone` | `onFiles`, `onReject` (type / 10 MB like the server), `upload` progress |
 | | `Progress`, `StepBar` | upload progress · sign-up steps |
 | | `CorridorFields` | `from` / `to` slots (Fields with Selects) joined by the accent arrow · `stackOnPhone` |
@@ -82,4 +83,4 @@ src/components/ui/
 
 ## Storybook
 
-Each component has `stories/<Name>.stories.tsx` (tokens: `stories/Tokens.stories.tsx`). Run `npm run storybook`. `__test__/stories.test.tsx` requires a story per exported component and renders every story with axe checks — a new component is not done without its story.
+Each component has a story next to it in a `stories/` folder (`DS/stories/<Name>.stories.tsx`, or `stories/<Name>.stories.tsx` for the product components; tokens: `stories/Tokens.stories.tsx`). Run `npm run storybook`. `__test__/stories.test.tsx` requires a story per exported component and renders every story with axe checks — a new component is not done without its story.

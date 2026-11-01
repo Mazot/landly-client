@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
 import { ORGANISATION_TYPE_SLUGS } from '@/types/api'
-import { Tag } from '../DS/Tag'
+import { Tag } from '../Tag'
 
 const meta = {
   title: 'Data display/Tag',

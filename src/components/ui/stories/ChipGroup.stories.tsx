@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
-import { ChipGroup, type ChipOption } from '../DS/ChipGroup'
+import { ChipGroup, type ChipOption } from '../ChipGroup'
 
 const TYPES: ChipOption[] = [
   { value: 'embassy', label: 'Embassies', orgType: 'embassy' },

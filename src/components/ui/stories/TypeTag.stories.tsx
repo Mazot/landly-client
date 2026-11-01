@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ORGANISATION_TYPE_SLUGS } from '@/types/api'
-import { TypeTag } from '../DS/TypeTag'
+import { TypeTag } from '../TypeTag'
 import { colors } from '../tokens/tokens'
 
 const meta = {

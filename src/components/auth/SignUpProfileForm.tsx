@@ -105,7 +105,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
           <form.Field name="avatarColor">
             {(field) => (
               <Field label={t('auth.fields.avatarColor')} optional>
-                <ColorSwatches label={t('auth.fields.avatarColor')} value={field.state.value} onChange={field.handleChange} colorLabel={(color) => t(`auth.avatarColors.${AVATAR_COLOR_KEYS[color as AvatarColor]}`)} />
+                <ColorSwatches colors={AVATAR_COLORS} label={t('auth.fields.avatarColor')} value={field.state.value} onChange={field.handleChange} colorLabel={(color) => t(`auth.avatarColors.${AVATAR_COLOR_KEYS[color as AvatarColor]}`)} />
               </Field>
             )}
           </form.Field>

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ORGANISATION_STATUSES, PERSON_STATUSES } from '@/types/api'
-import { StatusBadge } from '../DS/StatusBadge'
+import { StatusBadge } from '../StatusBadge'
 
 const STATUSES = [...new Set([...ORGANISATION_STATUSES, ...PERSON_STATUSES])]
 

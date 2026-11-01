@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { OpenStatus } from '../DS/OpenStatus'
+import { OpenStatus } from '../OpenStatus'
 
 const meta = {
   title: 'Data display/OpenStatus',

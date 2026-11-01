@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { CorridorFlags } from '../DS/CorridorFlags'
+import { CorridorFlags } from '../CorridorFlags'
 
 const meta = {
   title: 'Data display/CorridorFlags',
