@@ -7,7 +7,7 @@ import { FormNote } from '../FormNote'
 import { InlineStatus } from '../InlineStatus'
 import { Logo } from '../Logo'
 import { MapBackdrop } from '../MapBackdrop'
-import { PageHeader } from '../PageHeader'
+import { PageHeader } from '../DS/PageHeader'
 import { TopBar } from '../TopBar'
 import { TypeBar } from '../TypeBar'
 

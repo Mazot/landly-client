@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { Checkbox } from '../Checkbox'
-import { Chip } from '../Chip'
-import { ChipGroup } from '../ChipGroup'
-import { ColorSwatches } from '../ColorSwatches'
-import { RadioGroup } from '../RadioGroup'
-import { Segmented } from '../Segmented'
-import { StarInput } from '../StarInput'
-import { Switch } from '../Switch'
+import { Checkbox } from '../DS/Checkbox'
+import { Chip } from '../DS/Chip'
+import { ChipGroup } from '../DS/ChipGroup'
+import { ColorSwatches } from '../DS/ColorSwatches'
+import { RadioGroup } from '../DS/RadioGroup'
+import { Segmented } from '../DS/Segmented'
+import { StarInput } from '../DS/StarInput'
+import { Switch } from '../DS/Switch'
 
 const LANGS = [
   { value: 'ru', label: 'Russian' },

@@ -2,11 +2,11 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { Button } from '../Button'
-import { Icon } from '../Icon'
-import { ICON_NAMES } from '../iconPaths'
-import { IconButton } from '../IconButton'
-import { Spinner } from '../Spinner'
+import { Button } from '../DS/Button'
+import { Icon } from '../DS/Icon'
+import { ICON_NAMES } from '../DS/iconPaths'
+import { IconButton } from '../DS/IconButton'
+import { Spinner } from '../DS/Spinner'
 
 describe('Icon', () => {
   it('is decorative without a label and an image with one', () => {

@@ -9,13 +9,14 @@ src/components/ui/
 ├── index.ts            # barrel — the inventory; check it before writing a component
 ├── tokens/
 │   ├── tokens.ts       # source of truth: colours, fonts, font sizes, radii, shadows, AVATAR_COLORS
-│   ├── tokens.css      # the same colours as CSS variables (imported by src/index.css)
-│   └── Tokens.stories.tsx
+│   └── tokens.css      # the same colours as CSS variables (imported by src/index.css)
 ├── constants/          # TONES / TONE_CLASSES, ORG_TYPE_CLASSES, STATUS_TONES
 ├── i18n/               # `ui` namespace (en/ru/uk) — the DS's built-in strings
 ├── lib/                # internal: shared class fragments, useControllableState, Field/List contexts
 ├── __test__/           # all DS tests, grouped by area (primitives, display, …); tokens.test.ts fails when tokens.css drifts from tokens.ts
-└── <Component>.tsx     # one component per file
+├── stories/            # all Storybook stories: <Name>.stories.tsx per component, Tokens.stories.tsx for the tokens
+├── DS/                 # the first generation of components (Button, TextField, Sheet, Icon + iconPaths, …), one per file
+└── <Component>.tsx     # components added since (Logo, MapBackdrop, TypeBar, TopBar, CorridorFields, AuthLayout, FormNote, InlineStatus)
 ```
 
 `tailwind.config.ts` builds the theme from `tokens.ts`, so a token is added in one place
@@ -81,4 +82,4 @@ src/components/ui/
 
 ## Storybook
 
-Each component has `<Name>.stories.tsx` (tokens: `tokens/Tokens.stories.tsx`). Run `npm run storybook`. `__test__/stories.test.tsx` requires a story per exported component and renders every story with axe checks — a new component is not done without its story.
+Each component has `stories/<Name>.stories.tsx` (tokens: `stories/Tokens.stories.tsx`). Run `npm run storybook`. `__test__/stories.test.tsx` requires a story per exported component and renders every story with axe checks — a new component is not done without its story.

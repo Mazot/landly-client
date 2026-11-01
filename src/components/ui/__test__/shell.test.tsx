@@ -2,10 +2,10 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { MobileHeader } from '../MobileHeader'
-import { NavTabs } from '../NavTabs'
-import { Sheet } from '../Sheet'
-import { TabBar } from '../TabBar'
+import { MobileHeader } from '../DS/MobileHeader'
+import { NavTabs } from '../DS/NavTabs'
+import { Sheet } from '../DS/Sheet'
+import { TabBar } from '../DS/TabBar'
 
 describe('Sheet', () => {
   it('opens as a modal dialog labelled by its title and closes with the prop', () => {

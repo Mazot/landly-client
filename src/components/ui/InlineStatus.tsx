@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Spinner } from './Spinner'
+import { Spinner } from './DS/Spinner'
 
 /** Spinner + short message announced as a status: "Signing you in…". */
 export function InlineStatus({ children }: { children: ReactNode }) {

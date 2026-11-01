@@ -21,7 +21,7 @@ Three rules, plus a mandatory check:
 | Layer | Location | Contains |
 |---|---|---|
 | Tokens | `tailwind.config.ts` (`theme.extend`) + the `:root` CSS variables in `src/index.css` | colours, fonts, radii, shadows — keep both files in sync |
-| DS components | `src/components/ui/` | primitives (Button, TextField, Chip, Sheet, Card, …) — the **only** place with visual styling |
+| DS components | `src/components/ui/` (first generation in `ui/DS/`, newer ones in `ui/` itself), stories in `ui/stories/` | primitives (Button, TextField, Chip, Sheet, Card, …) — the **only** place with visual styling |
 | Inventory | `src/components/ui/index.ts` (barrel) | every DS component is exported here; this file is the list you check first |
 | Feature components | `src/components/<feature>/` | domain blocks (OrganisationCard, MapFilters, …) composed from DS components |
 | Screens | `src/pages/` | routes; compose feature + DS components |

@@ -211,4 +211,4 @@ Rules enforced:
 
 ## Storybook (design-system catalogue)
 
-`npm run storybook` (http://localhost:6006) shows every DS component; `npm run build-storybook` builds it (also in CI). Config in `.storybook/` (tokens, i18n toolbar en/ru/uk, router, viewports 320/375/768/1024/1440, a11y addon). Every component exported from `src/components/ui/index.ts` needs a `<Name>.stories.tsx` next to it — `src/components/ui/__test__/stories.test.tsx` fails otherwise, and runs every story checking for React console errors and axe violations. Stories are excluded from coverage.
+`npm run storybook` (http://localhost:6006) shows every DS component; `npm run build-storybook` builds it (also in CI). Config in `.storybook/` (tokens, i18n toolbar en/ru/uk, router, viewports 320/375/768/1024/1440, a11y addon). Every component exported from `src/components/ui/index.ts` needs a `<Name>.stories.tsx` in `src/components/ui/stories/` — `src/components/ui/__test__/stories.test.tsx` fails otherwise, and runs every story checking for React console errors and axe violations. Stories are excluded from coverage.

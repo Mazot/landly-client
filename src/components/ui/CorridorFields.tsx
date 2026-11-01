@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
-import { Icon } from './Icon'
+import { Icon } from './DS/Icon'
 
 export interface CorridorFieldsProps {
   /** A `Field` with the origin `Select`. */
