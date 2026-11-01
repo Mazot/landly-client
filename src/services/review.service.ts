@@ -6,7 +6,7 @@ export const reviewApi = {
   list: async (query: ReviewsListQuery): Promise<ListResponse<Review>> =>
     (await apiClient.get('/api/review/list', { params: query })).data,
 
-  /** Auth; refreshes the target's `ratingAvg` / `reviewsCount`. */
+  /** Auth; refreshes the target's `ratingAvg` / `reviewsCount`. 403 for your own submission or a person you recommended / are. */
   create: async (body: CreateReviewRequest): Promise<Review> =>
     (await apiClient.post('/api/review/create', body)).data,
 

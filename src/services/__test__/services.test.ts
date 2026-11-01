@@ -50,6 +50,7 @@ const cases: Case[] = [
   { name: 'organisation.fetch', call: () => organisationApi.fetch(ID), method: 'get', path: `/api/organisation/fetch/${ID}`, response: OK },
   { name: 'organisation.create', call: () => organisationApi.create({ name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }), method: 'post', path: '/api/organisation/create', body: { name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }, response: OK },
   { name: 'organisation.update', call: () => organisationApi.update(ID, { name: 'Renamed' }), method: 'put', path: `/api/organisation/update/${ID}`, body: { name: 'Renamed' }, response: OK },
+  { name: 'organisation.update (added_by)', call: () => organisationApi.update(ID, { added_by: 'community' }), method: 'put', path: `/api/organisation/update/${ID}`, body: { added_by: 'community' }, response: OK },
   { name: 'organisation.remove', call: () => organisationApi.remove(ID), method: 'delete', path: `/api/organisation/delete/${ID}`, response: 'OK', void: true },
   { name: 'organisation.checkin', call: () => organisationApi.checkin(ID, { tip: 'Bring a passport photo' }), method: 'post', path: `/api/organisation/checkin/${ID}`, body: { tip: 'Bring a passport photo' }, response: OK },
   { name: 'organisation.checkin (default body)', call: () => organisationApi.checkin(ID), method: 'post', path: `/api/organisation/checkin/${ID}`, body: {}, response: OK },

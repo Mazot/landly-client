@@ -67,6 +67,7 @@ Files and what usually affects them:
 | `.claude/skills/library-first/SKILL.md` | dependencies (added/removed/bumped packages, APIs now used), project helpers in `src/lib` |
 | `.claude/skills/design-system/SKILL.md` and `src/components/ui/README.md` | tokens (`src/components/ui/tokens/`), DS components / `src/components/ui`, breakpoints, layout patterns, verification steps |
 | `.claude/skills/test-after-change/SKILL.md` | test helpers in `src/test/`, test layout per layer, test/coverage commands, `vite.config.ts` → `test.coverage` excludes (mirrored in `changed-coverage.mjs`) |
+| `.claude/skills/contract-sync/SKILL.md` and `check.mjs` | the server-feature → client-file mapping (`FEATURE_MAP`), which server files count as contracts (`PATHSPEC`, `CATEGORIES`), the sync procedure; `synced-with.json` moves only through `check.mjs --stamp` |
 | `.env.example` (not Markdown, same rule) | any `import.meta.env.VITE_*` added, renamed or removed |
 
 How:
@@ -75,6 +76,10 @@ How:
 2. Grep the docs for every name you renamed, moved or removed (files, functions, hooks, env vars, routes, packages) — no stale references may remain.
 3. New behaviour, convention or file a future reader needs → document it in the matching file in the same change.
 4. Say in your final message which `.md` files you updated — or that you checked them and none needed changes.
+
+## Contract sync before a new task (skill `contract-sync`)
+
+**Before starting any new task**, run `node .claude/skills/contract-sync/check.mjs` (source: `master` of `landly-server`; `--source folder` for the sibling `../landly-server` working tree when the task depends on unmerged server work). It lists what changed in the server's client-facing contracts since the commit in `.claude/skills/contract-sync/synced-with.json` and cross-checks every server route against `src/services`. If anything changed, bring `src/types/api`, services, hooks, factories, contract pins and docs up to date first — workflow in `.claude/skills/contract-sync/SKILL.md` (own commit, then `--stamp`) — and only then start the task. State the source and the result in the first message.
 
 ## Library-first (skill `library-first`)
 
@@ -131,6 +136,8 @@ Source of truth is the server's OpenAPI spec (`/api-docs/openapi.json`; per-feat
 
 - Request bodies and query params are **snake_case**, response payloads **camelCase**.
 - A server `Option` field is always sent, as `null` → type it `T | null`. Only fields the server skips when empty are `?:` (`Organisation.distanceKm`, `Organisation.community`, `Person.email`, `Person.whatsapp`).
+- Input caps of the server (`utils/validation.rs` → `limits::*`, `MAX_JSON_BODY_BYTES`) are the `*_MAX_CHARS` / `*_MAX` constants in `src/types/api/limits.ts` (user credentials/profile ones in `user.ts`), pinned in `contract.test.ts`; lengths count Unicode characters, a longer value is a 422.
+- Trust rules answer 403 (own organisation/person review or vouch, `added_by: 'official'` by a non-moderator, a moderator approving their own submission); check-ins are one per (organisation, user) — a repeat updates it.
 - Enum-like strings are `as const` arrays + a union type (`ORGANISATION_STATUSES` / `OrganisationStatus`, …), mirroring the server's `TEXT` + `CHECK` columns.
 - List endpoints answer `ListResponse<T>` = `{ items, total }`; `total` is the size of this page, not of the table. `GET /common/countries` and `/common/org_types` answer plain arrays.
 - Timestamps are UTC without a zone (`ServerDateTime`) — parse with `parseServerDateTime`.

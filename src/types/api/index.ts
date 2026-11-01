@@ -1,6 +1,7 @@
 // landly-server contracts, one module per server feature.
 // Source of truth: the server's OpenAPI spec (`/api-docs/openapi.json`, UI at `/scalar`).
 export * from './shared'
+export * from './limits'
 export * from './common'
 export * from './organisation'
 export * from './image'
