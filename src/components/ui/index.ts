@@ -19,6 +19,7 @@ export { Divider } from './DS/Divider'
 export { InlineStatus } from './DS/InlineStatus'
 export { Logo, type LogoProps } from './DS/Logo'
 export { MapBackdrop, type MapBackdropProps } from './MapBackdrop'
+export { MapPin, type MapPinProps } from './MapPin'
 
 // Data display
 export { Avatar, type AvatarProps, type AvatarSize } from './DS/Avatar'
@@ -76,3 +77,4 @@ export { TabBar, type TabBarItem } from './DS/TabBar'
 export { NavTabs, type NavTabsItem } from './DS/NavTabs'
 export { TopBar, type TopBarProps } from './DS/TopBar'
 export { AuthLayout, type AuthLayoutProps } from './AuthLayout'
+export { MapLayout, type MapLayoutProps } from './MapLayout'

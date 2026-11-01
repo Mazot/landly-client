@@ -1,15 +1,20 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   GOOGLE_MAPS_LIBRARIES,
-  GOOGLE_MAPS_MAP_ID,
+  BACKDROP_VIEW,
+  MAP_SEARCH_LIMIT,
+  WORLD_VIEW,
   boundsToSearchBox,
+  geometryBounds,
   organisationPosition,
   placeToOrganisationLocation,
 } from '../maps'
 
 describe('config', () => {
-  it('falls back to Google’s development map id', () => {
-    expect(GOOGLE_MAPS_MAP_ID).toBe('DEMO_MAP_ID')
+  it('falls back to Google’s development map id', async () => {
+    vi.stubEnv('VITE_GOOGLE_MAPS_MAP_ID', '')
+    vi.resetModules()
+    expect((await import('../maps')).GOOGLE_MAPS_MAP_ID).toBe('DEMO_MAP_ID')
   })
 
   it('reads the map id and key from the environment', async () => {
@@ -19,6 +24,12 @@ describe('config', () => {
     const fresh = await import('../maps')
     expect(fresh.GOOGLE_MAPS_MAP_ID).toBe('prod-map')
     expect(fresh.GOOGLE_MAPS_API_KEY).toBe('browser-key')
+  })
+
+  it('has no key (and no map) without one in the environment', async () => {
+    vi.stubEnv('VITE_GOOGLE_MAPS_API_KEY', undefined)
+    vi.resetModules()
+    expect((await import('../maps')).GOOGLE_MAPS_API_KEY).toBe('')
   })
 
   it('preloads the marker and places libraries', () => {
@@ -99,5 +110,35 @@ describe('placeToOrganisationLocation', () => {
       longitude: undefined,
       address: undefined,
     })
+  })
+})
+
+describe('start viewport', () => {
+  it('shows the backdrop map at a fixed (fractional-zoom) view', () => {
+    expect(BACKDROP_VIEW).toEqual({ center: { lat: 44.8, lng: -12.23 }, zoom: 4.5 })
+  })
+
+  it('starts on the whole world and asks for a full page of places', () => {
+    expect(WORLD_VIEW).toEqual({ center: { lat: 20, lng: 0 }, zoom: 2 })
+    expect(MAP_SEARCH_LIMIT).toBe(100)
+  })
+})
+
+describe('geometryBounds', () => {
+  it('boxes a polygon (positions are [lng, lat])', () => {
+    const ring: [number, number][] = [[6, 47], [15, 47], [15, 55], [6, 55], [6, 47]]
+    expect(geometryBounds({ type: 'Polygon', coordinates: [ring] })).toEqual({ west: 6, east: 15, south: 47, north: 55 })
+  })
+
+  it('boxes every part of a multipolygon (islands included)', () => {
+    const mainland: [number, number][] = [[6, 47], [15, 47], [15, 55], [6, 47]]
+    const island: [number, number][] = [[7, 54], [8, 54], [8, 55.5], [7, 54]]
+    expect(geometryBounds({ type: 'MultiPolygon', coordinates: [[mainland], [island]] })).toEqual({ west: 6, east: 15, south: 47, north: 55.5 })
+  })
+
+  it('has no box without a border', () => {
+    expect(geometryBounds(null)).toBeNull()
+    expect(geometryBounds(undefined)).toBeNull()
+    expect(geometryBounds({ type: 'Polygon', coordinates: [] })).toBeNull()
   })
 })

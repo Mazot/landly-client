@@ -248,7 +248,14 @@
     "open": "Open",
     "closed": "Closed",
     "loading": "Loading organizations…",
-    "empty": "No organizations here yet."
+    "empty": "No organizations here yet.",
+    "panelTitle": "Places on the map",
+    "loadingMap": "Loading the map…",
+    "inView_one": "{{count}} place in this area",
+    "inView_other": "{{count}} places in this area",
+    "error": "Couldn't load places",
+    "errorHint": "Check your connection and move the map to try again.",
+    "emptyHint": "Zoom out or move the map to look elsewhere."
   },
   "filters": {
     "title": "Filters",

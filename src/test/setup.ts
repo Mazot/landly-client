@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { afterAll, afterEach, beforeAll } from 'vitest'
+import type { ReactNode } from 'react'
+import { afterAll, afterEach, beforeAll, vi } from 'vitest'
 import '@/i18n'
 import { queryClient } from '@/lib/queryClient'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +14,29 @@ HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
 HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
   this.removeAttribute('open')
 }
+
+// jsdom has no layout, so the map (needs Google's script) is replaced by a stub and the browser
+// API `MapBackdrop` observes the page with reports "on screen". Tests that look at the map
+// itself override these (`vi.mock` per file, `vi.stubGlobal`).
+vi.mock('@vis.gl/react-google-maps', async () => {
+  const { createElement } = await import('react')
+  return {
+    APIProvider: ({ children }: { children?: ReactNode }) => children,
+    Map: ({ children }: { children?: ReactNode }) => createElement('div', { 'data-testid': 'google-map' }, children),
+    AdvancedMarker: () => null,
+    useMap: () => null,
+    useMapsLibrary: () => null,
+  }
+})
+globalThis.IntersectionObserver ??= class {
+  constructor(private callback: IntersectionObserverCallback) {}
+  observe(target: Element) {
+    this.callback([{ isIntersecting: true, target } as IntersectionObserverEntry], this as unknown as IntersectionObserver)
+  }
+  unobserve() {}
+  disconnect() {}
+  takeRecords = () => []
+} as unknown as typeof IntersectionObserver
 
 // Any request without a handler fails the test instead of hitting the network.
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))

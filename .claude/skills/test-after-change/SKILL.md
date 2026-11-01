@@ -42,6 +42,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 ### Cases to cover
 
 - **Happy path** with realistic payloads from `src/test/factories.ts`.
+- **Google Maps:** `src/test/setup.ts` stubs `@vis.gl/react-google-maps` and `IntersectionObserver` for every test; a test about the map itself overrides them per file (`vi.mock`) or per test (`vi.stubGlobal`) — see `ui/__test__/map.test.tsx`.
 - **Empty / missing:** `null` fields, empty lists, missing ids (`undefined`), empty strings.
 - **Errors:** 401 with and without a token, 403, 404, 422 `{ error, constraint }`, 500 plain string, network error — via `capture(method, path, body, status)`.
 - **Auth & roles:** guest vs signed-in (`useAuthStore.getState().setAuth(authUser())`), `user` vs `moderator`/`admin` (answer `/api/user/me` with `userProfile({ role })`).

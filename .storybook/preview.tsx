@@ -1,18 +1,22 @@
 import type { Decorator, Preview } from '@storybook/react-vite'
+import { APIProvider } from '@vis.gl/react-google-maps'
 import { MemoryRouter } from 'react-router-dom'
 import { colors } from '../src/components/ui/tokens/tokens'
+import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_LIBRARIES } from '../src/lib/maps'
 import { LOCALES, type Locale } from '../src/types/api'
 import '../src/index.css'
 import { LocaleSync } from './LocaleSync'
 
 const LOCALE_TITLES: Record<Locale, string> = { en: 'English', ru: 'Русский', uk: 'Українська' }
 
-/** Router context for TextLink / ListItem / TabBar / NavTabs links. */
+/** Router context for TextLink / ListItem / TabBar / NavTabs links; the Maps loader for MapBackdrop. */
 const withProviders: Decorator = (Story, { globals }) => (
   <LocaleSync locale={(globals.locale as Locale | undefined) ?? 'en'}>
-    <MemoryRouter>
-      <Story />
-    </MemoryRouter>
+    <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={GOOGLE_MAPS_LIBRARIES}>
+      <MemoryRouter>
+        <Story />
+      </MemoryRouter>
+    </APIProvider>
   </LocaleSync>
 )
 

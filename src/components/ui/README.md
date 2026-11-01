@@ -17,7 +17,7 @@ src/components/ui/
 ├── DS/                 # reusable, purely visual components (Button, TextField, Sheet, Card, TabBar, Icon + iconPaths, Logo, …), one per file
 │   └── stories/        # their Storybook stories: <Name>.stories.tsx
 ├── stories/            # stories of the product components below + Tokens.stories.tsx
-└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop)
+└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop, MapLayout) · `MapPin` is the map marker
 ```
 
 `tailwind.config.ts` builds the theme from `tokens.ts`, so a token is added in one place
@@ -57,7 +57,8 @@ src/components/ui/
 | | `Meta` | icon + short text |
 | | `CorridorFlags` | `from` / `to` flag emoji, `label` |
 | | `ImageFrame` | `src`, `alt`, `ratio`, `badge`, `action` |
-| | `MapBackdrop` | map area behind landing / sign-in (placeholder until the Google map is mounted) · `variant` plain / hero (readability fade from `lg`), sized by `className` |
+| | `MapBackdrop` | decorative, still Google world map behind landing / sign-in, a fixed view (`BACKDROP_VIEW`), in the cloud style of `VITE_GOOGLE_MAPS_MAP_ID`; mounted only while on screen · `variant` plain / hero (dimmed below `lg`, readability fade from `lg`), sized by `className`; needs the root `<APIProvider>` |
+| | `MapPin` | round map marker coloured by org type · `slug`, `label` (place name), `color` (custom types), `selected` — a child of `<AdvancedMarker>` |
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
@@ -79,6 +80,7 @@ src/components/ui/
 | Shell | `Sheet` | bottom sheet on phones, modal from `md` (native `<dialog>`) |
 | | `MobileHeader`, `TabBar`, `NavTabs` | phone header · phone bottom nav · top-bar nav (router links) |
 | | `TopBar` | page banner: `brand`, `nav` (from `md`), `actions` |
+| | `MapLayout` | map screen frame: results side panel from `lg`, full-bleed map + button → bottom `Sheet` below · `topBar`, `map`, `title`, `panel`, `summary`, `sheetOpen` / `onSheetOpenChange` |
 | | `AuthLayout` | sign-in / sign-up frame: plain page → form card on the map (`md`) → map panel with `aside` hero + form column (`lg`) |
 
 ## Storybook
