@@ -41,6 +41,11 @@ describe('SignUpAccountForm (step 1)', () => {
     expect(onContinue).not.toHaveBeenCalled()
   })
 
+  it('gives every input a placeholder', () => {
+    const { container } = renderApp(<SignUpAccountForm onContinue={vi.fn()} />)
+    expect([...container.querySelectorAll('input')].map((i) => i.getAttribute('placeholder'))).toEqual(['anna.m', 'you@example.com', 'Create a password'])
+  })
+
   it('keeps the entered account when the user comes back from step 2', () => {
     renderApp(<SignUpAccountForm defaultValues={{ username: 'anna.m', email: 'a@b.io', password: 'password123' }} onContinue={vi.fn()} />)
     expect(screen.getByLabelText('Username')).toHaveValue('anna.m')
@@ -137,6 +142,13 @@ describe('SignUpProfileForm (step 2)', () => {
 
     expect(screen.getByLabelText('To')).toHaveValue(ukraine.id)
     expect(useCorridorStore.getState()).toMatchObject({ fromId: russia.id, toId: germany.id })
+  })
+
+  it('gives the name input a placeholder, in the UI language', async () => {
+    await open()
+    expect(screen.getByLabelText(/Your name/)).toHaveAttribute('placeholder', 'Anna Morozova')
+    await i18n.changeLanguage('ru')
+    expect(await screen.findByLabelText(/Ваше имя/)).toHaveAttribute('placeholder', 'Анна Морозова')
   })
 
   it('leaves out an empty name', async () => {

@@ -78,7 +78,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
       >
         {/* Stacked on phones: country names ("United Kingdom") do not fit two to a row at 320–390 px. */}
         <CorridorPicker corridor={corridor} fromLabel={t('auth.fields.from')} toLabel={t('auth.fields.to')} stackOnPhone />
-        <form.Field name="name">{(field) => <FormTextField field={field} label={t('auth.fields.name')} optional autoComplete="name" />}</form.Field>
+        <form.Field name="name">{(field) => <FormTextField field={field} label={t('auth.fields.name')} placeholder={t('auth.placeholders.name')} optional autoComplete="name" />}</form.Field>
         <form.Field name="hereAs">
           {(field) => (
             <Field label={t('auth.fields.hereAs')} optional>

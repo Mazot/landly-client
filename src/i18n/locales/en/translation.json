@@ -494,6 +494,13 @@
       "locale": "Interface language",
       "avatarColor": "Avatar colour"
     },
+    "placeholders": {
+      "email": "you@example.com",
+      "passwordSignIn": "Your password",
+      "passwordSignUp": "Create a password",
+      "username": "anna.m",
+      "name": "Anna Morozova"
+    },
     "hereAs": {
       "newcomer": "Newcomer",
       "helping": "Helping others",

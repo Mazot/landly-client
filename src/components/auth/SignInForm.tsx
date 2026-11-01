@@ -41,11 +41,11 @@ export function SignInForm({ onSuccess }: { onSuccess: () => void }) {
         {failure && <Callout tone="danger">{t(`auth.errors.${failure}`)}</Callout>}
         <form.Field name="email">
           {(field) => (
-            <FormTextField field={field} label={t('auth.fields.email')} icon="mail" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" invalid={rejected} />
+            <FormTextField field={field} label={t('auth.fields.email')} placeholder={t('auth.placeholders.email')} icon="mail" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" invalid={rejected} />
           )}
         </form.Field>
         <form.Field name="password">
-          {(field) => <FormTextField field={field} label={t('auth.fields.password')} type="password" autoComplete="current-password" invalid={rejected} />}
+          {(field) => <FormTextField field={field} label={t('auth.fields.password')} placeholder={t('auth.placeholders.passwordSignIn')} type="password" autoComplete="current-password" invalid={rejected} />}
         </form.Field>
         <Button type="submit" variant="accent" size="lg" className="w-full" loading={signIn.isPending}>
           {t('auth.signIn.submit')}

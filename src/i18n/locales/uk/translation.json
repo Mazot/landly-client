@@ -498,6 +498,13 @@
       "locale": "Мова інтерфейсу",
       "avatarColor": "Колір аватара"
     },
+    "placeholders": {
+      "email": "you@example.com",
+      "passwordSignIn": "Ваш пароль",
+      "passwordSignUp": "Придумайте пароль",
+      "username": "anna.m",
+      "name": "Анна Морозова"
+    },
     "hereAs": {
       "newcomer": "Новачок",
       "helping": "Допомагаю іншим",

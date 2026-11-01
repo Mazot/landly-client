@@ -53,6 +53,7 @@ export function SignUpAccountForm({ defaultValues, conflict, onEdit, onContinue 
             <FormTextField
               field={field}
               label={t('auth.fields.username')}
+              placeholder={t('auth.placeholders.username')}
               hint={t('auth.fields.usernameHint', { min: USERNAME_MIN_CHARS, max: USERNAME_MAX_CHARS })}
               serverError={conflict === 'username' ? t('auth.errors.usernameTaken') : undefined}
               onEdit={conflict === 'username' ? onEdit : undefined}
@@ -68,6 +69,7 @@ export function SignUpAccountForm({ defaultValues, conflict, onEdit, onContinue 
             <FormTextField
               field={field}
               label={t('auth.fields.email')}
+              placeholder={t('auth.placeholders.email')}
               serverError={conflict === 'email' ? t('auth.errors.emailTaken') : undefined}
               onEdit={conflict === 'email' ? onEdit : undefined}
               icon="mail"
@@ -79,7 +81,7 @@ export function SignUpAccountForm({ defaultValues, conflict, onEdit, onContinue 
           )}
         </form.Field>
         <form.Field name="password">
-          {(field) => <FormTextField field={field} label={t('auth.fields.password')} hint={t('auth.fields.passwordHint', { min: PASSWORD_MIN_CHARS })} type="password" autoComplete="new-password" />}
+          {(field) => <FormTextField field={field} label={t('auth.fields.password')} placeholder={t('auth.placeholders.passwordSignUp')} hint={t('auth.fields.passwordHint', { min: PASSWORD_MIN_CHARS })} type="password" autoComplete="new-password" />}
         </form.Field>
         <Button type="submit" variant="accent" size="lg" className="w-full" iconRight="arrowRight">
           {t('auth.signUp.continue')}

@@ -99,6 +99,12 @@ describe('SignInForm', () => {
     expect(redirectTo).toHaveBeenCalledWith(GOOGLE_LOGIN_URL)
   })
 
+  it('gives every input a placeholder', () => {
+    const { container } = renderApp(<SignInForm onSuccess={vi.fn()} />)
+    const inputs = [...container.querySelectorAll('input')]
+    expect(inputs.map((i) => i.getAttribute('placeholder'))).toEqual(['you@example.com', 'Your password'])
+  })
+
   it('links to sign-up and to guest browsing', () => {
     renderApp(<SignInForm onSuccess={vi.fn()} />)
     expect(screen.getByRole('link', { name: 'Create an account' })).toHaveAttribute('href', '/signup')
