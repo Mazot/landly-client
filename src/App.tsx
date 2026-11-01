@@ -4,12 +4,13 @@ import { GOOGLE_CALLBACK_PATH } from '@/services/user.service'
 import { ROUTES } from '@/lib/routes'
 import GoogleCallbackPage from '@/pages/GoogleCallbackPage'
 import LandingPage from '@/pages/LandingPage'
+import MapPage from '@/pages/MapPage'
 import SignInPage from '@/pages/SignInPage'
 import SignUpPage from '@/pages/SignUpPage'
 
 /**
- * Screens are added one design section at a time (done: sign in & sign up).
- * Claim links point to `/claim/{token}`; `ROUTES.map` is where a signed-in user lands.
+ * Screens are added one design section at a time (done: sign in & sign up, the map).
+ * Claim links point to `/claim/{token}`; `ROUTES.map` is public and is where a signed-in user lands.
  */
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path={ROUTES.signIn} element={<SignInPage />} />
         <Route path={ROUTES.signUp} element={<SignUpPage />} />
       </Route>
+      <Route path={ROUTES.map} element={<MapPage />} />
       <Route path={GOOGLE_CALLBACK_PATH} element={<GoogleCallbackPage />} />
       <Route path="*" element={null} />
     </Routes>

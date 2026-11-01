@@ -46,13 +46,13 @@ Copy `.env.example` to `.env` and fill in values:
 |---|---|---|
 | `VITE_API_URL` | no | Backend origin without `/api` (e.g. `http://localhost:8080`); also the Vite proxy target. Empty = same origin |
 | `VITE_GOOGLE_MAPS_API_KEY` | yes | Google Maps Platform browser key (Maps JavaScript API + Places API (New)), referrer-restricted |
-| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for `<AdvancedMarker>` / cloud styling; defaults to `DEMO_MAP_ID` (dev only) |
+| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for `<AdvancedMarker>` / cloud styling (the style is set in Google Cloud Console → Map Management → the map ID → Map styles); used by `MapPage` and `MapBackdrop`; defaults to `DEMO_MAP_ID` (dev only) |
 
 Everything `VITE_*` ends up in the public bundle — never put server secrets here (`GOOGLE_PLACES_API_KEY`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, S3 keys). The server's `FRONTEND_ORIGIN` must equal this client's origin.
 
 ## Status
 
-The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`). Screens are rebuilt one design section at a time (design: "Landly v3 (API-aligned)"); done so far: **1 · Sign in & Sign up** — the guest landing (`/`), `/signin`, `/signup` (two steps; all three under `GuestOnly`, which sends a signed-in user to `/map`) and the Google callback (`/auth/google/callback`). A signed-in user lands on `ROUTES.map` (`/map`), which is not built yet (empty route). The data layer is complete and mirrors the current landly-server. Translation files still hold some copy of the old screens (`header`, `home`, …); the new screens use the `landing`, `auth`, `corridor` and `language` keys.
+The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`). Screens are rebuilt one design section at a time (design: "Landly v3 (API-aligned)"); done so far: **1 · Sign in & Sign up** — the guest landing (`/`), `/signin`, `/signup` (two steps; all three under `GuestOnly`, which sends a signed-in user to `/map`) and the Google callback (`/auth/google/callback`); and the first cut of **the map** — `/map` (`MapPage`, public: guests browse too, a signed-in user lands here): a Google map starting on the corridor's destination country, the places of the current viewport as pins and as a list (side panel from `lg`, bottom sheet below). Not built yet on the map: filters, search box, place detail, add-a-place (Places Autocomplete). The data layer is complete and mirrors the current landly-server. Translation files still hold some copy of the old screens (`header`, `home`, …); the new screens use the `landing`, `auth`, `corridor` and `language` keys.
 
 ## Documentation is part of every change
 
@@ -105,7 +105,7 @@ TypeScript is pinned to `~6.0` (typescript-eslint supports only `<6.1`). TS 6 lo
 - **Server state** — `@tanstack/react-query` v5 (keys in `src/lib/queryKeys.ts`)
 - **Client state** — `zustand`: `authStore` (JWT + user, persisted in `localStorage`), `corridorStore` (guest corridor; signed-in users use server corridors)
 - **HTTP client** — `axios` instance in `src/lib/axios.ts`
-- **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx`, config and helpers in `src/lib/maps.ts`
+- **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx` (and in the Storybook decorator), config and helpers in `src/lib/maps.ts`. `MapBackdrop` (landing, sign-in) is a non-interactive, still world map (`BACKDROP_VIEW`); it mounts the `<Map>` only while on screen (IntersectionObserver), so a copy hidden by CSS costs no Google map load — each mounted map counts against the daily *Map loads* quota
 - **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `src/components/ui/tokens/tokens.ts` (single source; `tailwind.config.ts` builds the theme from it and is loaded with `@config` from `src/index.css`) and are mirrored as CSS variables in `src/components/ui/tokens/tokens.css` (`tokens.test.ts` checks the two match). Class names are joined with `clsx`. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
 - **Forms** — `@tanstack/react-form` with `zod` schemas as the Standard Schema validator (`validators.onSubmit`); schemas live next to the form (`components/auth/schemas.ts`) and carry i18n keys as messages; `FormTextField` binds a field to the DS and translates them
 - **i18n** — `i18next` + `react-i18next` + `i18next-browser-languagedetector`; languages `en`, `ru`, `uk` (same as the server's `Locale`), files in `src/i18n/locales/{en,ru,uk}/translation.json`; the design system's own strings are the `ui` namespace in `src/components/ui/i18n/{en,ru,uk}.json`
@@ -118,8 +118,8 @@ src/
 ├── services/           # <feature>.service.ts — one API object per server feature
 ├── hooks/              # use<Feature>.ts — React Query hooks; usePlaceDetails (Google Places)
 ├── components/ui/      # design system: tokens/, constants/, i18n/ (`ui` namespace), lib/, one component per file, barrel index.ts
-├── components/<feature>/ # domain blocks composed from DS components: auth/ (forms, schemas), corridor/ (CorridorPicker), layout/ (LanguageSelect)
-├── pages/              # one file per route (LandingPage, SignInPage, SignUpPage, GoogleCallbackPage); tests in pages/__test__
+├── components/<feature>/ # domain blocks composed from DS components: auth/ (forms, schemas), corridor/ (CorridorPicker), layout/ (LanguageSelect), map/ (PlaceList)
+├── pages/              # one file per route (LandingPage, SignInPage, SignUpPage, GoogleCallbackPage, MapPage); tests in pages/__test__
 ├── lib/                # axios, queryClient, session, queryKeys, invalidation, maps, errors, dates, query, routes (ROUTES), locales (LOCALE_OPTIONS), navigation (redirectTo)
 ├── stores/             # authStore, corridorStore
 ├── i18n/
@@ -156,6 +156,8 @@ Google sign-in is a top-level navigation (`redirectTo(GOOGLE_LOGIN_URL)`, `lib/n
 
 Google's terms: only `google_place_id` (and a refreshable point) is stored server-side. Hours, photos and Google ratings are fetched live with `usePlaceDetails(googlePlaceId)` — request only the fields a screen renders (they decide the billed SKU), show them on a Google map with attribution, never send them to the server. When creating a place from Places Autocomplete use `placeToOrganisationLocation`; for map search use `boundsToSearchBox` (it widens viewports crossing the antimeridian, the server filters longitude with a plain BETWEEN).
 
+`MapPage` (`/map`): `<Map>` from `@vis.gl/react-google-maps` inside `MapLayout`; it mounts only after the destination country's detail is loaded (the country list is `brief`, without borders; `geometryBounds` turns `CountryDetail.geoJson` into the start viewport, `WORLD_VIEW` when there is none) and each `idle` event stores `boundsToSearchBox(bounds)`, which `useSearchOrganisations` sends with `limit: MAP_SEARCH_LIMIT` (100). Pins are `<AdvancedMarker>` + `MapPin` (colour from the org type); a place without a point is listed but not pinned. Selecting (marker, list row or sheet row) highlights both and pans the map; a click on the map clears it.
+
 ### Path alias
 
 `@/` maps to `src/` (configured in both `vite.config.ts` and `tsconfig.json`).
@@ -188,6 +190,7 @@ Every code change comes with tests (workflow: skill `test-after-change`); CI kee
 - **Screens and components with providers:** `renderApp(ui, { route, client })` (`src/test/render.tsx`) wraps in a fresh `QueryClient` + `MemoryRouter`; add routes inside `ui` when the test navigates. `lib/navigation` is mocked with `vi.mock` where a test would leave the SPA.
 - **Hooks:** `renderQueryHook` gives each test a fresh `QueryClient` (no retries); `runMutation(client, hook, variables)` runs a mutation; `seed` + `isInvalidated` check what a mutation invalidated. Session hooks use the app's module `queryClient` (`lib/session.ts` clears it).
 - **Fixtures:** `src/test/factories.ts` builds typed server payloads (`organisation()`, `person()`, `authUser()`, … and `list()` for `{ items, total }`).
+- **Google Maps in jsdom:** `src/test/setup.ts` replaces `@vis.gl/react-google-maps` with stubs (`Map` renders a `div`, `useMap` is `null`) and gives jsdom an `IntersectionObserver` that reports "on screen" — screens containing `MapBackdrop` just work. A test that looks at the map overrides them: `vi.mock('@vis.gl/react-google-maps', …)` per file (see `MapPage.test.tsx`, `ui/__test__/map.test.tsx`) and `vi.stubGlobal` for the observer.
 - **Isolation:** `src/test/setup.ts` resets MSW handlers, the session, `localStorage` and the query cache after each test. Env-dependent modules are tested with `vi.stubEnv` + `vi.resetModules` + a dynamic `import()` (envs are unstubbed automatically).
 - **Contract pins:** `src/types/api/__test__/contract.test.ts` holds the enum values and limits shared with the server (migration `CHECK`s, Rust constants) — a failure means one side changed.
 - **Gotcha:** with React 19, don't wrap `fetchNextPage()` in `act()` — the observer update never reaches the hook; call it and `await waitFor(...)` (TanStack's documented pattern).

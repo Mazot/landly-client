@@ -5,7 +5,7 @@
 
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback). In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
+> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) and the first cut of **the map** (`/map`: Google map, places of the viewport as pins and a list; filters, search, place detail and add-a-place are next). In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
 
 ## 🛠️ Stack
 
@@ -36,7 +36,7 @@ npm run dev            # http://localhost:5173
 |---|---|---|
 | `VITE_API_URL` | no | Backend origin without `/api`, e.g. `http://localhost:8080`. Empty = same origin (the Vite proxy forwards `/api/*`) |
 | `VITE_GOOGLE_MAPS_API_KEY` | yes | Browser key, restricted by HTTP referrer. Never the server's `GOOGLE_PLACES_API_KEY` |
-| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for Advanced Markers / cloud styling; `DEMO_MAP_ID` when unset (dev only) |
+| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for Advanced Markers / cloud styling (Google Cloud Console → Map Management; the style is chosen there); used by the map screen and the landing/sign-in backdrop; `DEMO_MAP_ID` when unset (dev only) |
 
 Shared with the server: `VITE_API_URL` must point to the server, and the server's `FRONTEND_ORIGIN` must be this client's origin (CORS + the Google sign-in redirect).
 
@@ -49,7 +49,7 @@ src/
 ├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
 ├── components/ui/  # design system: tokens, components, constants, `ui` i18n namespace
 ├── components/     # auth/, corridor/, layout/ — domain blocks composed from DS components
-├── pages/          # one file per route
+├── pages/          # one file per route (landing, sign in/up, Google callback, map)
 ├── lib/
 │   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
 │   ├── queryClient.ts  # the app's React Query client
