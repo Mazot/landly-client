@@ -25,6 +25,7 @@ export const personApi = {
     (await apiClient.post('/api/person/create', body)).data,
 
   /** Auth. */
+  /** Auth; 403 for a person you recommended or are. */
   vouch: async (id: Uuid, body: VouchPersonRequest = {}): Promise<Person> =>
     (await apiClient.post(`/api/person/vouch/${id}`, body)).data,
 

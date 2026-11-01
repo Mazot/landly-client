@@ -38,6 +38,7 @@ export const organisationApi = {
   },
 
   /** Auth; answers the fresh detail payload. */
+  /** Auth; one per user — a repeat updates the earlier check-in. */
   checkin: async (id: Uuid, body: CheckinRequest = {}): Promise<Organisation> =>
     (await apiClient.post(`/api/organisation/checkin/${id}`, body)).data,
 

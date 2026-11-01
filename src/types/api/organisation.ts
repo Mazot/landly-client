@@ -116,6 +116,7 @@ export interface CreateOrganisationRequest {
   location_country_id?: Uuid
   founder_country_id?: Uuid
   organisation_type_id?: Uuid
+  /** `official` only for moderators/admins (403 otherwise); users may resend the stored value. */
   added_by?: AddedBy
   cost?: Cost
   languages?: string[]
@@ -127,11 +128,10 @@ export interface CreateOrganisationRequest {
 /**
  * `PUT /api/organisation/update/{id}` — omitted fields keep their value.
  * Creator or moderator/admin only; a creator's edit of a `live` place sends it
- * back to `pending`.
+ * back to `pending`. `added_by` is written only when it changed; setting or
+ * removing `official` is a moderator/admin action (403 for the creator).
  */
-export type UpdateOrganisationRequest = Partial<
-  Omit<CreateOrganisationRequest, 'google_place_id' | 'added_by'>
->
+export type UpdateOrganisationRequest = Partial<Omit<CreateOrganisationRequest, 'google_place_id'>>
 
 /** `GET /api/organisation/list` (limit default 20, max 100; offset max 150). */
 export interface OrganisationsListQuery extends PaginationParams {
@@ -177,11 +177,15 @@ export interface SearchOrganisationsQuery extends PaginationParams {
   sort?: SearchSort
 }
 
-/** `POST /api/organisation/checkin/{id}` — answers the fresh detail payload. */
+/**
+ * `POST /api/organisation/checkin/{id}` — answers the fresh detail payload.
+ * One check-in per (organisation, user): repeating it replaces the answer and
+ * keeps the earlier tip unless a new one is given.
+ */
 export interface CheckinRequest {
   /** "The place is still active"; defaults to true. */
   still_active?: boolean
-  /** Community tip shown on the detail page. */
+  /** Community tip shown on the detail page (blank = no tip; max `CHECKIN_TIP_MAX_CHARS`). */
   tip?: string
 }
 

@@ -11,7 +11,7 @@ export const moderationApi = {
   queue: async (query?: ModerationQueueQuery): Promise<ListResponse<ModerationQueueItem>> =>
     (await apiClient.get('/api/moderation/queue', { params: query })).data,
 
-  /** org → `live`, person → `awaiting`. */
+  /** org → `live`, person → `awaiting`. A moderator (not an admin) gets 403 on their own submission. */
   approve: async (body: ModerationDecisionRequest): Promise<void> => {
     await apiClient.post('/api/moderation/approve', body)
   },
