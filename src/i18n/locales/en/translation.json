@@ -179,8 +179,12 @@
     "nav": {
       "map": "Map",
       "countries": "Countries",
-      "saved": "Saved"
-    }
+      "saved": "Saved",
+      "people": "People",
+      "account": "Me"
+    },
+    "main": "Main",
+    "add": "Add"
   },
   "orgType": {
     "embassy": "Embassy",
@@ -203,7 +207,8 @@
     "yourCorridor": "Your corridor",
     "switchTo": "Switch to",
     "addCorridor": "Add corridor",
-    "manage": "Manage"
+    "manage": "Manage",
+    "label": "{{from}} → {{to}}"
   },
   "corridorPicker": {
     "imFrom": "I'm from",
@@ -240,7 +245,7 @@
     "sort": {
       "nearest": "Nearest",
       "recent": "Recently added",
-      "verified": "Verified"
+      "verified": "Verified first"
     },
     "listView": "List view",
     "gridView": "Grid view",
@@ -255,7 +260,34 @@
     "inView_other": "{{count}} places in this area",
     "error": "Couldn't load places",
     "errorHint": "Check your connection and move the map to try again.",
-    "emptyHint": "Zoom out or move the map to look elsewhere."
+    "emptyHint": "Zoom out or move the map to look elsewhere.",
+    "searchIn": "Search in {{country}}",
+    "search": "Search places",
+    "showingInArea": "Showing in this area",
+    "count_one": "{{count}} organization",
+    "count_other": "{{count}} organizations",
+    "countCapped_one": "{{count}}+ organization",
+    "countCapped_other": "{{count}}+ organizations",
+    "nearby": "{{count}} nearby",
+    "closedToday": "Closed today",
+    "save": "Save {{name}}",
+    "unsave": "Remove {{name}} from saved",
+    "noMatches": "Nothing matches these filters",
+    "noMatchesHint": "Try fewer filters, another name or a larger area.",
+    "resetFilters": "Reset filters",
+    "moveToSearch": "Move the map to search another area",
+    "capped": "Showing the first {{count}} — zoom in to narrow the search",
+    "showList": "Show the list",
+    "hideList": "Hide the list",
+    "typeRail": "Place types",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "locate": "Show my location",
+    "corridorPlaces_one": "{{count}} place",
+    "corridorPlaces_other": "{{count}} places",
+    "embassies_one": "{{count}} embassy",
+    "embassies_other": "{{count}} embassies",
+    "newThisWeek": "{{count}} new this week"
   },
   "filters": {
     "title": "Filters",
@@ -281,14 +313,23 @@
     "wholeCountry": "Whole country",
     "km": "{{km}} km",
     "reset": "Reset",
-    "showPlaces": "Show {{count}} places",
     "addMore": "+ add",
     "lang": {
       "russian": "Russian",
       "ukrainian": "Ukrainian",
       "english": "English",
       "german": "German"
-    }
+    },
+    "subtitle": "Applies to the map and the list",
+    "minRating": "Minimum rating",
+    "anyone": "Anyone",
+    "paid": "Paid",
+    "show": "Show places",
+    "showNone": "No places match",
+    "showPlaces_one": "Show {{count}} place",
+    "showPlaces_other": "Show {{count}} places",
+    "showPlacesCapped_one": "Show {{count}}+ place",
+    "showPlacesCapped_other": "Show {{count}}+ places"
   },
   "orgCompact": {
     "backToResults": "Back to results",
@@ -562,6 +603,28 @@
       "tooManyRequests": "Too many attempts — try again in a minute.",
       "network": "Can't reach Landly. Check your connection and try again.",
       "generic": "Something went wrong. Please try again."
+    }
+  },
+  "corridors": {
+    "title": "Your corridors",
+    "subtitle": "The map opens to your default corridor",
+    "guestTitle": "Choose your corridor",
+    "guestSubtitle": "The map shows the places of the country you live in",
+    "default": "Default",
+    "setDefault": "Set default",
+    "makeDefault": "Make {{name}} the default corridor",
+    "places_one": "{{count}} live place",
+    "places_other": "{{count}} live places",
+    "switchTo": "Switch to {{name}}",
+    "pick": "Pick a corridor",
+    "addTitle": "Add a corridor",
+    "destination": "Destination",
+    "add": "Add corridor",
+    "showMap": "Show the map",
+    "loadFailed": "Couldn't load your corridors",
+    "errors": {
+      "exists": "You already have this corridor.",
+      "generic": "The corridor could not be added. Try again."
     }
   }
 }

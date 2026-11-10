@@ -5,4 +5,9 @@ export const ROUTES = {
   signUp: '/signup',
   /** The map; public, and where a signed-in user lands. */
   map: '/map',
+  people: '/people',
+  countries: '/countries',
+  saved: '/saved',
+  account: '/account',
+  add: '/add',
 } as const

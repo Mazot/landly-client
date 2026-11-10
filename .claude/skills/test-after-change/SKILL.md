@@ -42,6 +42,7 @@ The test stack and helpers are described in `AGENTS.md` → "Tests" and in the
 ### Cases to cover
 
 - **Happy path** with realistic payloads from `src/test/factories.ts`.
+- **Sizes:** `setViewportWidth(375 | 834 | 1440)` from `src/test/viewport.ts` (jsdom's `matchMedia` follows `window.innerWidth`; reset to desktop after each test) for anything built on `useBreakpoint`.
 - **Google Maps:** `src/test/setup.ts` stubs `@vis.gl/react-google-maps` and `IntersectionObserver` for every test; a test about the map itself overrides them per file (`vi.mock`) or per test (`vi.stubGlobal`) — see `ui/__test__/map.test.tsx`.
 - **Empty / missing:** `null` fields, empty lists, missing ids (`undefined`), empty strings.
 - **Errors:** 401 with and without a token, 403, 404, 422 `{ error, constraint }`, 500 plain string, network error — via `capture(method, path, body, status)`.

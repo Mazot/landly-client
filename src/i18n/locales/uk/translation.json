@@ -181,8 +181,12 @@
     "nav": {
       "map": "Карта",
       "countries": "Країни",
-      "saved": "Збережене"
-    }
+      "saved": "Збережене",
+      "people": "Люди",
+      "account": "Я"
+    },
+    "main": "Основне",
+    "add": "Додати"
   },
   "orgType": {
     "embassy": "Посольство",
@@ -205,7 +209,8 @@
     "yourCorridor": "Ваш коридор",
     "switchTo": "Переключити на",
     "addCorridor": "Додати коридор",
-    "manage": "Керування"
+    "manage": "Керування",
+    "label": "{{from}} → {{to}}"
   },
   "corridorPicker": {
     "imFrom": "Я з",
@@ -244,7 +249,7 @@
     "sort": {
       "nearest": "Найближчі",
       "recent": "Нещодавно додані",
-      "verified": "Перевірені"
+      "verified": "Спочатку перевірені"
     },
     "listView": "Список",
     "gridView": "Сітка",
@@ -261,7 +266,42 @@
     "inView_other": "{{count}} місця в цій області",
     "error": "Не вдалося завантажити місця",
     "errorHint": "Перевірте з'єднання та посуньте мапу, щоб повторити.",
-    "emptyHint": "Віддаліть мапу або посуньте її, щоб подивитися в іншому місці."
+    "emptyHint": "Віддаліть мапу або посуньте її, щоб подивитися в іншому місці.",
+    "searchIn": "Шукати: {{country}}",
+    "search": "Пошук місць",
+    "showingInArea": "Показано в цій області",
+    "count_one": "{{count}} організація",
+    "count_few": "{{count}} організації",
+    "count_many": "{{count}} організацій",
+    "count_other": "{{count}} організації",
+    "countCapped_one": "{{count}}+ організація",
+    "countCapped_few": "{{count}}+ організації",
+    "countCapped_many": "{{count}}+ організацій",
+    "countCapped_other": "{{count}}+ організації",
+    "nearby": "{{count}} поруч",
+    "closedToday": "Сьогодні зачинено",
+    "save": "Зберегти: {{name}}",
+    "unsave": "Прибрати зі збережених: {{name}}",
+    "noMatches": "Нічого не підходить під фільтри",
+    "noMatchesHint": "Приберіть частину фільтрів, спробуйте іншу назву або більшу область.",
+    "resetFilters": "Скинути фільтри",
+    "moveToSearch": "Посуньте мапу, щоб шукати в іншій області",
+    "capped": "Показано перші {{count}} — наблизьте мапу, щоб звузити пошук",
+    "showList": "Показати список",
+    "hideList": "Сховати список",
+    "typeRail": "Типи місць",
+    "zoomIn": "Наблизити",
+    "zoomOut": "Віддалити",
+    "locate": "Показати моє місцезнаходження",
+    "corridorPlaces_one": "{{count}} місце",
+    "corridorPlaces_few": "{{count}} місця",
+    "corridorPlaces_many": "{{count}} місць",
+    "corridorPlaces_other": "{{count}} місця",
+    "embassies_one": "{{count}} посольство",
+    "embassies_few": "{{count}} посольства",
+    "embassies_many": "{{count}} посольств",
+    "embassies_other": "{{count}} посольства",
+    "newThisWeek": "{{count}} нових за тиждень"
   },
   "filters": {
     "title": "Фільтри",
@@ -287,14 +327,27 @@
     "wholeCountry": "Уся країна",
     "km": "{{km}} км",
     "reset": "Скинути",
-    "showPlaces": "Показати {{count}} місць",
     "addMore": "+ додати",
     "lang": {
       "russian": "Російська",
       "ukrainian": "Українська",
       "english": "Англійська",
       "german": "Німецька"
-    }
+    },
+    "subtitle": "Застосовується до мапи та списку",
+    "minRating": "Мінімальний рейтинг",
+    "anyone": "Будь-хто",
+    "paid": "Платно",
+    "show": "Показати місця",
+    "showNone": "Нічого не знайдено",
+    "showPlaces_one": "Показати {{count}} місце",
+    "showPlaces_few": "Показати {{count}} місця",
+    "showPlaces_many": "Показати {{count}} місць",
+    "showPlaces_other": "Показати {{count}} місця",
+    "showPlacesCapped_one": "Показати {{count}}+ місце",
+    "showPlacesCapped_few": "Показати {{count}}+ місця",
+    "showPlacesCapped_many": "Показати {{count}}+ місць",
+    "showPlacesCapped_other": "Показати {{count}}+ місця"
   },
   "orgCompact": {
     "backToResults": "До результатів",
@@ -568,6 +621,30 @@
       "tooManyRequests": "Забагато спроб — зачекайте хвилину.",
       "network": "Немає зв’язку з Landly. Перевірте з’єднання й спробуйте знову.",
       "generic": "Щось пішло не так. Спробуйте ще раз."
+    }
+  },
+  "corridors": {
+    "title": "Ваші коридори",
+    "subtitle": "Мапа відкривається на коридорі за замовчуванням",
+    "guestTitle": "Оберіть коридор",
+    "guestSubtitle": "Мапа покаже місця країни, де ви живете",
+    "default": "За замовчуванням",
+    "setDefault": "Зробити основним",
+    "makeDefault": "Зробити {{name}} коридором за замовчуванням",
+    "places_one": "{{count}} місце",
+    "places_few": "{{count}} місця",
+    "places_many": "{{count}} місць",
+    "places_other": "{{count}} місця",
+    "switchTo": "Перемкнутися: {{name}}",
+    "pick": "Оберіть коридор",
+    "addTitle": "Додати коридор",
+    "destination": "Куди",
+    "add": "Додати коридор",
+    "showMap": "Показати мапу",
+    "loadFailed": "Не вдалося завантажити коридори",
+    "errors": {
+      "exists": "Такий коридор у вас уже є.",
+      "generic": "Не вдалося додати коридор. Спробуйте ще раз."
     }
   }
 }

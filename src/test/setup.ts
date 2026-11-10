@@ -6,6 +6,7 @@ import '@/i18n'
 import { queryClient } from '@/lib/queryClient'
 import { useAuthStore } from '@/stores/authStore'
 import { server } from './server'
+import { DEFAULT_VIEWPORT_WIDTH, installMatchMedia } from './viewport'
 
 // jsdom may not implement the modal dialog API (Sheet uses it); browsers do.
 HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
@@ -38,6 +39,10 @@ globalThis.IntersectionObserver ??= class {
   takeRecords = () => []
 } as unknown as typeof IntersectionObserver
 
+installMatchMedia()
+// jsdom does not scroll: the stub lets a test see which element was brought into view.
+Element.prototype.scrollIntoView = vi.fn()
+
 // Any request without a handler fails the test instead of hitting the network.
 beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 
@@ -47,6 +52,7 @@ afterEach(() => {
   queryClient.clear()
   useAuthStore.getState().clearAuth()
   localStorage.clear()
+  window.innerWidth = DEFAULT_VIEWPORT_WIDTH
 })
 
 afterAll(() => server.close())

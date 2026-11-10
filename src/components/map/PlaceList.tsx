@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { Badge, EmptyState, InlineStatus, List, ListItem, OpenStatus, Rating, TypeTag } from '@/components/ui'
+import { Button, EmptyState, InlineStatus, List } from '@/components/ui'
 import type { Organisation, OrganisationType } from '@/types/api'
+import { PlaceListItem } from './PlaceListItem'
 
 export interface PlaceListProps {
   places: Organisation[]
@@ -8,13 +9,23 @@ export interface PlaceListProps {
   orgTypes: OrganisationType[]
   selectedId?: string
   onSelect: (place: Organisation) => void
+  /** Tighter rows for tablet and phone. */
+  compact: boolean
   loading: boolean
   error: boolean
+  /** Filters or a name search narrow the list: an empty list then says so. */
+  narrowed: boolean
+  onResetFilters: () => void
+  /** The server stopped at the page size: more places lie in this area. */
+  capped: boolean
+  /** Bookmarks: both set for signed-in users only. */
+  isSaved?: (place: Organisation) => boolean
+  onToggleSaved?: (place: Organisation) => void
 }
 
-// TODO: THIS IS A TMP COMPONENT
-/** Places found in the map viewport — one row per place, loading / error / empty states included. */
-export function PlaceList({ places, orgTypes, selectedId, onSelect, loading, error }: PlaceListProps) {
+// TODO: first cut of the results list until the list design is done.
+/** Places found in the map viewport — one row per place, with loading / error / empty states. */
+export function PlaceList({ places, orgTypes, selectedId, onSelect, compact, loading, error, narrowed, onResetFilters, capped, isSaved, onToggleSaved }: PlaceListProps) {
   const { t } = useTranslation()
   if (error) return <EmptyState icon="flag" tone="danger" title={t('map.error')} description={t('map.errorHint')} />
   if (loading) {
@@ -24,33 +35,39 @@ export function PlaceList({ places, orgTypes, selectedId, onSelect, loading, err
       </div>
     )
   }
-  if (places.length === 0) return <EmptyState icon="pin" title={t('map.empty')} description={t('map.emptyHint')} />
+  if (places.length === 0) {
+    return narrowed ? (
+      <EmptyState
+        icon="search"
+        title={t('map.noMatches')}
+        description={t('map.noMatchesHint')}
+        action={
+          <Button variant="secondary" size="sm" onClick={onResetFilters}>
+            {t('map.resetFilters')}
+          </Button>
+        }
+      />
+    ) : (
+      <EmptyState icon="pin" title={t('map.empty')} description={t('map.emptyHint')} />
+    )
+  }
   return (
-    <List label={t('map.panelTitle')} gap="sm">
-      {places.map((place) => {
-        const type = orgTypes.find((candidate) => candidate.id === place.organisationTypeId)
-        return (
-          <ListItem
+    <>
+      <List label={t('map.panelTitle')} gap="sm">
+        {places.map((place) => (
+          <PlaceListItem
             key={place.id}
-            title={place.name}
-            subtitle={place.address ?? place.city}
-            meta={
-              <>
-                {type && <TypeTag slug={type.slug} label={type.title ?? type.type} color={type.color} />}
-                {place.verified && (
-                  <Badge tone="info" icon="verified">
-                    {t('map.verified')}
-                  </Badge>
-                )}
-                <Rating value={place.ratingAvg} count={place.reviewsCount} size="sm" />
-                <OpenStatus open={place.openNow} size="sm" />
-              </>
-            }
+            place={place}
+            type={orgTypes.find((candidate) => candidate.id === place.organisationTypeId)}
             active={place.id === selectedId}
-            onClick={() => onSelect(place)}
+            compact={compact}
+            onSelect={onSelect}
+            saved={isSaved?.(place)}
+            onToggleSaved={onToggleSaved}
           />
-        )
-      })}
-    </List>
+        ))}
+      </List>
+      <p className="m-0 px-4 py-3.5 text-center text-label font-medium text-ink-3">{capped ? t('map.capped', { count: places.length }) : t('map.moveToSearch')}</p>
+    </>
   )
 }

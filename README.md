@@ -5,7 +5,7 @@
 
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) and the first cut of **the map** (`/map`: Google map, places of the viewport as pins and a list; filters, search, place detail and add-a-place are next). In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
+> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) and **the map** (`/map` with its filters sheet and corridor picker, on desktop / tablet / phone; place detail, people, countries, saved, account and add-a-place are next). In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
 
 ## 🛠️ Stack
 

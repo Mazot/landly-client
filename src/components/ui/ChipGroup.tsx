@@ -23,6 +23,8 @@ interface CommonProps<T extends string> {
   addLabel?: string
   /** One line with horizontal scroll instead of wrapping (map type rail). */
   scroll?: boolean
+  /** Selected org-type chips fill dark instead of their soft colour (see `Chip`). */
+  solid?: boolean
   className?: string
 }
 interface SingleProps<T extends string> extends CommonProps<T> {
@@ -43,7 +45,7 @@ const toList = <T,>(v: T | T[] | null | undefined): T[] | undefined => (v === un
 
 /** Set of chips with single or multiple selection — filters, languages, skills, lists. */
 export function ChipGroup<T extends string>(props: ChipGroupProps<T>) {
-  const { options, label, size, onAdd, addLabel, scroll, className } = props
+  const { options, label, size, onAdd, addLabel, scroll, solid, className } = props
   const { t } = useTranslation(UI_NS)
   const [list, setSelected] = useControllableState<T[]>(toList(props.value), toList(props.defaultValue) ?? [], (next) => {
     if (props.multiple) props.onChange?.(next)
@@ -54,9 +56,9 @@ export function ChipGroup<T extends string>(props: ChipGroupProps<T>) {
     else setSelected(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
   }
   return (
-    <div role="group" aria-label={label} className={clsx('flex gap-1.75', scroll ? 'flex-nowrap overflow-x-auto' : 'flex-wrap', className)}>
+    <div role="group" aria-label={label} className={clsx('flex gap-1.75', scroll ? 'scrollbar-none flex-nowrap overflow-x-auto' : 'flex-wrap', className)}>
       {options.map((o) => (
-        <Chip key={o.value} size={size} icon={o.icon} orgType={o.orgType} selected={list.includes(o.value)} onClick={() => toggle(o.value)}>
+        <Chip key={o.value} size={size} icon={o.icon} orgType={o.orgType} solid={solid} selected={list.includes(o.value)} onClick={() => toggle(o.value)}>
           {o.label}
         </Chip>
       ))}

@@ -7,47 +7,54 @@ import type { OrganisationType } from '@/types/api'
 import { PlaceList, type PlaceListProps } from '../PlaceList'
 
 const embassy: OrganisationType = { id: 'type-1', type: 'embassy', slug: 'embassy', title: 'Embassy', color: null }
-const untitled: OrganisationType = { id: 'type-2', type: 'choir', slug: null, title: null, color: '#123456' }
+const choir: OrganisationType = { id: 'type-2', type: 'choir', slug: null, title: null, color: '#123456' }
 
 const render = (props: Partial<PlaceListProps> = {}) =>
-  renderApp(<PlaceList places={[]} orgTypes={[embassy, untitled]} onSelect={() => {}} loading={false} error={false} {...props} />)
+  renderApp(
+    <PlaceList places={[]} orgTypes={[embassy, choir]} onSelect={() => {}} compact={false} loading={false} error={false} narrowed={false} onResetFilters={() => {}} capped={false} {...props} />,
+  )
 
 describe('PlaceList', () => {
-  it('lists the places with address, type, rating and open status', () => {
+  it('lists the places, each with the type it belongs to', () => {
     render({
-      places: [
-        organisation({ name: 'Russian Embassy', address: 'Unter den Linden 63', organisationTypeId: 'type-1', ratingAvg: 4.5, reviewsCount: 12, openNow: true, verified: true }),
-        organisation({ name: 'Choir Berlin', address: null, city: 'Berlin', organisationTypeId: 'type-2' }),
-        organisation({ name: 'Mystery place', organisationTypeId: null }),
-      ],
+      places: [organisation({ name: 'Russian Embassy', organisationTypeId: 'type-1' }), organisation({ name: 'Choir Berlin', organisationTypeId: 'type-2' }), organisation({ name: 'Mystery', organisationTypeId: null })],
     })
-    const list = screen.getByRole('list', { name: 'Places on the map' })
-    const rows = within(list).getAllByRole('listitem')
+    const rows = within(screen.getByRole('list', { name: 'Places on the map' })).getAllByRole('listitem')
     expect(rows).toHaveLength(3)
-
-    expect(within(rows[0]).getByText('Russian Embassy')).toBeInTheDocument()
-    expect(within(rows[0]).getByText('Unter den Linden 63')).toBeInTheDocument()
     expect(within(rows[0]).getByText('Embassy')).toBeInTheDocument()
-    expect(within(rows[0]).getByText('4.5')).toBeInTheDocument()
-    expect(within(rows[0]).getByText('Open now')).toBeInTheDocument()
-    expect(within(rows[0]).getByText('Verified')).toBeInTheDocument()
-
-    // No address → the city; a type without a title falls back to its key; no type → no tag.
-    expect(within(rows[1]).getByText('Berlin')).toBeInTheDocument()
+    // A type without a title falls back to its key; a place without a type has no tag.
     expect(within(rows[1]).getByText('choir')).toBeInTheDocument()
-    expect(within(rows[1]).queryByText('Verified')).not.toBeInTheDocument()
     expect(within(rows[2]).queryByText('Embassy')).not.toBeInTheDocument()
+    expect(screen.getByText('Move the map to search another area')).toBeInTheDocument()
   })
 
   it('hands the clicked place to the caller and marks the selected one', async () => {
     const onSelect = vi.fn()
     const places = [organisation({ name: 'First' }), organisation({ name: 'Second' })]
     render({ places, selectedId: places[1].id, onSelect })
-
     await userEvent.click(screen.getByRole('button', { name: /First/ }))
     expect(onSelect).toHaveBeenCalledWith(places[0])
     expect(screen.getByRole('button', { name: /Second/ })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('button', { name: /First/ })).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  it('offers bookmarks to signed-in users only', async () => {
+    const onToggleSaved = vi.fn()
+    const places = [organisation({ name: 'First' }), organisation({ name: 'Second' })]
+    const { unmount } = render({ places })
+    expect(screen.queryByRole('button', { name: /^Save/ })).not.toBeInTheDocument()
+    unmount()
+    render({ places, isSaved: (place) => place.id === places[1].id, onToggleSaved })
+    expect(screen.getByRole('button', { name: 'Save First' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: 'Remove Second from saved' })).toHaveAttribute('aria-pressed', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Save First' }))
+    expect(onToggleSaved).toHaveBeenCalledWith(places[0])
+  })
+
+  it('says when the search stopped at the page size', () => {
+    render({ places: [organisation(), organisation()], capped: true })
+    expect(screen.getByText('Showing the first 2 — zoom in to narrow the search')).toBeInTheDocument()
+    expect(screen.queryByText('Move the map to search another area')).not.toBeInTheDocument()
   })
 
   it('says it is loading', () => {
@@ -59,6 +66,14 @@ describe('PlaceList', () => {
     render()
     expect(screen.getByText('No organizations here yet.')).toBeInTheDocument()
     expect(screen.getByText('Zoom out or move the map to look elsewhere.')).toBeInTheDocument()
+  })
+
+  it('explains an empty result of filters or a search, and offers to reset them', async () => {
+    const onResetFilters = vi.fn()
+    render({ narrowed: true, onResetFilters })
+    expect(screen.getByText('Nothing matches these filters')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Reset filters' }))
+    expect(onResetFilters).toHaveBeenCalledOnce()
   })
 
   it('explains a failed search, whatever else is set', () => {

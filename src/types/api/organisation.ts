@@ -9,8 +9,8 @@ export type OrganisationStatus = (typeof ORGANISATION_STATUSES)[number]
 export const ADDED_BY = ['official', 'community', 'volunteer'] as const
 export type AddedBy = (typeof ADDED_BY)[number]
 
-export const COSTS = ['free', 'paid'] as const
-export type Cost = (typeof COSTS)[number]
+export const COSTS = ['free', 'paid'] as const // TODO: что забред. Надо удалить потом
+export type Cost = (typeof COSTS)[number] // TODO: что забред. Надо удалить потом
 
 /** Where the point came from. */
 export const LOCATION_SOURCES = ['google', 'user_pin', 'moderator'] as const

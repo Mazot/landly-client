@@ -26,3 +26,6 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {}
 
 export const TitleOnly: Story = { args: { subtitle: undefined, action: undefined } }
+
+/** A form group's heading inside a sheet. */
+export const Small: Story = { args: { size: 'sm', title: 'Languages spoken', subtitle: undefined, action: undefined } }

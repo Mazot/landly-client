@@ -29,6 +29,19 @@ export const OrgTypes: Story = {
   ),
 }
 
+/** In filter sheets a selected type fills dark; the dot keeps the type's colour. */
+export const OrgTypesSolid: Story = {
+  render: (args) => (
+    <div className="flex flex-wrap gap-2">
+      {ORGANISATION_TYPE_SLUGS.map((slug, i) => (
+        <Chip key={slug} {...args} solid orgType={slug} selected={i % 2 === 0}>
+          {slug}
+        </Chip>
+      ))}
+    </div>
+  ),
+}
+
 /** "+ Add" chip at the end of a group. */
 export const Add: Story = { args: { add: true, children: 'Add language' } }
 

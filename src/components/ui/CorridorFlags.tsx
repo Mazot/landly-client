@@ -3,10 +3,10 @@ import type { ReactNode } from 'react'
 import { Icon } from './DS/Icon'
 
 export interface CorridorFlagsProps {
-  /** `Country.flag` emoji of the home country. */
-  from: string
+  /** `Country.flag` emoji of the home country (null when the server has none). */
+  from: string | null
   /** `Country.flag` emoji of the destination. */
-  to: string
+  to: string | null
   /** Accessible name, e.g. "Russia → Germany". */
   label: string
   size?: 'sm' | 'md' | 'lg'

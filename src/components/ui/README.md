@@ -17,7 +17,7 @@ src/components/ui/
 ├── DS/                 # reusable, purely visual components (Button, TextField, Sheet, Card, TabBar, Icon + iconPaths, Logo, …), one per file
 │   └── stories/        # their Storybook stories: <Name>.stories.tsx
 ├── stories/            # stories of the product components below + Tokens.stories.tsx
-└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop, MapLayout) · `MapPin` is the map marker
+└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop, MapLayout) · map pieces (MapPin, CorridorPill, CorridorBubble, VerifiedMark)
 ```
 
 `tailwind.config.ts` builds the theme from `tokens.ts`, so a token is added in one place
@@ -58,13 +58,15 @@ src/components/ui/
 | | `CorridorFlags` | `from` / `to` flag emoji, `label` |
 | | `ImageFrame` | `src`, `alt`, `ratio`, `badge`, `action` |
 | | `MapBackdrop` | decorative, still Google world map behind landing / sign-in, a fixed view (`BACKDROP_VIEW`), in the cloud style of `VITE_GOOGLE_MAPS_MAP_ID`; mounted only while on screen · `variant` plain / hero (dimmed below `lg`, readability fade from `lg`), sized by `className`; needs the root `<APIProvider>` |
-| | `MapPin` | round map marker coloured by org type · `slug`, `label` (place name), `color` (custom types), `selected` — a child of `<AdvancedMarker>` |
+| | `MapPin` | round map marker coloured by org type · `slug`, `label` (place name), `color` (custom types), `selected` (larger, ring, name above) — a child of `<AdvancedMarker>` |
+| | `CorridorPill` / `CorridorBubble` | current corridor as a pill (app bar, dark over the map) · dark summary over the map: `from` / `to` flags, `label`, `title`, `detail`, `onClick` |
+| | `VerifiedMark` | the blue check after a verified place's name |
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
 | | `FormNote` | centred muted line under a form · `size` md / sm |
 | | `TextArea`, `Select` | `Select`: `options`, `placeholder` (native select) |
-| | `Chip` / `ChipGroup` | `selected`, `orgType`, `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` |
+| | `Chip` / `ChipGroup` | `selected`, `orgType`, `solid` (selected type fills dark, for filter sheets), `add` / `options`, `multiple`, `value`, `onAdd`, `scroll` (one line, no scrollbar) |
 | | `Segmented` | `options` (+`count`), `block`, `size` |
 | | `Switch`, `Checkbox`, `RadioGroup` | boolean / boolean + description / one of options |
 | | `ColorSwatches`, `StarInput` | pick one colour from `colors` (`colorLabel` gives swatches readable names) · review rating |
@@ -74,13 +76,14 @@ src/components/ui/
 | Containers | `Card` | `variant` default · selected · dashed · sunken · elevated, `padding` |
 | | `ListItem` / `List` / `ToggleRow` | `leading`, `title`, `adornment`, `subtitle`, `meta`, `trailing`, `footer`, `active`, `to`/`href`/`onClick` · `List variant="divided"` |
 | | `Stat`, `KeyValueList` | number tile · label → value rows |
-| | `Section`, `PageHeader` (+ `Accent`) | heading row with action · eyebrow + display title + lede + actions; `size` sm · md · lg · xl · hero |
+| | `Section`, `PageHeader` (+ `Accent`) | heading row with action (`size` sm · md for a form group's heading) · eyebrow + display title + lede + actions; `size` sm · md · lg · xl · hero |
 | | `Callout` | `tone`, `title`, `actions`, default icon per tone |
 | | `StepList`, `Menu`, `EmptyState` | process steps · action panel · empty / error states with `code` |
 | Shell | `Sheet` | bottom sheet on phones, modal from `md` (native `<dialog>`) |
 | | `MobileHeader`, `TabBar`, `NavTabs` | phone header · phone bottom nav · top-bar nav (router links) |
 | | `TopBar` | page banner: `brand`, `nav` (from `md`), `actions` |
-| | `MapLayout` | map screen frame: results side panel from `lg`, full-bleed map + button → bottom `Sheet` below · `topBar`, `map`, `title`, `panel`, `summary`, `sheetOpen` / `onSheetOpenChange` |
+| | `MapLayout` | map screen below the app bar, by size (`useBreakpoint`): desktop panel + map · tablet map + list below · phone full-bleed map with the toolbar floating and a `DockedSheet` · `toolbar`, `map`, `overlay`, `resultsHeader`, `results`, `resultsLabel`, `sheetExpanded` / `onSheetExpandedChange`, `sheetHandleLabel` |
+| | `DockedSheet` | non-modal bottom sheet that stays on screen: peeks, opens on tap or swipe of the handle · `expanded`, `onExpandedChange`, `handleLabel`, `header` |
 | | `AuthLayout` | sign-in / sign-up frame: plain page → form card on the map (`md`) → map panel with `aside` hero + form column (`lg`) |
 
 ## Storybook

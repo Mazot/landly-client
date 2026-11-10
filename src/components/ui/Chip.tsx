@@ -12,12 +12,14 @@ export interface ChipProps extends ComponentProps<'button'> {
   icon?: IconName
   /** Org-type chip: coloured dot; selected → the type's soft colour. */
   orgType?: KnownOrganisationTypeSlug
+  /** Selected org-type chip fills dark like the other chips (the dot keeps the type's colour) — for filter sheets. */
+  solid?: boolean
   /** Dashed "+ Add" chip. */
   add?: boolean
 }
 
 /** Toggleable filter / choice pill. Use ChipGroup for a set of them. */
-export function Chip({ selected, size = 'md', icon, orgType, add, type = 'button', className, children, ...rest }: ChipProps) {
+export function Chip({ selected, size = 'md', icon, orgType, solid, add, type = 'button', className, children, ...rest }: ChipProps) {
   const typeCls = orgType && ORG_TYPE_CLASSES[orgType]
   return (
     <button
@@ -29,7 +31,7 @@ export function Chip({ selected, size = 'md', icon, orgType, add, type = 'button
         size === 'md' ? 'px-3.25 text-label lg:h-8.5' : 'px-2.75 text-xs lg:h-7.5',
         add
           ? 'border-dashed border-border-2 bg-surface text-ink-3 hover:bg-surface-2'
-          : selected && typeCls
+          : selected && typeCls && !solid
             ? ['border-transparent', typeCls.soft, typeCls.text]
             : selected
               ? 'border-ink-1 bg-ink-1 text-surface'

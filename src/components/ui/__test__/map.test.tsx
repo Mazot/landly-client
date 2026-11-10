@@ -1,11 +1,16 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { act, type ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { BACKDROP_VIEW, GOOGLE_MAPS_MAP_ID } from '@/lib/maps'
+import { setViewportWidth } from '@/test/viewport'
 import { MapBackdrop } from '../MapBackdrop'
+import { CorridorBubble } from '../CorridorBubble'
+import { CorridorPill } from '../CorridorPill'
+import { DockedSheet } from '../DS/DockedSheet'
 import { MapLayout } from '../MapLayout'
 import { MapPin } from '../MapPin'
+import { VerifiedMark } from '../VerifiedMark'
 
 // The map itself is a stand-in that shows the props it was given; `useMap` is steered per test.
 vi.mock('@vis.gl/react-google-maps', async () => {
@@ -44,43 +49,191 @@ describe('MapPin', () => {
   })
 })
 
+describe('MapPin', () => {
+  it('shows the place name above the pin only while selected', () => {
+    const { rerender } = render(<MapPin slug="embassy" label="Russian Embassy" />)
+    expect(screen.queryByText('Russian Embassy')).not.toBeInTheDocument()
+    rerender(<MapPin slug="embassy" label="Russian Embassy" selected />)
+    // The pin is named for assistive tech already; the visible pill is decoration.
+    expect(screen.getByText('Russian Embassy')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByRole('img', { name: 'Russian Embassy' })).toBeInTheDocument()
+  })
+})
+
+describe('VerifiedMark', () => {
+  it('is an image named Verified', () => {
+    render(<VerifiedMark />)
+    expect(screen.getByRole('img', { name: 'Verified' })).toBeInTheDocument()
+  })
+})
+
+describe('CorridorPill', () => {
+  it('shows the flags and the destination and opens the picker', async () => {
+    const onClick = vi.fn()
+    render(<CorridorPill from="🇷🇺" to="🇩🇪" label="Russia → Germany" name="Germany" onClick={onClick} />)
+    const pill = screen.getByRole('button', { name: /Germany/ })
+    expect(pill).toHaveAttribute('aria-haspopup', 'dialog')
+    expect(within(pill).getByRole('img', { name: 'Russia → Germany' })).toBeInTheDocument()
+    expect(pill).toHaveClass('bg-surface-2')
+    await userEvent.click(pill)
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('has a dark variant for floating over the map', () => {
+    render(<CorridorPill dark from="🇷🇺" to="🇩🇪" label="Russia → Germany" name="Germany" />)
+    expect(screen.getByRole('button')).toHaveClass('bg-ink-1')
+  })
+})
+
+describe('CorridorBubble', () => {
+  it('summarises the corridor and opens the picker', async () => {
+    const onClick = vi.fn()
+    render(<CorridorBubble from="🇷🇺" to="🇩🇪" label="Russia → Germany" title="234 places" detail="4 embassies · 12 new this week" onClick={onClick} />)
+    const bubble = screen.getByRole('button', { name: /234 places/ })
+    expect(within(bubble).getByText('4 embassies · 12 new this week')).toBeInTheDocument()
+    await userEvent.click(bubble)
+    expect(onClick).toHaveBeenCalledOnce()
+  })
+
+  it('works without the detail line', () => {
+    render(<CorridorBubble from="🇷🇺" to="🇩🇪" label="Russia → Germany" title="234 places" />)
+    expect(screen.getByText('234 places')).toBeInTheDocument()
+    expect(screen.queryByText(/embassies/)).not.toBeInTheDocument()
+  })
+})
+
+describe('DockedSheet', () => {
+  const sheet = (expanded: boolean, onExpandedChange = vi.fn()) => (
+    <DockedSheet expanded={expanded} onExpandedChange={onExpandedChange} handleLabel="Show the list" header={<b>48 nearby</b>}>
+      <p>Rows</p>
+    </DockedSheet>
+  )
+
+  it('peeks or stands tall, with its header and content', () => {
+    const { container, rerender } = render(sheet(false))
+    expect(screen.getByText('48 nearby')).toBeInTheDocument()
+    expect(screen.getByText('Rows')).toBeInTheDocument()
+    expect(container.querySelector('section')).toHaveClass('h-72')
+    expect(screen.getByRole('button', { name: 'Show the list' })).toHaveAttribute('aria-expanded', 'false')
+    rerender(sheet(true))
+    expect(container.querySelector('section')).toHaveClass('h-4/5')
+    expect(screen.getByRole('button', { name: 'Show the list' })).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('works without a header', () => {
+    render(
+      <DockedSheet expanded={false} onExpandedChange={() => {}} handleLabel="Handle">
+        <p>Rows</p>
+      </DockedSheet>,
+    )
+    expect(screen.getByText('Rows')).toBeInTheDocument()
+  })
+
+  it('toggles on a tap', async () => {
+    const onExpandedChange = vi.fn()
+    const { rerender } = render(sheet(false, onExpandedChange))
+    await userEvent.click(screen.getByRole('button', { name: 'Show the list' }))
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true)
+    rerender(sheet(true, onExpandedChange))
+    await userEvent.click(screen.getByRole('button', { name: 'Show the list' }))
+    expect(onExpandedChange).toHaveBeenLastCalledWith(false)
+  })
+
+  it('opens on a swipe up and closes on a swipe down', () => {
+    const onExpandedChange = vi.fn()
+    render(sheet(false, onExpandedChange))
+    const handle = screen.getByRole('button', { name: 'Show the list' })
+    fireEvent.pointerDown(handle, { clientY: 400 })
+    fireEvent.pointerUp(handle, { clientY: 300 })
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true)
+    fireEvent.pointerDown(handle, { clientY: 300 })
+    fireEvent.pointerUp(handle, { clientY: 420 })
+    expect(onExpandedChange).toHaveBeenLastCalledWith(false)
+  })
+
+  it('treats a release without a press on the handle as a tap', () => {
+    const onExpandedChange = vi.fn()
+    render(sheet(false, onExpandedChange))
+    fireEvent.pointerUp(screen.getByRole('button', { name: 'Show the list' }), { clientY: 200 })
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true)
+  })
+
+  it('toggles from the keyboard, where a click has no pointer', async () => {
+    const onExpandedChange = vi.fn()
+    render(sheet(false, onExpandedChange))
+    screen.getByRole('button', { name: 'Show the list' }).focus()
+    await userEvent.keyboard('{Enter}')
+    expect(onExpandedChange).toHaveBeenCalledOnce()
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true)
+  })
+})
+
 describe('MapLayout', () => {
   const layout = (props: Partial<Parameters<typeof MapLayout>[0]> = {}) => (
     <MapLayout
-      topBar={<header>Top bar</header>}
+      toolbar={<input aria-label="Search" />}
       map={<div>The map</div>}
-      title="Places on the map"
-      panel={<ul><li>Cafe Berlin</li></ul>}
-      summary="12 places in this area"
-      sheetOpen={false}
-      onSheetOpenChange={() => {}}
+      overlay={<div>Floating controls</div>}
+      resultsHeader={<h2>48 organizations</h2>}
+      results={<ul><li>Cafe Berlin</li></ul>}
+      resultsLabel="Places on the map"
+      sheetExpanded={false}
+      onSheetExpandedChange={() => {}}
+      sheetHandleLabel="Show the list"
       {...props}
     />
   )
 
-  it('puts the results in a side panel next to the map', () => {
+  it('desktop: a toolbar bar, the results panel on the left and the map on the right', () => {
     render(layout())
-    expect(screen.getByText('Top bar')).toBeInTheDocument()
-    expect(screen.getByText('The map')).toBeInTheDocument()
     const panel = screen.getByRole('complementary', { name: 'Places on the map' })
-    expect(within(panel).getByRole('heading', { level: 1, name: 'Places on the map' })).toBeInTheDocument()
+    expect(within(panel).getByText('48 organizations')).toBeInTheDocument()
     expect(within(panel).getByText('Cafe Berlin')).toBeInTheDocument()
+    expect(screen.getByLabelText('Search')).toBeInTheDocument()
+    expect(screen.getByText('The map')).toBeInTheDocument()
+    expect(screen.getByText('Floating controls')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Show the list' })).not.toBeInTheDocument()
   })
 
-  it('opens the results as a sheet from the phone button and closes it again', async () => {
-    const onSheetOpenChange = vi.fn()
-    const { rerender } = render(layout({ onSheetOpenChange }))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  it('tablet: the map with the results below it', () => {
+    setViewportWidth(834)
+    render(layout())
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+    const results = screen.getByRole('region', { name: 'Places on the map' })
+    expect(within(results).getByText('48 organizations')).toBeInTheDocument()
+    expect(within(results).getByText('Cafe Berlin')).toBeInTheDocument()
+    expect(screen.getByText('The map')).toBeInTheDocument()
+    expect(screen.getByLabelText('Search')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Show the list' })).not.toBeInTheDocument()
+  })
 
-    await userEvent.click(screen.getByRole('button', { name: '12 places in this area' }))
-    expect(onSheetOpenChange).toHaveBeenLastCalledWith(true)
+  it('phone: the toolbar floats over the map and the results sit in a docked sheet', async () => {
+    setViewportWidth(375)
+    const onSheetExpandedChange = vi.fn()
+    render(layout({ onSheetExpandedChange }))
+    expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Search')).toBeInTheDocument()
+    expect(screen.getByText('The map')).toBeInTheDocument()
+    expect(screen.getByText('Floating controls')).toBeInTheDocument()
+    const results = screen.getByRole('region', { name: 'Places on the map' })
+    expect(within(results).getByText('Cafe Berlin')).toBeInTheDocument()
+    expect(screen.getByText('48 organizations')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Show the list' }))
+    expect(onSheetExpandedChange).toHaveBeenCalledWith(true)
+  })
 
-    rerender(layout({ onSheetOpenChange, sheetOpen: true }))
-    const sheet = screen.getByRole('dialog', { name: 'Places on the map' })
-    expect(within(sheet).getByText('Cafe Berlin')).toBeInTheDocument()
+  it('renders the results once, whatever the size', () => {
+    for (const width of [375, 834, 1440]) {
+      setViewportWidth(width)
+      const { unmount } = render(layout())
+      expect(screen.getAllByText('Cafe Berlin')).toHaveLength(1)
+      unmount()
+    }
+  })
 
-    await userEvent.click(within(sheet).getByRole('button', { name: 'Close' }))
-    expect(onSheetOpenChange).toHaveBeenLastCalledWith(false)
+  it('works without an overlay', () => {
+    render(layout({ overlay: undefined }))
+    expect(screen.queryByText('Floating controls')).not.toBeInTheDocument()
   })
 })
 

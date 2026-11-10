@@ -35,7 +35,7 @@ describe('App routes', () => {
     capture('get', '/api/common/org_types', [])
     renderApp(<App />, { route: '/map' })
     expect(await screen.findByTestId('map')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Places on the map' })).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: 'Places on the map' })).toBeInTheDocument()
   })
 
   it('sends a signed-in user from the landing, sign-in and sign-up on to the map', async () => {

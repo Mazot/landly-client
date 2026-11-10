@@ -9,6 +9,7 @@
   "openNow": "Open now",
   "closed": "Closed",
   "noReviews": "No reviews yet",
+  "verified": "Verified",
   "ratingOutOf": "{{value}} out of 5",
   "stars_one": "{{count}} star",
   "stars_other": "{{count}} stars",
