@@ -202,6 +202,7 @@ describe('AddPlaceForm', () => {
     expect(within(aside).getByTestId('map')).toBeInTheDocument()
     expect(within(aside).getByText('Svetofor Market')).toBeInTheDocument()
     expect(within(aside).getByText('Business')).toBeInTheDocument()
+    expect(within(aside).getByText('Pending review')).toBeInTheDocument()
     // The preview only shows the draft: it is not a button.
     expect(within(aside).queryByRole('button', { name: /Svetofor Market/ })).not.toBeInTheDocument()
     expect(within(aside).getByRole('button', { name: 'Submit for review' })).toBeInTheDocument()

@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, colors, IconButton, ListItem, Meta, OpenStatus, Rating, TypeTag, VerifiedMark } from '@/components/ui'
+import { Avatar, colors, IconButton, ListItem, Meta, OpenStatus, Rating, StatusBadge, TypeTag, VerifiedMark } from '@/components/ui'
 import { formatInterval, hoursToday } from '@/lib/openingHours'
 import type { Organisation, OrganisationType } from '@/types/api'
 
 /** What a row shows of a place: a search result, or the draft of the add-a-place preview. */
-export type PlaceRow = Pick<Organisation, 'name' | 'verified' | 'ratingAvg' | 'reviewsCount' | 'distanceKm' | 'city' | 'openingHours' | 'timezone' | 'openNow'>
+export type PlaceRow = Pick<Organisation, 'name' | 'status' | 'verified' | 'ratingAvg' | 'reviewsCount' | 'distanceKm' | 'city' | 'openingHours' | 'timezone' | 'openNow'>
 
 export interface PlaceListItemProps<P extends PlaceRow = Organisation> {
   place: P
@@ -25,7 +25,7 @@ export interface PlaceListItemProps<P extends PlaceRow = Organisation> {
 /** Distance is shown up to 50 km, farther away the city says more. */
 const NEAR_KM = 50
 
-/** One place in the map results: avatar, name, type, rating, distance or city, today's hours, bookmark. */
+/** One place in the map results: avatar, name, "pending review" while not moderated, type, rating, distance or city, today's hours, bookmark. */
 export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, active, compact, onSelect, saved, onToggleSaved }: PlaceListItemProps<P>) {
   const { t } = useTranslation()
   const row = useRef<HTMLDivElement>(null)
@@ -48,6 +48,7 @@ export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, 
         adornment={place.verified ? <VerifiedMark /> : undefined}
         meta={
           <>
+            {place.status === 'pending' && <StatusBadge status="pending" />}
             {type && <TypeTag slug={type.slug} label={type.title ?? type.type} color={type.color} />}
             <Rating value={place.ratingAvg} count={place.reviewsCount} size="sm" />
             {where && <Meta>{where}</Meta>}

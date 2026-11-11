@@ -166,9 +166,19 @@ describe('MapPage', () => {
       expect(screen.queryByTitle('Online only')).not.toBeInTheDocument()
       expect(within(screen.getByTitle('Russian Embassy')).getByRole('img')).toHaveClass('bg-type-embassy')
       expect(within(screen.getByTitle('Pop-up fair')).getByRole('img')).toHaveClass('bg-ink-3')
+      expect(within(screen.getByTitle('Russian Embassy')).getByRole('img')).not.toHaveClass('brightness-75')
       await userEvent.click(screen.getByTitle('Russian Embassy'))
       expect(screen.getByTitle('Russian Embassy')).toHaveAttribute('data-z', '1')
       expect(screen.getByTitle('Pop-up fair')).toHaveAttribute('data-z', '0')
+    })
+
+    it('pins a place waiting for moderation muted, and marks it in the list', async () => {
+      const pending = organisation({ name: 'Neka', status: 'pending', organisationTypeId: 'type-2', latitude: 52.51, longitude: 13.41 })
+      await ready(arrange({ places: [embassy, pending] }))
+      expect(within(screen.getByTitle('Neka')).getByRole('img', { name: 'Neka · Pending review' })).toHaveClass('bg-type-business', 'brightness-75')
+      const row = within(panel()).getByRole('button', { name: /Neka/ })
+      expect(row).toHaveTextContent('Pending review')
+      expect(within(panel()).getByRole('button', { name: /Russian Embassy/ })).not.toHaveTextContent('Pending review')
     })
 
     it('zooms with the controls, from the zoom the map has — or the world zoom before it knows', async () => {

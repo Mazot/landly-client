@@ -212,7 +212,7 @@ function MapScreen() {
                 const type = types.find((candidate) => candidate.id === place.organisationTypeId)
                 return (
                   <AdvancedMarker key={place.id} position={position} zIndex={place.id === selectedId ? 1 : 0} title={place.name} onClick={() => setSelectedId(place.id)}>
-                    <MapPin slug={type?.slug ?? null} color={type?.color} label={place.name} selected={place.id === selectedId} />
+                    <MapPin slug={type?.slug ?? null} color={type?.color} label={place.name} selected={place.id === selectedId} pending={place.status === 'pending'} />
                   </AdvancedMarker>
                 )
               })}

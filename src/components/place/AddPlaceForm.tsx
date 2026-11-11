@@ -235,7 +235,7 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
             {map}
             <div className="p-4.5">
               <PlaceListItem
-                place={{ name: values.name.trim() || t('addPlace.preview.untitled'), verified: false, ratingAvg: null, reviewsCount: 0, city: null, openingHours: null, timezone: null, openNow: null }}
+                place={{ name: values.name.trim() || t('addPlace.preview.untitled'), status: 'pending', verified: false, ratingAvg: null, reviewsCount: 0, city: null, openingHours: null, timezone: null, openNow: null }}
                 type={type}
                 active={false}
                 compact={false}
