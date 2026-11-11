@@ -20,7 +20,7 @@ export interface FiltersSheetProps {
   onApply: (filters: MapFilters) => void
   orgTypes: OrganisationType[]
   /** The area the list shows — the button counts the places a draft would find there. */
-  area?: { box: SearchBox; center: google.maps.LatLngLiteral }
+  area?: { box: SearchBox; center: google.maps.LatLngLiteral; /** The corridor destination the places belong to. */ destinationId?: string }
 }
 
 /**
@@ -34,14 +34,14 @@ export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: Filt
   const set = (patch: Partial<MapFilters>) => setDraft((current) => ({ ...current, ...patch }))
 
   // What the draft would find in the area on the map: the same search as the list, one page of it.
-  const found = useSearchOrganisations(area && { ...area.box, lat: area.center.lat, lng: area.center.lng, ...filtersToQuery(draft), limit: COUNT_LIMIT })
+  const found = useSearchOrganisations(area && { ...area.box, lat: area.center.lat, lng: area.center.lng, ...filtersToQuery(draft), location_country_id: area.destinationId, limit: COUNT_LIMIT })
   const count = found.data?.items.length ?? null
   // A draft that has not been answered yet still shows the answer to the previous one: wait.
   const counted = count !== null && !found.isPlaceholderData ? count : null
 
   // The languages on offer are the ones the places in this area speak (their `languages`), the most
   // common first — the same search without the language filter, so picking one does not hide the others.
-  const pool = useSearchOrganisations(area && { ...area.box, lat: area.center.lat, lng: area.center.lng, ...filtersToQuery({ ...draft, languages: [] }), limit: COUNT_LIMIT })
+  const pool = useSearchOrganisations(area && { ...area.box, lat: area.center.lat, lng: area.center.lng, ...filtersToQuery({ ...draft, languages: [] }), location_country_id: area.destinationId, limit: COUNT_LIMIT })
   const spoken = new Map<string, number>()
   for (const place of pool.data?.items ?? []) for (const name of place.languages) spoken.set(name, (spoken.get(name) ?? 0) + 1)
   const offered = [...spoken].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, LANGUAGE_CHOICES).map(([name]) => name)

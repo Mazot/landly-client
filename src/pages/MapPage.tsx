@@ -79,7 +79,7 @@ function MapScreen() {
   const current = applied?.destinationId === to?.id ? applied : undefined
   const moved = !!latest && !!current && latest.destinationId === to?.id && JSON.stringify(latest.box) !== JSON.stringify(current.box)
 
-  const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), limit: MAP_SEARCH_LIMIT })
+  const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), location_country_id: current.destinationId, limit: MAP_SEARCH_LIMIT })
   // The list keeps the previous answer while the next one loads (panning), but not across a new
   // destination or new filters: those results would be wrong, so they count as loading.
   const scope = JSON.stringify([to?.id, filtersToQuery(filters)])
