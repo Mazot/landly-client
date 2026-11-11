@@ -15,6 +15,7 @@ import {
   useOrganisations,
   useRecordVisit,
   useSearchOrganisations,
+  useDuplicates,
   useUpdateOrganisation,
 } from '../useOrganisations'
 
@@ -53,6 +54,18 @@ describe('useSearchOrganisations', () => {
     expect(result.current.isPlaceholderData).toBe(true)
     expect(result.current.data?.items[0].name).toBe('First')
     await waitFor(() => expect(result.current.data?.items[0].name).toBe('Second'))
+  })
+})
+
+describe('useDuplicates', () => {
+  it('waits for a name and a point, then lists the like places', async () => {
+    const twin = organisation({ name: 'Kyiv Coffee Kreuzberg' })
+    const requests = capture('get', '/api/organisation/duplicates', list([twin]))
+    const { result, rerender } = renderQueryHook((query?: { name: string; lat: number; lng: number }) => useDuplicates(query), { initialProps: undefined })
+    expect(result.current.fetchStatus).toBe('idle')
+    rerender({ name: 'Kyiv Coffee', lat: 52.5, lng: 13.4 })
+    await waitFor(() => expect(result.current.data).toEqual([twin]))
+    expect(Object.fromEntries(requests[0].query)).toEqual({ name: 'Kyiv Coffee', lat: '52.5', lng: '13.4' })
   })
 })
 

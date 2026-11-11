@@ -85,6 +85,17 @@ How:
 
 Before writing code, follow `.claude/skills/library-first/SKILL.md`: use the functions the installed libraries and `src/lib` already provide (listed there, verified against the installed versions), re-check an API against the installed version before using it, and for new functionality install an npm package — TanStack first, versions at least 14 days old — instead of writing it. Keep its lists in sync when dependencies change.
 
+## No hardcoded data
+
+Nothing the app shows or sends is hardcoded in code:
+
+- **Domain data comes from the backend** — organisation types, countries, languages, corridors, counts, statuses, limits. Never inline a list of domain values (`['Ukrainian', 'Russian']`, `['embassy', …]`, `'Europe/Berlin'`) in a component, hook or service; derive it from an API response or from the contract constants in `src/types/api` (which mirror the server's enums and limits and are guarded by the contract tests). If the backend has no source for something the UI needs, add one there (an endpoint or a field) instead of a client-side copy.
+- **Text goes through i18n** (`t('…')`, keys in all three locales); **configuration** through env (`import.meta.env.VITE_*`) or a named constant in `src/lib` that says what it is and why.
+- **Design values** come from DS tokens and components, never raw colours/sizes.
+- Test data lives in `src/test/factories.ts` and test files only.
+
+A design mock's sample content (names, addresses, hours, chips) is an example of the shape, not data to copy.
+
 ## UI: design system, mobile-first (skill `design-system`)
 
 For anything visible, follow `.claude/skills/design-system/SKILL.md`: screens are composed only of design-system components (`src/components/ui/`, inventory in its `index.ts`) and tokens (`src/components/ui/tokens/tokens.ts` + `tokens.css`); never duplicate an existing component — extend it with a variant; phone layout is the base and `md`/`lg` adapt it; and every UI change is verified in the browser at phone (375, 320) and desktop (1440) sizes with screenshots and `.claude/skills/design-system/layout-check.js` before it is called done.

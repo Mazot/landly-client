@@ -128,6 +128,17 @@ export interface CreateOrganisationRequest {
  */
 export type UpdateOrganisationRequest = Partial<Omit<CreateOrganisationRequest, 'google_place_id'>>
 
+/**
+ * `GET /api/organisation/duplicates` — the add-a-place hint: up to 3 live places within ~1 km
+ * whose name is like `name` (same, or one contained in the other), with `distanceKm` from the point.
+ */
+export interface FindDuplicatesQuery {
+  /** The name being typed (≤ `ORG_NAME_MAX_CHARS`). */
+  name: string
+  lat: number
+  lng: number
+}
+
 /** `GET /api/organisation/list` (limit default 20, max 100; offset max 150). */
 export interface OrganisationsListQuery extends PaginationParams {
   /** Case-insensitive substring filters. */

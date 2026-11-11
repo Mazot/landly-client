@@ -49,7 +49,7 @@ export interface Language {
   id: Uuid
   /** English name, e.g. "Russian". */
   name: string
-  /** Short code, e.g. "ru". */
+  /** ISO 639-3 code, e.g. "rus". */
   symbol: string | null
 }
 
@@ -57,6 +57,19 @@ export interface Language {
 export interface LanguagesQuery extends PaginationParams {
   /** Case-insensitive substring filter on the name. */
   name?: string
+  /** Only the official languages of these countries (sent comma-separated). */
+  country_ids?: Uuid[]
+}
+
+/** `GET /api/common/timezone?lat&lng` — the IANA time zone a point lies in. */
+export interface TimeZoneQuery {
+  lat: number
+  lng: number
+}
+
+export interface TimeZoneAnswer {
+  /** e.g. "Europe/Belgrade"; null where no zone is known (open sea). */
+  timezone: string | null
 }
 
 /** Stable org-type keys used by search filters and stats. */

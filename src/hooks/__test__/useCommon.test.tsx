@@ -10,9 +10,11 @@ import {
   useCountries,
   useCountriesInfinite,
   useCountry,
+  useCountryLanguages,
   useCreateOrganisationType,
   useLanguages,
   useOrganisationTypes,
+  useTimeZone,
 } from '../useCommon'
 
 describe('useCountries', () => {
@@ -149,6 +151,36 @@ describe('useLanguages', () => {
     const { result } = renderQueryHook(() => useLanguages({ name: 'rus' }))
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(Object.fromEntries(requests[0].query)).toEqual({ name: 'rus' })
+  })
+})
+
+describe('useCountryLanguages', () => {
+  it('asks for the languages of the given countries only', async () => {
+    const requests = capture('get', '/api/common/languages', [{ id: 'l1', name: 'Serbian', symbol: 'srp' }])
+    const { result } = renderQueryHook(() => useCountryLanguages(['c1', 'c2']))
+    await waitFor(() => expect(result.current.data?.map((l) => l.name)).toEqual(['Serbian']))
+    expect(Object.fromEntries(requests[0].query)).toEqual({ country_ids: 'c1,c2', limit: '500' })
+  })
+
+  it('asks nothing without a country', () => {
+    const requests = capture('get', '/api/common/languages', [])
+    const { result } = renderQueryHook(() => useCountryLanguages([]))
+    expect(result.current.fetchStatus).toBe('idle')
+    expect(requests).toHaveLength(0)
+  })
+})
+
+describe('useTimeZone', () => {
+  it('answers the zone name of a point', async () => {
+    const requests = capture('get', '/api/common/timezone', { timezone: 'Europe/Belgrade' })
+    const { result } = renderQueryHook(() => useTimeZone({ lat: 44.8, lng: 20.46 }))
+    await waitFor(() => expect(result.current.data).toBe('Europe/Belgrade'))
+    expect(Object.fromEntries(requests[0].query)).toEqual({ lat: '44.8', lng: '20.46' })
+  })
+
+  it('waits for a point', () => {
+    const { result } = renderQueryHook(() => useTimeZone(undefined))
+    expect(result.current.fetchStatus).toBe('idle')
   })
 })
 
