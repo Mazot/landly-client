@@ -20,13 +20,13 @@ export interface Country {
   topCities: unknown
 }
 
-/** Live organisations of one org type (`slug` is `"other"` for types without a slug). */
+/** Places on the map (live + pending) of one org type (`slug` is `"other"` for types without a slug). */
 export interface PlacesByType {
   slug: string
   count: number
 }
 
-/** `GET /api/common/countries/{id}` — the country plus its live-place breakdown. */
+/** `GET /api/common/countries/{id}` — the country plus the breakdown of its places on the map (live + pending). */
 export interface CountryDetail extends Country {
   totalPlaces: number
   placesByType: PlacesByType[]
