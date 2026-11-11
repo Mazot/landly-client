@@ -14,6 +14,9 @@ export function useSavedPlaces() {
     isSaved: (organisationId: Uuid) => savedByTarget.has(organisationId),
     toggle: (organisationId: Uuid) => {
       const savedId = savedByTarget.get(organisationId)
+      // A tap while this place's save or removal is on its way would send it twice.
+      if (save.isPending && save.variables?.target_id === organisationId) return
+      if (remove.isPending && remove.variables === savedId) return
       if (savedId) remove.mutate(savedId)
       else save.mutate({ kind: 'org', target_id: organisationId })
     },

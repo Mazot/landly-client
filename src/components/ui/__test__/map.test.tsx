@@ -129,6 +129,20 @@ describe('DockedSheet', () => {
     expect(screen.getByText('Rows')).toBeInTheDocument()
   })
 
+  it('keeps a swipe when the pointer leaves the handle, and drops it when the browser cancels it', () => {
+    const onExpandedChange = vi.fn()
+    render(sheet(false, onExpandedChange))
+    const handle = screen.getByRole('button', { name: 'Show the list' })
+    const setPointerCapture = vi.fn()
+    Object.assign(handle, { setPointerCapture })
+    fireEvent.pointerDown(handle, { pointerId: 7, clientY: 300 })
+    expect(setPointerCapture).toHaveBeenCalledWith(7)
+    fireEvent.pointerCancel(handle, { pointerId: 7 })
+    // The cancelled swipe is forgotten: a stray release is a plain tap, not a 260 px swipe down.
+    fireEvent.pointerUp(handle, { pointerId: 7, clientY: 40 })
+    expect(onExpandedChange).toHaveBeenLastCalledWith(true)
+  })
+
   it('toggles on a tap', async () => {
     const onExpandedChange = vi.fn()
     const { rerender } = render(sheet(false, onExpandedChange))

@@ -26,7 +26,7 @@ export const WORLD_VIEW = { center: { lat: 20, lng: 0 }, zoom: 2 } as const
 /** Fixed view of the world map behind the landing and sign-in screens (fractional zoom). */
 export const BACKDROP_VIEW = { center: { lat: 44.8, lng: -12.23 }, zoom: 4.5 } as const
 
-/** Places requested per viewport (`GET /organisation/search` answers at most 100 per page). */
+/** Places requested per viewport (`GET /organisation/search` allows up to 200 per page; the list is easier to scan with 100). */
 export const MAP_SEARCH_LIMIT = 100
 
 export type SearchBox = Required<Pick<SearchOrganisationsQuery, 'min_lat' | 'min_lng' | 'max_lat' | 'max_lng'>>

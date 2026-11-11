@@ -206,6 +206,15 @@ describe('MapPage', () => {
       vi.unstubAllGlobals()
     })
 
+    it('takes "my location" away when the browser refuses it', async () => {
+      const getCurrentPosition = vi.fn((_success: PositionCallback, failure: PositionErrorCallback) => failure({ code: 1 } as GeolocationPositionError))
+      vi.stubGlobal('navigator', { ...navigator, geolocation: { getCurrentPosition } })
+      await ready()
+      await userEvent.click(screen.getByRole('button', { name: 'Show my location' }))
+      await waitFor(() => expect(screen.queryByRole('button', { name: 'Show my location' })).not.toBeInTheDocument())
+      vi.unstubAllGlobals()
+    })
+
     it('has no "my location" button without geolocation', async () => {
       await ready()
       expect(screen.queryByRole('button', { name: 'Show my location' })).not.toBeInTheDocument()
@@ -268,6 +277,23 @@ describe('MapPage', () => {
       await rest('Hamburg')
       await waitFor(() => expect(searches).toHaveLength(2))
       expect(lastSearch(searches).get('min_lat')).toBe('53')
+    })
+
+    it('does not show the places of the old filters while the new ones load, but keeps them while panning', async () => {
+      const searches = await ready()
+      let release = () => {}
+      server.use(
+        http.get(`${API}/api/organisation/search`, async ({ request }) => {
+          searches.push(new URL(request.url).searchParams)
+          await new Promise<void>((resolve) => (release = resolve))
+          return HttpResponse.json(list([untyped]))
+        }),
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Open now' }))
+      expect(await within(panel()).findByRole('status')).toHaveTextContent('Loading')
+      expect(within(panel()).queryByText('Russian Embassy')).not.toBeInTheDocument()
+      release()
+      await within(panel()).findByText('Pop-up fair')
     })
 
     it('says the search failed', async () => {

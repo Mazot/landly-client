@@ -63,6 +63,7 @@ function MapScreen() {
   const [selectedId, setSelectedId] = useState<string>()
   const [sheetExpanded, setSheetExpanded] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [locateDenied, setLocateDenied] = useState(false)
 
   const { from, to, corridor, isPending: corridorPending } = useCurrentCorridor()
   // The country list is brief (no borders): the destination's detail carries its border and, for guests, its stats.
@@ -79,12 +80,18 @@ function MapScreen() {
   const moved = !!latest && !!current && latest.destinationId === to?.id && JSON.stringify(latest.box) !== JSON.stringify(current.box)
 
   const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), limit: MAP_SEARCH_LIMIT })
-  const items = search.data?.items ?? []
+  // The list keeps the previous answer while the next one loads (panning), but not across a new
+  // destination or new filters: those results would be wrong, so they count as loading.
+  const scope = JSON.stringify([to?.id, filtersToQuery(filters)])
+  const [shownScope, setShownScope] = useState(scope)
+  if (search.data && !search.isPlaceholderData && shownScope !== scope) setShownScope(scope)
+  const stale = search.isPlaceholderData && shownScope !== scope
+  const items = stale ? [] : (search.data?.items ?? [])
   const needle = query.trim().toLowerCase()
   const places = needle ? items.filter((place) => matches(place, needle)) : items
   const types = orgTypes.data ?? []
   const activeCount = countActiveFilters(filters)
-  const loading = !current || search.isPending
+  const loading = !current || search.isPending || stale
   const capped = !needle && items.length >= MAP_SEARCH_LIMIT
 
   const start = geometryBounds(destination.data?.geoJson)
@@ -124,7 +131,7 @@ function MapScreen() {
     />
   )
 
-  const locate = !!navigator.geolocation
+  const locate = !!navigator.geolocation && !locateDenied
   const overlay =
     size === 'phone' ? null : (
       <>
@@ -147,10 +154,14 @@ function MapScreen() {
             onLocate={
               locate
                 ? () =>
-                    navigator.geolocation.getCurrentPosition((position) => {
-                      map?.panTo({ lat: position.coords.latitude, lng: position.coords.longitude })
-                      map?.setZoom(LOCATE_ZOOM)
-                    })
+                    navigator.geolocation.getCurrentPosition(
+                      (position) => {
+                        map?.panTo({ lat: position.coords.latitude, lng: position.coords.longitude })
+                        map?.setZoom(LOCATE_ZOOM)
+                      },
+                      // Permission denied or no fix: the control would only fail again, so it goes away.
+                      () => setLocateDenied(true),
+                    )
                 : undefined
             }
           />
@@ -182,6 +193,8 @@ function MapScreen() {
             </div>
           ) : (
             <Map
+              // A new destination starts a new map: `defaultBounds` only applies on mount.
+              key={to?.id}
               id={MAP_ID}
               mapId={GOOGLE_MAPS_MAP_ID}
               {...(start ? { defaultBounds: start } : { defaultCenter: WORLD_VIEW.center, defaultZoom: WORLD_VIEW.zoom })}

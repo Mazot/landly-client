@@ -13,6 +13,10 @@ describe('hoursToday', () => {
     expect(hoursToday(office, null)).toBeUndefined()
   })
 
+  it('has no answer for an unknown time zone instead of throwing', () => {
+    expect(hoursToday(office, 'Europe/Nowhere', monday('10:30'))).toBeUndefined()
+  })
+
   it('answers with the interval that is open now', () => {
     expect(hoursToday(office, berlin, monday('10:30'))).toEqual(['09:00', '13:00'])
     expect(hoursToday(office, berlin, monday('14:00'))).toEqual(['14:00', '18:00'])

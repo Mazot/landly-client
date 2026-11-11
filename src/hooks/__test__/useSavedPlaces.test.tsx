@@ -1,9 +1,10 @@
 import { act, waitFor } from '@testing-library/react'
+import { delay, http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
 import { authUser, list, savedItem } from '@/test/factories'
 import { renderQueryHook } from '@/test/render'
-import { capture } from '@/test/server'
+import { API, capture, server } from '@/test/server'
 import { useSavedPlaces } from '../useSavedPlaces'
 
 describe('useSavedPlaces', () => {
@@ -39,5 +40,24 @@ describe('useSavedPlaces', () => {
     await waitFor(() => expect(result.current.isSaved('org-1')).toBe(true))
     act(() => result.current.toggle('org-1'))
     await waitFor(() => expect(removed).toHaveLength(1))
+  })
+
+  it('does not send a second save while the first one is on its way', async () => {
+    useAuthStore.getState().setAuth(authUser())
+    capture('get', '/api/saved/list', list([]))
+    let creates = 0
+    server.use(
+      http.post(`${API}/api/saved/create`, async () => {
+        creates += 1
+        await delay(50)
+        return HttpResponse.json(savedItem())
+      }),
+    )
+    const { result } = renderQueryHook(() => useSavedPlaces())
+    act(() => result.current.toggle('org-9'))
+    await waitFor(() => expect(creates).toBe(1))
+    act(() => result.current.toggle('org-9'))
+    await delay(100)
+    expect(creates).toBe(1)
   })
 })

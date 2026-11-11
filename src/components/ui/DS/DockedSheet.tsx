@@ -25,6 +25,8 @@ export function DockedSheet({ expanded, onExpandedChange, handleLabel, header, c
   const startY = useRef<number | null>(null)
   const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     startY.current = event.clientY
+    // Keep the gesture even when the pointer leaves the handle (a mouse drag, a long swipe).
+    event.currentTarget.setPointerCapture?.(event.pointerId)
   }
   const onPointerUp = (event: PointerEvent<HTMLButtonElement>) => {
     const travelled = event.clientY - (startY.current ?? event.clientY)
@@ -45,6 +47,7 @@ export function DockedSheet({ expanded, onExpandedChange, handleLabel, header, c
         aria-expanded={expanded}
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
+        onPointerCancel={() => (startY.current = null)}
         // Keyboard and assistive tech click without a pointer: toggle then.
         onClick={(event) => event.detail === 0 && onExpandedChange(!expanded)}
         className={clsx('flex h-11 w-full shrink-0 cursor-grab touch-none items-center justify-center rounded-t-r4', FOCUS_RING)}
