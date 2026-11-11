@@ -577,7 +577,7 @@
   "addPlace": {
     "eyebrow": "New organization",
     "title": "Add a place",
-    "lede": "Moderators review new places before they appear on the map — usually within a day.",
+    "lede": "New places appear on the map right away, marked as pending review until a moderator checks them — usually within a day.",
     "loading": "Loading…",
     "submit": "Submit for review",
     "photosLater": "You can add photos right after submitting.",
@@ -656,15 +656,14 @@
     },
     "sent": {
       "title": "Sent for review",
-      "lede": "<b>{{name}}</b> is visible only to you until a moderator approves it.",
-      "ledeUnknown": "Your place is visible only to you until a moderator approves it.",
+      "lede": "<b>{{name}}</b> is already on the map, marked as pending review until a moderator approves it.",
       "steps": {
         "submitted": "Submitted",
         "submittedHint": "Status: pending",
         "review": "Moderator review",
         "reviewHint": "Automatic checks: nearby duplicates, phone format",
-        "live": "Live on the map",
-        "liveHint": "You'll see it on the map once it's approved"
+        "live": "Approved",
+        "liveHint": "The “Pending review” mark goes away once a moderator approves it"
       },
       "uploaded_one": "{{count}} photo added",
       "uploaded_other": "{{count}} photos added",
@@ -672,7 +671,9 @@
       "rejected_other": "{{count}} photos couldn't be added",
       "addPhotos": "Add photos",
       "backToMap": "Back to the map",
-      "editNote": "Editing a place after it goes live sends it back to review."
+      "editNote": "Editing a place after it goes live sends it back to review.",
+      "notYours": "Nothing to show here",
+      "notYoursHint": "This page is for a place you have just submitted."
     }
   }
 }

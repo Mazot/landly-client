@@ -1,4 +1,4 @@
-import { act, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -75,6 +75,26 @@ describe('GooglePlaceSearch', () => {
     expect(request[0]).not.toHaveProperty('locationBias')
     // A place Google has no point for gives nothing to pin.
     expect(onPick).not.toHaveBeenCalled()
+  })
+
+  it('sends every request in a billing session: one per pick, a new one for the next search', async () => {
+    const places = fakePlaces({ suggestions: [{ placeId: 'ChIJ1', main: 'Kalemegdan', location: { lat: 44.82, lng: 20.45 } }] })
+    google.places = places
+    renderApp(<GooglePlaceSearch onPick={vi.fn()} />)
+    const input = screen.getByRole('searchbox')
+    // Typed without focusing first (focus stays after a pick, too).
+    fireEvent.change(input, { target: { value: 'Kalem' } })
+    await waitFor(() => expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).toHaveBeenCalledTimes(1))
+    fireEvent.change(input, { target: { value: 'Kalemegdan' } })
+    await waitFor(() => expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).toHaveBeenCalledTimes(2))
+    await userEvent.click(await screen.findByRole('button', { name: /Kalemegdan/ }))
+    fireEvent.change(input, { target: { value: 'Ada Ciganlija' } })
+    await waitFor(() => expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).toHaveBeenCalledTimes(3))
+
+    const tokens = places.AutocompleteSuggestion.fetchAutocompleteSuggestions.mock.calls.map((call) => (call as unknown as [{ sessionToken?: unknown }])[0].sessionToken)
+    expect(tokens.every((token) => token instanceof places.AutocompleteSessionToken)).toBe(true)
+    expect(tokens[1]).toBe(tokens[0])
+    expect(tokens[2]).not.toBe(tokens[0])
   })
 
   it('says when Google does not answer', async () => {

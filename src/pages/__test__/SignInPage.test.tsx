@@ -6,6 +6,8 @@ import { useAuthStore } from '@/stores/authStore'
 import { authUser } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
+import { GuestOnly } from '@/components/auth/GuestOnly'
+import { RequireAuth } from '@/components/auth/RequireAuth'
 import SignInPage from '../SignInPage'
 
 describe('SignInPage', () => {
@@ -25,6 +27,29 @@ describe('SignInPage', () => {
 
     expect(await screen.findByText('the map')).toBeInTheDocument()
     expect(useAuthStore.getState().token).toBe('jwt-1')
+  })
+
+  it('goes back to the screen that asked for the account', async () => {
+    capture('post', '/api/user/signin', authUser({ token: 'jwt-2' }))
+    renderApp(
+      <Routes>
+        <Route element={<GuestOnly />}>
+          <Route path="/signin" element={<SignInPage />} />
+        </Route>
+        <Route element={<RequireAuth />}>
+          <Route path="/add" element={<p>add a place</p>} />
+        </Route>
+        <Route path="/map" element={<p>the map</p>} />
+      </Routes>,
+      { route: '/add?from=menu' },
+    )
+    // A guest is sent to sign in…
+    await userEvent.type(await screen.findByLabelText('Email'), 'anna@mail.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'secret-pass')
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    // …and comes back, not to the map.
+    expect(await screen.findByText('add a place')).toBeInTheDocument()
+    expect(screen.queryByText('the map')).not.toBeInTheDocument()
   })
 
   it('shows the hero copy next to the form', () => {

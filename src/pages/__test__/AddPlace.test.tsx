@@ -25,6 +25,7 @@ vi.mock('@vis.gl/react-google-maps', async () => {
 
 const russia = country({ name: 'Russia', flag: '🇷🇺' })
 const serbia = country({ name: 'Serbia', flag: '🇷🇸' })
+const ME = 'user-me'
 
 function Probe() {
   return <output data-testid="path">{useLocation().pathname}</output>
@@ -44,7 +45,7 @@ const open = (route: string) =>
   )
 
 beforeEach(() => {
-  useAuthStore.getState().setAuth(authUser())
+  useAuthStore.getState().setAuth(authUser({ id: ME }))
   capture('get', '/api/user/me', {})
   capture('get', '/api/common/countries', [russia, serbia])
   capture('get', '/api/common/org_types', [{ id: 'type-business', type: 'business', slug: 'business', title: 'Business', color: null }])
@@ -62,7 +63,7 @@ describe('AddPlacePage', () => {
     capture('get', '/api/organisation/fetch/new-place', organisation({ id: 'new-place', name: 'Corner shop', status: 'pending' }))
     open('/add')
     expect(await screen.findByRole('heading', { name: 'Add a place' })).toBeInTheDocument()
-    expect(screen.getByText('Moderators review new places before they appear on the map — usually within a day.')).toBeInTheDocument()
+    expect(screen.getByText('New places appear on the map right away, marked as pending review until a moderator checks them — usually within a day.')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole('combobox', { name: 'Located in' })).toHaveValue(serbia.id))
     expect(screen.getByRole('combobox', { name: 'Community from' })).toHaveValue(russia.id)
 
@@ -92,7 +93,7 @@ describe('AddPlacePage', () => {
 })
 
 describe('AddPlaceSentPage', () => {
-  const place = organisation({ id: 'p1', name: 'Corner shop', status: 'pending' })
+  const place = organisation({ id: 'p1', name: 'Corner shop', status: 'pending', createdBy: ME })
 
   it('says the place waits for review and what happens next', async () => {
     capture('get', '/api/organisation/fetch/p1', place)
@@ -101,18 +102,29 @@ describe('AddPlaceSentPage', () => {
     expect(screen.getByText('Corner shop')).toBeInTheDocument()
     expect(screen.getByText('Status: pending')).toBeInTheDocument()
     expect(screen.getByText('Moderator review')).toBeInTheDocument()
-    expect(screen.getByText('Live on the map')).toBeInTheDocument()
+    expect(screen.getByText('Approved')).toBeInTheDocument()
+    expect(screen.getByText(/is already on the map, marked as pending review/)).toBeInTheDocument()
     await userEvent.click(screen.getByRole('link', { name: 'Back to the map' }))
     expect(screen.getByTestId('path')).toHaveTextContent('/map')
   })
 
-  it('still explains when the place cannot be loaded', async () => {
+  it('shows nothing for a place that cannot be loaded or was submitted by someone else', async () => {
     capture('get', '/api/organisation/fetch/p1', { error: 'Not found' }, 404)
+    const { unmount } = open('/add/sent/p1')
+    expect(await screen.findByText('Nothing to show here')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Add photos' })).not.toBeInTheDocument()
+    unmount()
+
+    capture('get', '/api/organisation/fetch/p1', { ...place, createdBy: 'someone-else' })
     open('/add/sent/p1')
-    expect(await screen.findByText('Your place is visible only to you until a moderator approves it.')).toBeInTheDocument()
+    expect(await screen.findByText('This page is for a place you have just submitted.')).toBeInTheDocument()
+    expect(screen.queryByText('Corner shop')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Add photos' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('link', { name: 'Back to the map' }))
+    expect(screen.getByTestId('path')).toHaveTextContent('/map')
   })
 
-  it('uploads photos — the first one as the primary — and counts the ones that failed', async () => {
+  it('uploads photos — the first that arrives is the primary — and counts the ones that failed', async () => {
     capture('get', '/api/organisation/fetch/p1', place)
     let calls = 0
     const primary: (string | undefined)[] = []
@@ -120,7 +132,7 @@ describe('AddPlaceSentPage', () => {
       http.post(`${API}/api/images/upload/p1`, async ({ request }) => {
         calls += 1
         primary.push(/name="is_primary"\r\n\r\n(\w+)/.exec(await request.text())?.[1])
-        return calls === 2 ? HttpResponse.json({ error: 'Too large' }, { status: 422 }) : HttpResponse.json(image())
+        return calls === 1 ? HttpResponse.json({ error: 'Too large' }, { status: 422 }) : HttpResponse.json(image())
       }),
     )
     open('/add/sent/p1')
@@ -131,7 +143,8 @@ describe('AddPlaceSentPage', () => {
 
     expect(await screen.findByText('2 photos added')).toBeInTheDocument()
     expect(screen.getByText("1 photo couldn't be added")).toBeInTheDocument()
-    expect(primary).toEqual(['true', 'false', 'false'])
+    // The first file failed: the second becomes the cover, not none.
+    expect(primary).toEqual(['true', 'true', 'false'])
   })
 
   it('says how many files were refused before uploading', async () => {

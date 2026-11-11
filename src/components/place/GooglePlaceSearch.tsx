@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
-import { useDeferredValue, useState } from 'react'
+import { useDeferredValue, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Callout, List, ListItem, SearchField } from '@/components/ui'
 import { queryKeys } from '@/lib/queryKeys'
@@ -30,7 +30,8 @@ export function GooglePlaceSearch({ bias, onPick }: GooglePlaceSearchProps) {
   const { t } = useTranslation()
   const places = useMapsLibrary('places')
   const [input, setInput] = useState('')
-  const [session, setSession] = useState<google.maps.places.AutocompleteSessionToken>()
+  // One billing session per pick: started by the first request after a pick (or ever), ended by the pick.
+  const session = useRef<google.maps.places.AutocompleteSessionToken | undefined>(undefined)
   const query = useDeferredValue(searchTextFromMapsLink(input.trim()))
 
   const suggestions = useQuery({
@@ -38,7 +39,7 @@ export function GooglePlaceSearch({ bias, onPick }: GooglePlaceSearchProps) {
     queryFn: async () => {
       const { suggestions } = await places!.AutocompleteSuggestion.fetchAutocompleteSuggestions({
         input: query,
-        sessionToken: session,
+        sessionToken: (session.current ??= new places!.AutocompleteSessionToken()),
         ...(bias && { locationBias: bias }),
       })
       return suggestions.flatMap((suggestion) => (suggestion.placePrediction ? [suggestion.placePrediction] : []))
@@ -53,7 +54,7 @@ export function GooglePlaceSearch({ bias, onPick }: GooglePlaceSearchProps) {
     await place.fetchFields({ fields: ['location'] })
     const location = place.location
     setInput('')
-    setSession(undefined)
+    session.current = undefined
     if (location) onPick({ placeId: place.id, lat: location.lat(), lng: location.lng() })
   }
 
@@ -64,7 +65,6 @@ export function GooglePlaceSearch({ bias, onPick }: GooglePlaceSearchProps) {
         aria-label={t('addPlace.google.search')}
         placeholder={t('addPlace.google.placeholder')}
         value={input}
-        onFocus={() => places && !session && setSession(new places.AutocompleteSessionToken())}
         onChange={(event) => setInput(event.target.value)}
       />
       {suggestions.isError && <Callout tone="danger" title={t('addPlace.google.failed')} />}
