@@ -12,9 +12,8 @@ export const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 
 export const apiClient = axios.create({
   baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // No default Content-Type: axios sets `application/json` for JSON bodies itself, and on a GET it
+  // would make every cross-origin request "non-simple" — a CORS preflight before each anonymous call.
   // Arrays go out comma-separated and empty values are dropped — the format
   // every landly-server list/search endpoint expects.
   paramsSerializer: { serialize: (params) => toQueryString(params) },

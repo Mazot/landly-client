@@ -38,6 +38,15 @@ describe('apiClient', () => {
     expect(requests[0].headers.has('authorization')).toBe(false)
   })
 
+  it('sends GETs without a Content-Type (no CORS preflight for anonymous reads) and JSON bodies as JSON', async () => {
+    const reads = capture('get', '/api/common/org_types', [])
+    await apiClient.get('/api/common/org_types')
+    expect(reads[0].headers.has('content-type')).toBe(false)
+    const writes = capture('post', '/api/user/signin', {})
+    await apiClient.post('/api/user/signin', { email: 'a@b.c', password: 'x' })
+    expect(writes[0].headers.get('content-type')).toMatch(/^application\/json/)
+  })
+
   it('serializes array params comma-separated', async () => {
     const requests = capture('get', '/api/organisation/search', { items: [], total: 0 })
     await apiClient.get('/api/organisation/search', { params: { types: ['embassy', 'helper'], lat: 1, lng: 2 } })
