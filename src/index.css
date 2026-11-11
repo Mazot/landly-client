@@ -26,3 +26,11 @@ body {
   color: var(--ink-1);
   background-color: var(--bg);
 }
+
+/* A scroller without a visible scrollbar (the map's type rail): it still scrolls by touch and wheel. */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

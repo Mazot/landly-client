@@ -19,7 +19,7 @@ export function AuthLayout({ aside, home = '/', children }: AuthLayoutProps) {
     <div className="relative flex min-h-dvh flex-col bg-surface md:bg-country-water lg:flex-row lg:bg-surface">
       <MapBackdrop className="absolute inset-0 hidden opacity-70 md:block lg:hidden" />
       <aside className="relative hidden flex-1 flex-col justify-between overflow-hidden bg-country-water p-11 lg:flex">
-        <MapBackdrop className="absolute inset-0" />
+        <MapBackdrop variant="hero" className="absolute inset-0" />
         <Logo to={home} className="relative self-start" />
         {aside && <div className="relative max-w-xl">{aside}</div>}
       </aside>

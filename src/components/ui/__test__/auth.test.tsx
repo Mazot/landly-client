@@ -6,7 +6,6 @@ import { CorridorFields } from '../CorridorFields'
 import { FormNote } from '../DS/FormNote'
 import { InlineStatus } from '../DS/InlineStatus'
 import { Logo } from '../DS/Logo'
-import { MapBackdrop } from '../MapBackdrop'
 import { PageHeader } from '../DS/PageHeader'
 import { TopBar } from '../DS/TopBar'
 import { TypeBar } from '../TypeBar'
@@ -33,22 +32,6 @@ describe('Logo', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('link', { name: 'landly' })).toHaveAttribute('href', '/home')
-  })
-})
-
-describe('MapBackdrop', () => {
-  it('is a decorative, className-sized placeholder', () => {
-    const { container } = render(<MapBackdrop className="h-80" />)
-    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true')
-    expect(container.firstElementChild).toHaveClass('h-80', 'bg-country-water')
-    expect(container.querySelector('svg, path')).toBeNull()
-  })
-
-  it('adds the readability fade only for the hero variant', () => {
-    const { container, rerender } = render(<MapBackdrop />)
-    expect(container.querySelector('.bg-linear-to-r')).toBeNull()
-    rerender(<MapBackdrop variant="hero" />)
-    expect(container.querySelector('.bg-linear-to-r')).not.toBeNull()
   })
 })
 

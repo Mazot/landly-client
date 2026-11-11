@@ -1,10 +1,16 @@
 import { screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
 import { authUser } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
 import App from '../App'
+
+// The real map needs Google's script; routing is all these tests are about.
+vi.mock('@vis.gl/react-google-maps', async () => {
+  const { createElement } = await import('react')
+  return { useMap: () => null, Map: () => createElement('div', { 'data-testid': 'map' }), AdvancedMarker: () => null }
+})
 
 describe('App routes', () => {
   it.each([
@@ -24,11 +30,21 @@ describe('App routes', () => {
     expect(await screen.findByText('Landly · for people abroad')).toBeInTheDocument()
   })
 
-  it('sends a signed-in user from the landing, sign-in and sign-up on to /map (not built yet: empty)', () => {
+  it('/map is public: a guest browses the map without an account', async () => {
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    renderApp(<App />, { route: '/map' })
+    expect(await screen.findByTestId('map')).toBeInTheDocument()
+    expect(screen.getByRole('complementary', { name: 'Places on the map' })).toBeInTheDocument()
+  })
+
+  it('sends a signed-in user from the landing, sign-in and sign-up on to the map', async () => {
     useAuthStore.getState().setAuth(authUser())
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
     for (const route of ['/', '/signin', '/signup']) {
-      const { container, unmount } = renderApp(<App />, { route })
-      expect(container.innerHTML).toBe('')
+      const { unmount } = renderApp(<App />, { route })
+      expect(await screen.findByTestId('map')).toBeInTheDocument()
       unmount()
     }
   })

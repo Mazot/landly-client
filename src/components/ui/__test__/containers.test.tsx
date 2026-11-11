@@ -117,6 +117,12 @@ describe('Stat / KeyValueList / Section', () => {
     expect(container.firstChild).not.toHaveClass('rounded-r3')
   })
 
+  it('Section has a small heading for form groups', () => {
+    render(<Section title="Cost" size="sm">x</Section>)
+    expect(screen.getByRole('heading', { name: 'Cost' })).toHaveClass('text-sm')
+    expect(screen.getByRole('heading', { name: 'Cost' })).not.toHaveClass('text-lg')
+  })
+
   it('Section renders heading row only when needed', () => {
     const { rerender } = render(<Section title="Photos" subtitle="6 photos" action={<button>See all</button>} as="h2">x</Section>)
     expect(screen.getByRole('heading', { level: 2, name: 'Photos' })).toBeInTheDocument()

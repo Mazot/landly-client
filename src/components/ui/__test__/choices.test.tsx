@@ -22,6 +22,9 @@ describe('Chip', () => {
     expect(screen.getByRole('button', { name: 'Open now' })).toHaveAttribute('aria-pressed', 'true')
     rerender(<Chip selected orgType="helper" size="sm">Helper</Chip>)
     expect(screen.getByRole('button')).toHaveClass('bg-type-helper-soft')
+    rerender(<Chip selected solid orgType="helper">Helper</Chip>)
+    expect(screen.getByRole('button')).toHaveClass('bg-ink-1')
+    expect(screen.getByRole('button')).not.toHaveClass('bg-type-helper-soft')
     rerender(<Chip add>New list</Chip>)
     expect(screen.getByRole('button')).not.toHaveAttribute('aria-pressed')
     rerender(<Chip icon="star">4.0+</Chip>)
@@ -30,6 +33,11 @@ describe('Chip', () => {
 })
 
 describe('ChipGroup', () => {
+  it('passes solid to its org-type chips', () => {
+    render(<ChipGroup multiple solid label="Types" options={[{ value: 'embassy', label: 'Embassy', orgType: 'embassy' }]} value={['embassy']} />)
+    expect(screen.getByRole('button', { name: 'Embassy' })).toHaveClass('bg-ink-1')
+  })
+
   it('toggles several values when multiple', async () => {
     const onChange = vi.fn()
     render(<ChipGroup multiple label="Languages" options={LANGS} defaultValue={['ru']} onChange={onChange} />)

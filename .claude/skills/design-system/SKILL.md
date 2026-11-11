@@ -22,7 +22,7 @@ Three rules, plus a mandatory check:
 |---|---|---|
 | Tokens | `tailwind.config.ts` (`theme.extend`) + the `:root` CSS variables in `src/index.css` | colours, fonts, radii, shadows — keep both files in sync |
 | **DS** — reusable, purely visual components | `src/components/ui/DS/<Name>.tsx`, stories in `src/components/ui/DS/stories/<Name>.stories.tsx` | generic primitives and shells that any product could use, configured only through props (Button, TextField, Sheet, Card, Callout, TabBar, Logo, …) — see the placement rule below |
-| Product components | `src/components/ui/<Name>.tsx`, stories in `src/components/ui/stories/` | styled like the DS but Landly-specific: they know the data (StatusBadge, TypeTag, TypeBar, Chip / Tag / ChipGroup with an org-type colour, Dropzone, StarInput), speak the domain (CorridorFields, CorridorFlags, OpenStatus, Rating) or are a whole-screen frame (AuthLayout, MapBackdrop). Visual styling lives here too, never in screens |
+| Product components | `src/components/ui/<Name>.tsx`, stories in `src/components/ui/stories/` | styled like the DS but Landly-specific: they know the data (StatusBadge, TypeTag, TypeBar, Chip / Tag / ChipGroup with an org-type colour, Dropzone, StarInput), speak the domain (CorridorFields, CorridorFlags, CorridorPill, CorridorBubble, OpenStatus, Rating, MapPin, VerifiedMark) or are a whole-screen frame (AuthLayout, MapBackdrop, MapLayout). Visual styling lives here too, never in screens |
 | Support | `ui/tokens/`, `ui/constants/`, `ui/lib/`, `ui/i18n/`, `ui/__test__/` | tokens (+ `stories/Tokens.stories.tsx`), shared class maps, internals, built-in strings, tests |
 | Inventory | `src/components/ui/index.ts` (barrel) | every component of both groups is exported here; this file is the list you check first |
 | Feature components | `src/components/<feature>/` | domain blocks (OrganisationCard, MapFilters, …) composed from DS components |
@@ -34,7 +34,7 @@ A component goes into **`ui/DS/`** (story in **`ui/DS/stories/`**) only if it is
 
 1. **No data.** It imports none of `@/types/api` (API enums, limits, ids), the domain constants `ui/constants/orgTypes.ts` / `status.ts`, or anything from `@/hooks`, `@/services`, `@/stores`, `@/lib`.
 2. **No product vocabulary.** Its name, props and built-in copy do not speak Landly's domain (corridor, organisation, review, open hours, claim, …) — a `Rating` that says "No reviews yet" or a `CorridorFields` is a product component even if it takes plain props. Rename and generalise it (`PairedFields`, `Meter`) if the layout is useful elsewhere.
-3. **Not a screen.** It is a building block, not a page frame / template for one screen family (`AuthLayout`) and not a placeholder for a product feature (`MapBackdrop`).
+3. **Not a screen.** It is a building block, not a page frame / template for one screen family (`AuthLayout`) and not a product feature (`MapBackdrop` is a Google map).
 4. **Configured by props.** No hard-wired product defaults: a palette, labels, routes or brand data come from the caller (`ColorSwatches` takes `colors`). The one deliberate exception is the brand mark `Logo`.
 
 Anything else that still carries visual styling goes into **`ui/`** (story in `ui/stories/`). Check DS purity with

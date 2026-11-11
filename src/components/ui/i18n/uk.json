@@ -9,6 +9,7 @@
   "openNow": "Відчинено",
   "closed": "Зачинено",
   "noReviews": "Ще немає відгуків",
+  "verified": "Перевірено",
   "ratingOutOf": "{{value}} з 5",
   "stars_one": "{{count}} зірка",
   "stars_few": "{{count}} зірки",

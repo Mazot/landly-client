@@ -181,8 +181,12 @@
     "nav": {
       "map": "Карта",
       "countries": "Страны",
-      "saved": "Сохранённое"
-    }
+      "saved": "Сохранённое",
+      "people": "Люди",
+      "account": "Я"
+    },
+    "main": "Основное",
+    "add": "Добавить"
   },
   "orgType": {
     "embassy": "Посольство",
@@ -205,7 +209,8 @@
     "yourCorridor": "Ваш коридор",
     "switchTo": "Переключить на",
     "addCorridor": "Добавить коридор",
-    "manage": "Управление"
+    "manage": "Управление",
+    "label": "{{from}} → {{to}}"
   },
   "corridorPicker": {
     "imFrom": "Я из",
@@ -244,7 +249,7 @@
     "sort": {
       "nearest": "Ближайшие",
       "recent": "Недавно добавленные",
-      "verified": "Проверенные"
+      "verified": "Сначала проверенные"
     },
     "listView": "Список",
     "gridView": "Сетка",
@@ -252,7 +257,47 @@
     "open": "Открыто",
     "closed": "Закрыто",
     "loading": "Загрузка организаций…",
-    "empty": "Здесь пока нет организаций."
+    "empty": "Здесь пока нет организаций.",
+    "panelTitle": "Места на карте",
+    "loadingMap": "Загружаем карту…",
+    "inView_one": "{{count}} место в этой области",
+    "inView_few": "{{count}} места в этой области",
+    "inView_many": "{{count}} мест в этой области",
+    "inView_other": "{{count}} места в этой области",
+    "error": "Не удалось загрузить места",
+    "errorHint": "Проверьте соединение и сдвиньте карту, чтобы повторить.",
+    "emptyHint": "Отдалите карту или сдвиньте её, чтобы посмотреть в другом месте.",
+    "searchIn": "Искать: {{country}}",
+    "search": "Поиск мест",
+    "showingInArea": "Показано в этой области",
+    "count_one": "{{count}} организация",
+    "count_few": "{{count}} организации",
+    "count_many": "{{count}} организаций",
+    "count_other": "{{count}} организации",
+    "countCapped_one": "{{count}}+ организация",
+    "countCapped_few": "{{count}}+ организации",
+    "countCapped_many": "{{count}}+ организаций",
+    "countCapped_other": "{{count}}+ организации",
+    "nearby": "{{count}} рядом",
+    "closedToday": "Сегодня закрыто",
+    "save": "Сохранить: {{name}}",
+    "unsave": "Убрать из сохранённых: {{name}}",
+    "noMatches": "Ничего не подходит под фильтры",
+    "noMatchesHint": "Уберите часть фильтров, попробуйте другое название или область побольше.",
+    "resetFilters": "Сбросить фильтры",
+    "moveToSearch": "Сдвиньте карту, чтобы искать в другой области",
+    "capped": "Показаны первые {{count}} — приблизьте карту, чтобы сузить поиск",
+    "showList": "Показать список",
+    "hideList": "Скрыть список",
+    "typeRail": "Типы мест",
+    "zoomIn": "Приблизить",
+    "zoomOut": "Отдалить",
+    "locate": "Показать моё местоположение",
+    "corridorPlaces_one": "{{count}} место",
+    "corridorPlaces_few": "{{count}} места",
+    "corridorPlaces_many": "{{count}} мест",
+    "corridorPlaces_other": "{{count}} места",
+    "newThisWeek": "{{count}} новых за неделю"
   },
   "filters": {
     "title": "Фильтры",
@@ -269,23 +314,26 @@
     "confirmedThisMonth": "Подтверждено в этом месяце",
     "rated": "Рейтинг 4.5+",
     "addedBy": "Кем добавлено",
-    "cost": "Стоимость",
-    "free": "Бесплатно",
-    "paidService": "Платная услуга",
     "any": "Любая",
     "distanceFrom": "Расстояние от {{city}}",
     "withinCity": "В пределах города",
     "wholeCountry": "Вся страна",
     "km": "{{km}} км",
     "reset": "Сбросить",
-    "showPlaces": "Показать {{count}} мест",
     "addMore": "+ добавить",
-    "lang": {
-      "russian": "Русский",
-      "ukrainian": "Украинский",
-      "english": "Английский",
-      "german": "Немецкий"
-    }
+    "subtitle": "Применяется к карте и списку",
+    "minRating": "Минимальный рейтинг",
+    "anyone": "Кто угодно",
+    "show": "Показать места",
+    "showNone": "Ничего не найдено",
+    "showPlaces_one": "Показать {{count}} место",
+    "showPlaces_few": "Показать {{count}} места",
+    "showPlaces_many": "Показать {{count}} мест",
+    "showPlaces_other": "Показать {{count}} места",
+    "showPlacesCapped_one": "Показать {{count}}+ место",
+    "showPlacesCapped_few": "Показать {{count}}+ места",
+    "showPlacesCapped_many": "Показать {{count}}+ мест",
+    "showPlacesCapped_other": "Показать {{count}}+ места"
   },
   "orgCompact": {
     "backToResults": "К результатам",
@@ -559,6 +607,30 @@
       "tooManyRequests": "Слишком много попыток — подождите минуту.",
       "network": "Нет связи с Landly. Проверьте соединение и попробуйте снова.",
       "generic": "Что-то пошло не так. Попробуйте ещё раз."
+    }
+  },
+  "corridors": {
+    "title": "Ваши коридоры",
+    "subtitle": "Карта открывается на коридоре по умолчанию",
+    "guestTitle": "Выберите коридор",
+    "guestSubtitle": "Карта покажет места страны, где вы живёте",
+    "default": "По умолчанию",
+    "setDefault": "Сделать основным",
+    "makeDefault": "Сделать {{name}} коридором по умолчанию",
+    "places_one": "{{count}} место",
+    "places_few": "{{count}} места",
+    "places_many": "{{count}} мест",
+    "places_other": "{{count}} места",
+    "switchTo": "Переключиться: {{name}}",
+    "pick": "Выберите коридор",
+    "addTitle": "Добавить коридор",
+    "destination": "Куда",
+    "add": "Добавить коридор",
+    "showMap": "Показать карту",
+    "loadFailed": "Не удалось загрузить коридоры",
+    "errors": {
+      "exists": "Такой коридор у вас уже есть.",
+      "generic": "Не удалось добавить коридор. Попробуйте ещё раз."
     }
   }
 }

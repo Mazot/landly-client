@@ -9,6 +9,7 @@
   "openNow": "Открыто",
   "closed": "Закрыто",
   "noReviews": "Пока нет отзывов",
+  "verified": "Проверено",
   "ratingOutOf": "{{value}} из 5",
   "stars_one": "{{count}} звезда",
   "stars_few": "{{count}} звезды",

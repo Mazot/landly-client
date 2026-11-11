@@ -10,6 +10,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** A still world map; needs the Maps key in `.env`. */
 export const Default: Story = {}
 
 export const Hero: Story = { args: { variant: 'hero' } }
