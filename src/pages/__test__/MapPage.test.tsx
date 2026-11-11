@@ -230,7 +230,7 @@ describe('MapPage', () => {
       expect(within(panel()).getByText('Loading organizations…', { selector: 'h1' })).toBeInTheDocument()
       await rest()
       await within(panel()).findByText('Russian Embassy')
-      expect(query(searches[0])).toEqual({ min_lat: '52', max_lat: '53', min_lng: '13', max_lng: '14', lat: '52.5', lng: '13.5', sort: 'nearest', location_country_id: germany.id, limit: '100' })
+      expect(query(searches[0])).toEqual({ min_lat: '52', max_lat: '53', min_lng: '13', max_lng: '14', lat: '52.5', lng: '13.5', sort: 'nearest', location_country_id: germany.id, founder_country_id: russia.id, limit: '100' })
       expect(within(panel()).getByRole('heading', { level: 1, name: '3 organizations' })).toBeInTheDocument()
     })
 
@@ -384,6 +384,7 @@ describe('MapPage', () => {
       // The count is asked for the area on the map, with a bigger page than the list's — and for the destination only.
       expect(lastSearch(searches).get('limit')).toBe('200')
       expect(lastSearch(searches).get('location_country_id')).toBe(germany.id)
+      expect(lastSearch(searches).get('founder_country_id')).toBe(russia.id)
 
       await userEvent.click(within(sheet).getByRole('button', { name: 'Official' }))
       await userEvent.click(within(sheet).getByRole('button', { name: 'Verified only' }))

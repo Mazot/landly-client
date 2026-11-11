@@ -29,8 +29,9 @@ const LOCATE_ZOOM = 13
 interface Viewport {
   box: SearchBox
   center: google.maps.LatLngLiteral
-  /** The corridor destination it belongs to — a new destination starts a new search. */
+  /** The corridor it belongs to — a different pair of countries starts a new search. */
   destinationId: string | undefined
+  originId: string | undefined
 }
 
 /** Whether a place matches the name search: name, city, address and services, case-insensitive. */
@@ -76,13 +77,14 @@ function MapScreen() {
   // phones and for the first search; elsewhere the user asks with "Search this area".
   const [latest, setLatest] = useState<Viewport>()
   const [applied, setApplied] = useState<Viewport>()
-  const current = applied?.destinationId === to?.id ? applied : undefined
-  const moved = !!latest && !!current && latest.destinationId === to?.id && JSON.stringify(latest.box) !== JSON.stringify(current.box)
+  const inCorridor = (view: Viewport | undefined) => (view?.destinationId === to?.id && view?.originId === from?.id ? view : undefined)
+  const current = inCorridor(applied)
+  const moved = !!latest && !!current && !!inCorridor(latest) && JSON.stringify(latest.box) !== JSON.stringify(current.box)
 
-  const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), location_country_id: current.destinationId, limit: MAP_SEARCH_LIMIT })
+  const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), location_country_id: current.destinationId, founder_country_id: current.originId, limit: MAP_SEARCH_LIMIT })
   // The list keeps the previous answer while the next one loads (panning), but not across a new
   // destination or new filters: those results would be wrong, so they count as loading.
-  const scope = JSON.stringify([to?.id, filtersToQuery(filters)])
+  const scope = JSON.stringify([to?.id, from?.id, filtersToQuery(filters)])
   const [shownScope, setShownScope] = useState(scope)
   if (search.data && !search.isPlaceholderData && shownScope !== scope) setShownScope(scope)
   const stale = search.isPlaceholderData && shownScope !== scope
@@ -101,7 +103,7 @@ function MapScreen() {
     const bounds = event.map.getBounds()
     const center = event.map.getCenter()
     if (!bounds || !center) return
-    const next = { box: boundsToSearchBox(bounds), center: center.toJSON(), destinationId: to?.id }
+    const next = { box: boundsToSearchBox(bounds), center: center.toJSON(), destinationId: to?.id, originId: from?.id }
     setLatest(next)
     if (size === 'phone' || !current) setApplied(next)
   }
@@ -193,8 +195,8 @@ function MapScreen() {
             </div>
           ) : (
             <Map
-              // A new destination starts a new map: `defaultBounds` only applies on mount.
-              key={to?.id}
+              // A new corridor starts a new map: `defaultBounds` only applies on mount.
+              key={`${from?.id}-${to?.id}`}
               id={MAP_ID}
               mapId={GOOGLE_MAPS_MAP_ID}
               {...(start ? { defaultBounds: start } : { defaultCenter: WORLD_VIEW.center, defaultZoom: WORLD_VIEW.zoom })}

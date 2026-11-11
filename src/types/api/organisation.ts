@@ -169,6 +169,8 @@ export interface SearchOrganisationsQuery extends PaginationParams {
   added_by?: AddedBy
   /** Only places located in this country (a corridor's destination). */
   location_country_id?: Uuid
+  /** Only places founded by people from this country (a corridor's origin). */
+  founder_country_id?: Uuid
   /** Defaults to `nearest` with an origin, else `recent`; `nearest` without an origin is a 422. */
   sort?: SearchSort
 }
