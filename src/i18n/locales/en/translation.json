@@ -285,8 +285,6 @@
     "locate": "Show my location",
     "corridorPlaces_one": "{{count}} place",
     "corridorPlaces_other": "{{count}} places",
-    "embassies_one": "{{count}} embassy",
-    "embassies_other": "{{count}} embassies",
     "newThisWeek": "{{count}} new this week"
   },
   "filters": {
@@ -304,9 +302,6 @@
     "confirmedThisMonth": "Confirmed this month",
     "rated": "Rated 4.5+",
     "addedBy": "Added by",
-    "cost": "Cost",
-    "free": "Free",
-    "paidService": "Paid service",
     "any": "Any",
     "distanceFrom": "Distance from {{city}}",
     "withinCity": "Within city",
@@ -314,16 +309,9 @@
     "km": "{{km}} km",
     "reset": "Reset",
     "addMore": "+ add",
-    "lang": {
-      "russian": "Russian",
-      "ukrainian": "Ukrainian",
-      "english": "English",
-      "german": "German"
-    },
     "subtitle": "Applies to the map and the list",
     "minRating": "Minimum rating",
     "anyone": "Anyone",
-    "paid": "Paid",
     "show": "Show places",
     "showNone": "No places match",
     "showPlaces_one": "Show {{count}} place",

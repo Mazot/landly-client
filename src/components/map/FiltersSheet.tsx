@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, ChipGroup, isKnownOrgType, Section, Sheet, type ChipOption } from '@/components/ui'
 import { useSearchOrganisations } from '@/hooks/useOrganisations'
-import { DEFAULT_FILTERS, filtersToQuery, LANGUAGE_FILTERS, RATING_FILTERS, type MapFilters } from '@/lib/mapFilters'
+import { DEFAULT_FILTERS, filtersToQuery, RATING_FILTERS, type MapFilters } from '@/lib/mapFilters'
 import type { SearchBox } from '@/lib/maps'
-import { ADDED_BY, COSTS, SEARCH_SORTS, type AddedBy, type Cost, type OrganisationType, type SearchSort } from '@/types/api'
+import { ADDED_BY, SEARCH_SORTS, type AddedBy, type OrganisationType, type SearchSort } from '@/types/api'
 
 /** The most places one search answers with; the count on the button stops there. */
 const COUNT_LIMIT = 200
+/** How many languages the sheet offers besides the chosen ones (the places in an area can speak dozens). */
+const LANGUAGE_CHOICES = 8
 /** The "Any" choice of a single-choice group: ChipGroup values are strings. */
 const ANY = ''
 
@@ -23,7 +25,7 @@ export interface FiltersSheetProps {
 
 /**
  * Every filter of the map search in one sheet: type, languages, availability, rating, who added it,
- * cost and the sort order. Mount it while it is open (a fresh draft each time); "Show N places"
+ * and the sort order. Mount it while it is open (a fresh draft each time); "Show N places"
  * applies the draft, "Reset" clears it, closing drops it.
  */
 export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: FiltersSheetProps) {
@@ -37,11 +39,18 @@ export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: Filt
   // A draft that has not been answered yet still shows the answer to the previous one: wait.
   const counted = count !== null && !found.isPlaceholderData ? count : null
 
+  // The languages on offer are the ones the places in this area speak (their `languages`), the most
+  // common first — the same search without the language filter, so picking one does not hide the others.
+  const pool = useSearchOrganisations(area && { ...area.box, lat: area.center.lat, lng: area.center.lng, ...filtersToQuery({ ...draft, languages: [] }), limit: COUNT_LIMIT })
+  const spoken = new Map<string, number>()
+  for (const place of pool.data?.items ?? []) for (const name of place.languages) spoken.set(name, (spoken.get(name) ?? 0) + 1)
+  const offered = [...spoken].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, LANGUAGE_CHOICES).map(([name]) => name)
+  const languageNames = [...offered, ...draft.languages.filter((name) => !offered.includes(name))]
+
   const typeOptions: ChipOption[] = orgTypes.flatMap((type) => (type.slug ? [{ value: type.slug, label: type.title ?? type.type, ...(isKnownOrgType(type.slug) && { orgType: type.slug }) }] : []))
-  const languageOptions: ChipOption[] = LANGUAGE_FILTERS.map((name) => ({ value: name, label: t(`filters.lang.${name.toLowerCase()}`) }))
+  const languageOptions: ChipOption[] = languageNames.map((name) => ({ value: name, label: name }))
   const ratingOptions: ChipOption[] = [{ value: ANY, label: t('filters.any') }, ...RATING_FILTERS.map((value) => ({ value: String(value), label: `${value.toFixed(1)}+`, icon: 'star' as const }))]
   const addedByOptions: ChipOption[] = [{ value: ANY, label: t('filters.anyone') }, ...ADDED_BY.map((value) => ({ value, label: t(`addedBy.${value}`) }))]
-  const costOptions: ChipOption[] = [{ value: ANY, label: t('filters.any') }, ...COSTS.map((value) => ({ value, label: t(`filters.${value === 'free' ? 'free' : 'paid'}`) }))]
   const sortOptions: ChipOption[] = SEARCH_SORTS.map((value) => ({ value, label: t(`map.sort.${value}`) }))
   const availability = [...(draft.openNow ? ['open'] : []), ...(draft.verified ? ['verified'] : [])]
 
@@ -69,9 +78,11 @@ export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: Filt
             <ChipGroup multiple solid label={t('filters.placeType')} options={typeOptions} value={draft.types} onChange={(types) => set({ types })} />
           </Section>
         )}
-        <Section size="sm" title={t('filters.languagesSpoken')}>
-          <ChipGroup multiple label={t('filters.languagesSpoken')} options={languageOptions} value={draft.languages} onChange={(languages) => set({ languages })} />
-        </Section>
+        {languageOptions.length > 0 && (
+          <Section size="sm" title={t('filters.languagesSpoken')}>
+            <ChipGroup multiple label={t('filters.languagesSpoken')} options={languageOptions} value={draft.languages} onChange={(languages) => set({ languages })} />
+          </Section>
+        )}
         <Section size="sm" title={t('filters.availability')}>
           <ChipGroup
             multiple
@@ -89,9 +100,6 @@ export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: Filt
         </Section>
         <Section size="sm" title={t('filters.addedBy')}>
           <ChipGroup label={t('filters.addedBy')} options={addedByOptions} value={draft.addedBy ?? ANY} onChange={(value) => set({ addedBy: value === ANY ? null : (value as AddedBy) })} />
-        </Section>
-        <Section size="sm" title={t('filters.cost')}>
-          <ChipGroup label={t('filters.cost')} options={costOptions} value={draft.cost ?? ANY} onChange={(value) => set({ cost: value === ANY ? null : (value as Cost) })} />
         </Section>
         <Section size="sm" title={t('map.sortBy')}>
           <ChipGroup label={t('map.sortBy')} options={sortOptions} value={draft.sort} onChange={(value) => set({ sort: value as SearchSort })} />

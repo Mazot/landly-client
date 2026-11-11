@@ -75,7 +75,6 @@ export const organisation = (over: Partial<Organisation> = {}): Organisation => 
   founderCountryId: null,
   organisationTypeId: null,
   addedBy: null,
-  cost: null,
   languages: [],
   services: [],
   openingHours: null,

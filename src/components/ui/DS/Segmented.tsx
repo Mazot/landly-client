@@ -24,7 +24,7 @@ export interface SegmentedProps<T extends string> {
   size?: 'md' | 'sm'
 }
 
-/** One-of-few switch: cost, sort, Saved tabs, moderation queue filter. */
+/** One-of-few switch: sort, Saved tabs, moderation queue filter. */
 export function Segmented<T extends string>({ options, label, value, defaultValue, onChange, block, size = 'md' }: SegmentedProps<T>) {
   // `options` may still be empty (data loading): nothing is selected then.
   const [current, setCurrent] = useControllableState<T | undefined>(value, defaultValue ?? options[0]?.value, onChange as (v: T | undefined) => void)

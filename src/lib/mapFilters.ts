@@ -1,11 +1,8 @@
 // Map filters: one value object shared by the filter bar, the type rail, the filters sheet and the
 // results list. It lives in the URL (`/map?types=embassy&open=1`), so a reload or a shared link
 // keeps the view, and it maps 1:1 onto the query of `GET /api/organisation/search`.
-import type { AddedBy, Cost, SearchOrganisationsQuery, SearchSort } from '@/types/api'
-import { ADDED_BY, COSTS, SEARCH_SORTS } from '@/types/api'
-
-/** Languages offered by the filters sheet (the API takes any language name). */
-export const LANGUAGE_FILTERS = ['Russian', 'Ukrainian', 'English', 'German'] as const
+import type { AddedBy, SearchOrganisationsQuery, SearchSort } from '@/types/api'
+import { ADDED_BY, SEARCH_SORTS } from '@/types/api'
 
 /** Minimum-rating choices; `null` is "Any". */
 export const RATING_FILTERS = [3.5, 4, 4.5] as const
@@ -19,7 +16,6 @@ export interface MapFilters {
   verified: boolean
   minRating: number | null
   addedBy: AddedBy | null
-  cost: Cost | null
   sort: SearchSort
 }
 
@@ -30,7 +26,6 @@ export const DEFAULT_FILTERS: MapFilters = {
   verified: false,
   minRating: null,
   addedBy: null,
-  cost: null,
   sort: 'nearest',
 }
 
@@ -47,7 +42,6 @@ export function parseFilters(params: URLSearchParams): MapFilters {
     verified: params.get('verified') === '1',
     minRating: RATING_FILTERS.find((candidate) => candidate === rating) ?? null,
     addedBy: oneOf(ADDED_BY, params.get('by')),
-    cost: oneOf(COSTS, params.get('cost')),
     sort: oneOf(SEARCH_SORTS, params.get('sort')) ?? DEFAULT_FILTERS.sort,
   }
 }
@@ -61,14 +55,13 @@ export function serializeFilters(filters: MapFilters): URLSearchParams {
   if (filters.verified) params.set('verified', '1')
   if (filters.minRating !== null) params.set('rating', String(filters.minRating))
   if (filters.addedBy) params.set('by', filters.addedBy)
-  if (filters.cost) params.set('cost', filters.cost)
   if (filters.sort !== DEFAULT_FILTERS.sort) params.set('sort', filters.sort)
   return params
 }
 
 /** Filter groups that are switched on — the number on "More filters · 4". The sort order is not a filter. */
 export function countActiveFilters(filters: MapFilters): number {
-  return [filters.types.length > 0, filters.languages.length > 0, filters.openNow, filters.verified, filters.minRating !== null, filters.addedBy !== null, filters.cost !== null].filter(Boolean).length
+  return [filters.types.length > 0, filters.languages.length > 0, filters.openNow, filters.verified, filters.minRating !== null, filters.addedBy !== null].filter(Boolean).length
 }
 
 /** The filters part of a search request; empty groups are left out. */
@@ -80,7 +73,6 @@ export function filtersToQuery(filters: MapFilters): SearchOrganisationsQuery {
     ...(filters.verified && { verified: true }),
     ...(filters.minRating !== null && { min_rating: filters.minRating }),
     ...(filters.addedBy && { added_by: filters.addedBy }),
-    ...(filters.cost && { cost: filters.cost }),
     sort: filters.sort,
   }
 }

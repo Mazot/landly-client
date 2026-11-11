@@ -75,6 +75,7 @@ const detail = (c: typeof germany, over: Partial<CountryDetail> = {}): CountryDe
   ...over,
 })
 const embassyType = { id: 'type-1', type: 'embassy', slug: 'embassy', title: 'Embassy', color: null }
+const businessType = { id: 'type-2', type: 'business', slug: 'business', title: 'Business', color: null }
 
 const embassy = organisation({ name: 'Russian Embassy', organisationTypeId: 'type-1', latitude: 52.5, longitude: 13.4, city: 'Berlin' })
 const noPoint = organisation({ name: 'Online only', latitude: null, longitude: null })
@@ -85,7 +86,7 @@ function arrange({ places = [embassy, noPoint, untyped], details = {} as Record<
   const searches: URLSearchParams[] = []
   const byId = { [germany.id]: detail(germany), [serbia.id]: detail(serbia, { geoJson: null, totalPlaces: 7 }), ...details }
   capture('get', '/api/common/countries', [russia, germany, serbia])
-  capture('get', '/api/common/org_types', [embassyType])
+  capture('get', '/api/common/org_types', [embassyType, businessType])
   server.use(
     http.get(`${API}/api/common/countries/:id`, ({ params }) => HttpResponse.json(byId[params.id as string])),
     http.get(`${API}/api/organisation/search`, ({ request }) => {
@@ -357,28 +358,28 @@ describe('MapPage', () => {
       // The count is asked for the area on the map, with a bigger page than the list's.
       expect(lastSearch(searches).get('limit')).toBe('200')
 
-      await userEvent.click(within(sheet).getByRole('button', { name: 'Free' }))
+      await userEvent.click(within(sheet).getByRole('button', { name: 'Official' }))
       await userEvent.click(within(sheet).getByRole('button', { name: 'Verified only' }))
       await userEvent.click(await within(sheet).findByRole('button', { name: 'Show 3 places' }))
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-      await waitFor(() => expect(lastSearch(searches).get('cost')).toBe('free'))
+      await waitFor(() => expect(lastSearch(searches).get('added_by')).toBe('official'))
       expect(lastSearch(searches).get('verified')).toBe('true')
       expect(lastSearch(searches).get('limit')).toBe('100')
-      expect(screen.getByTestId('url')).toHaveTextContent('?verified=1&cost=free')
+      expect(screen.getByTestId('url')).toHaveTextContent('?verified=1&by=official')
       expect(screen.getByRole('button', { name: 'More filters · 2' })).toBeInTheDocument()
     })
 
     it('drops the draft when the sheet is closed, and starts every time from the filters in force', async () => {
       await ready()
       await userEvent.click(screen.getByRole('button', { name: 'More filters' }))
-      await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Free' }))
+      await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Official' }))
       await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }))
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
       expect(screen.getByTestId('url')).toBeEmptyDOMElement()
 
       await userEvent.click(screen.getByRole('button', { name: 'More filters' }))
-      expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Free' })).toHaveAttribute('aria-pressed', 'false')
+      expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Official' })).toHaveAttribute('aria-pressed', 'false')
     })
 
     it('opens the same sheet from the filters button on tablet and phone', async () => {
@@ -395,12 +396,12 @@ describe('MapPage', () => {
 
     it('starts from the filters in the URL', async () => {
       const searches = arrange()
-      open('/map?types=embassy&lang=Russian&open=1&rating=4&by=official&cost=free&sort=verified')
+      open('/map?types=embassy&lang=Russian&open=1&rating=4&by=official&sort=verified')
       await screen.findByTestId('map')
       await rest()
       await waitFor(() => expect(searches).toHaveLength(1))
-      expect(query(searches[0])).toMatchObject({ types: 'embassy', languages: 'Russian', open_now: 'true', min_rating: '4', added_by: 'official', cost: 'free', sort: 'verified' })
-      expect(screen.getByRole('button', { name: 'More filters · 6' })).toBeInTheDocument()
+      expect(query(searches[0])).toMatchObject({ types: 'embassy', languages: 'Russian', open_now: 'true', min_rating: '4', added_by: 'official', sort: 'verified' })
+      expect(screen.getByRole('button', { name: 'More filters · 5' })).toBeInTheDocument()
     })
 
     it('resets the filters from the empty result, keeping the sort order', async () => {
@@ -451,10 +452,10 @@ describe('MapPage', () => {
   })
 
   describe('the corridor summary', () => {
-    it('guest: the places and embassies of the destination, no "new this week"', async () => {
+    it('guest: the places of the destination and its two biggest types, no "new this week"', async () => {
       await ready()
       const bubble = screen.getByRole('button', { name: /73 places/ })
-      expect(within(bubble).getByText('8 embassies')).toBeInTheDocument()
+      expect(within(bubble).getByText('Business 30 · Embassy 8')).toBeInTheDocument()
       expect(within(bubble).queryByText(/new this week/)).not.toBeInTheDocument()
     })
 
@@ -464,9 +465,16 @@ describe('MapPage', () => {
       expect(screen.getByRole('dialog', { name: 'Choose your corridor' })).toBeInTheDocument()
     })
 
-    it('shows no embassies figure when the destination has none', async () => {
-      await ready(arrange({ details: { [germany.id]: detail(germany, { placesByType: [{ slug: 'business', count: 3 }], totalPlaces: 3 }) } }))
-      expect(within(screen.getByRole('button', { name: /3 places/ })).getByText('0 embassies')).toBeInTheDocument()
+    it('names the types as the backend does, by count, and falls back to the slug for an unknown one', async () => {
+      const byType = [{ slug: 'helper', count: 2 }, { slug: 'business', count: 9 }, { slug: 'volunteer', count: 5 }]
+      await ready(arrange({ details: { [germany.id]: detail(germany, { placesByType: byType, totalPlaces: 16 }) } }))
+      expect(within(screen.getByRole('button', { name: /16 places/ })).getByText('Business 9 · volunteer 5')).toBeInTheDocument()
+    })
+
+    it('has no types line for a destination without places', async () => {
+      await ready(arrange({ details: { [germany.id]: detail(germany, { placesByType: [], totalPlaces: 0 }) } }))
+      const bubble = screen.getByRole('button', { name: /0 places/ })
+      expect(bubble).not.toHaveTextContent('·')
     })
 
     it('signed in: the figures of the saved corridor, with what is new this week', async () => {
@@ -478,7 +486,7 @@ describe('MapPage', () => {
       capture('get', '/api/saved/list', list([]))
       await ready()
       const bubble = await screen.findByRole('button', { name: /234 places/ })
-      expect(within(bubble).getByText('4 embassies · 12 new this week')).toBeInTheDocument()
+      expect(within(bubble).getByText('Embassy 4 · 12 new this week')).toBeInTheDocument()
     })
   })
 

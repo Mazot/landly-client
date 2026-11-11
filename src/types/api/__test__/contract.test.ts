@@ -9,7 +9,6 @@ describe('enum values (migration CHECK constraints)', () => {
   it.each([
     ['ORGANISATION_STATUSES', 'organisations.status', ['pending', 'live', 'rejected']],
     ['ADDED_BY', 'organisations.added_by', ['official', 'community', 'volunteer']],
-    ['COSTS', 'organisations.cost', ['free', 'paid']],
     ['LOCATION_SOURCES', 'organisations.location_source', ['google', 'user_pin', 'moderator']],
     ['PERSON_STATUSES', 'people.status', ['pending', 'awaiting', 'confirmed', 'claimed', 'declined']],
     ['SEND_VIA', 'people.send_via', ['email', 'whatsapp']],

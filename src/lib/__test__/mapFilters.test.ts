@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { countActiveFilters, DEFAULT_FILTERS, filtersToQuery, parseFilters, serializeFilters, type MapFilters } from '../mapFilters'
 
 const parse = (query: string) => parseFilters(new URLSearchParams(query))
-const all: MapFilters = { types: ['embassy', 'business'], languages: ['Russian', 'German'], openNow: true, verified: true, minRating: 4.5, addedBy: 'official', cost: 'free', sort: 'verified' }
+const all: MapFilters = { types: ['embassy', 'business'], languages: ['Russian', 'German'], openNow: true, verified: true, minRating: 4.5, addedBy: 'official', sort: 'verified' }
 
 describe('parseFilters', () => {
   it('is the defaults for an empty URL', () => {
@@ -10,11 +10,11 @@ describe('parseFilters', () => {
   })
 
   it('reads every filter', () => {
-    expect(parse('types=embassy,business&lang=Russian,German&open=1&verified=1&rating=4.5&by=official&cost=free&sort=verified')).toEqual(all)
+    expect(parse('types=embassy,business&lang=Russian,German&open=1&verified=1&rating=4.5&by=official&sort=verified')).toEqual(all)
   })
 
   it('ignores unknown or malformed values instead of failing', () => {
-    expect(parse('types=,,&open=yes&verified=0&rating=9&by=robots&cost=cheap&sort=random')).toEqual(DEFAULT_FILTERS)
+    expect(parse('types=,,&open=yes&verified=0&rating=9&by=robots&sort=random')).toEqual(DEFAULT_FILTERS)
     expect(parse('rating=abc')).toEqual(DEFAULT_FILTERS)
   })
 
@@ -33,7 +33,7 @@ describe('serializeFilters', () => {
   it('writes only what differs, and parses back to the same filters', () => {
     expect(serializeFilters({ ...DEFAULT_FILTERS, openNow: true, sort: 'recent' }).toString()).toBe('open=1&sort=recent')
     const url = serializeFilters(all)
-    expect(url.toString()).toBe('types=embassy%2Cbusiness&lang=Russian%2CGerman&open=1&verified=1&rating=4.5&by=official&cost=free&sort=verified')
+    expect(url.toString()).toBe('types=embassy%2Cbusiness&lang=Russian%2CGerman&open=1&verified=1&rating=4.5&by=official&sort=verified')
     expect(parseFilters(url)).toEqual(all)
   })
 })
@@ -43,7 +43,7 @@ describe('countActiveFilters', () => {
     expect(countActiveFilters(DEFAULT_FILTERS)).toBe(0)
     expect(countActiveFilters({ ...DEFAULT_FILTERS, sort: 'recent' })).toBe(0)
     expect(countActiveFilters({ ...DEFAULT_FILTERS, types: ['embassy', 'business'], languages: ['Russian'], openNow: true, minRating: 4 })).toBe(4)
-    expect(countActiveFilters(all)).toBe(7)
+    expect(countActiveFilters(all)).toBe(6)
   })
 })
 
@@ -60,7 +60,6 @@ describe('filtersToQuery', () => {
       verified: true,
       min_rating: 4.5,
       added_by: 'official',
-      cost: 'free',
       sort: 'verified',
     })
   })

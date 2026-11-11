@@ -9,9 +9,6 @@ export type OrganisationStatus = (typeof ORGANISATION_STATUSES)[number]
 export const ADDED_BY = ['official', 'community', 'volunteer'] as const
 export type AddedBy = (typeof ADDED_BY)[number]
 
-export const COSTS = ['free', 'paid'] as const // TODO: что забред. Надо удалить потом
-export type Cost = (typeof COSTS)[number] // TODO: что забред. Надо удалить потом
-
 /** Where the point came from. */
 export const LOCATION_SOURCES = ['google', 'user_pin', 'moderator'] as const
 export type LocationSource = (typeof LOCATION_SOURCES)[number]
@@ -68,7 +65,6 @@ export interface Organisation {
   founderCountryId: Uuid | null
   organisationTypeId: Uuid | null
   addedBy: AddedBy | null
-  cost: Cost | null
   /** Languages spoken, by name (e.g. "Russian"). */
   languages: string[]
   /** Services offered, free-text tags. */
@@ -118,7 +114,6 @@ export interface CreateOrganisationRequest {
   organisation_type_id?: Uuid
   /** `official` only for moderators/admins (403 otherwise); users may resend the stored value. */
   added_by?: AddedBy
-  cost?: Cost
   languages?: string[]
   services?: string[]
   opening_hours?: OpeningHours
@@ -172,7 +167,6 @@ export interface SearchOrganisationsQuery extends PaginationParams {
   /** Minimum average rating, 1–5. */
   min_rating?: number
   added_by?: AddedBy
-  cost?: Cost
   /** Defaults to `nearest` with an origin, else `recent`; `nearest` without an origin is a 422. */
   sort?: SearchSort
 }

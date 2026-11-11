@@ -297,10 +297,6 @@
     "corridorPlaces_few": "{{count}} места",
     "corridorPlaces_many": "{{count}} мест",
     "corridorPlaces_other": "{{count}} места",
-    "embassies_one": "{{count}} посольство",
-    "embassies_few": "{{count}} посольства",
-    "embassies_many": "{{count}} посольств",
-    "embassies_other": "{{count}} посольства",
     "newThisWeek": "{{count}} новых за неделю"
   },
   "filters": {
@@ -318,9 +314,6 @@
     "confirmedThisMonth": "Подтверждено в этом месяце",
     "rated": "Рейтинг 4.5+",
     "addedBy": "Кем добавлено",
-    "cost": "Стоимость",
-    "free": "Бесплатно",
-    "paidService": "Платная услуга",
     "any": "Любая",
     "distanceFrom": "Расстояние от {{city}}",
     "withinCity": "В пределах города",
@@ -328,16 +321,9 @@
     "km": "{{km}} км",
     "reset": "Сбросить",
     "addMore": "+ добавить",
-    "lang": {
-      "russian": "Русский",
-      "ukrainian": "Украинский",
-      "english": "Английский",
-      "german": "Немецкий"
-    },
     "subtitle": "Применяется к карте и списку",
     "minRating": "Минимальный рейтинг",
     "anyone": "Кто угодно",
-    "paid": "Платно",
     "show": "Показать места",
     "showNone": "Ничего не найдено",
     "showPlaces_one": "Показать {{count}} место",

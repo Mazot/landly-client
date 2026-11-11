@@ -30,11 +30,11 @@ describe('MapToolbar · desktop', () => {
   })
 
   it('toggles open now and verified, keeping the other filters', async () => {
-    const { onFiltersChange } = setup({ filters: { ...DEFAULT_FILTERS, cost: 'free' } })
+    const { onFiltersChange } = setup({ filters: { ...DEFAULT_FILTERS, addedBy: 'official' } })
     await userEvent.click(screen.getByRole('button', { name: 'Open now' }))
-    expect(onFiltersChange).toHaveBeenLastCalledWith({ ...DEFAULT_FILTERS, cost: 'free', openNow: true })
+    expect(onFiltersChange).toHaveBeenLastCalledWith({ ...DEFAULT_FILTERS, addedBy: 'official', openNow: true })
     await userEvent.click(screen.getByRole('button', { name: 'Verified' }))
-    expect(onFiltersChange).toHaveBeenLastCalledWith({ ...DEFAULT_FILTERS, cost: 'free', verified: true })
+    expect(onFiltersChange).toHaveBeenLastCalledWith({ ...DEFAULT_FILTERS, addedBy: 'official', verified: true })
   })
 
   it('shows them pressed when on', () => {

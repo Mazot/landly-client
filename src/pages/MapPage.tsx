@@ -106,18 +106,20 @@ function MapScreen() {
     if (map && position) map.panTo(position)
   }
 
+  // The two biggest kinds of place in the destination, named as the backend names them.
+  const titleOf = (slug: string) => types.find((type) => type.slug === slug)?.title ?? slug
+  const typeFigures = [...(corridorStats.data?.byType ?? destination.data?.placesByType ?? [])]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 2)
+    .map((entry) => `${titleOf(entry.slug)} ${entry.count}`)
+
   const bubble = destination.data && from && to && (
     <CorridorBubble
       from={from.flag}
       to={to.flag}
       label={t('corridorSwitcher.label', { from: from.name, to: to.name })}
       title={t('map.corridorPlaces', { count: corridorStats.data?.totalPlaces ?? destination.data.totalPlaces })}
-      detail={[
-        t('map.embassies', { count: (corridorStats.data?.byType ?? destination.data.placesByType).find((entry) => entry.slug === 'embassy')?.count ?? 0 }),
-        corridorStats.data && t('map.newThisWeek', { count: corridorStats.data.newThisWeek }),
-      ]
-        .filter(Boolean)
-        .join(' · ')}
+      detail={[...typeFigures, corridorStats.data && t('map.newThisWeek', { count: corridorStats.data.newThisWeek })].filter(Boolean).join(' · ')}
       onClick={openCorridors}
     />
   )

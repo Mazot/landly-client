@@ -297,10 +297,6 @@
     "corridorPlaces_few": "{{count}} місця",
     "corridorPlaces_many": "{{count}} місць",
     "corridorPlaces_other": "{{count}} місця",
-    "embassies_one": "{{count}} посольство",
-    "embassies_few": "{{count}} посольства",
-    "embassies_many": "{{count}} посольств",
-    "embassies_other": "{{count}} посольства",
     "newThisWeek": "{{count}} нових за тиждень"
   },
   "filters": {
@@ -318,9 +314,6 @@
     "confirmedThisMonth": "Підтверджено цього місяця",
     "rated": "Рейтинг 4.5+",
     "addedBy": "Ким додано",
-    "cost": "Вартість",
-    "free": "Безкоштовно",
-    "paidService": "Платна послуга",
     "any": "Будь-яка",
     "distanceFrom": "Відстань від {{city}}",
     "withinCity": "У межах міста",
@@ -328,16 +321,9 @@
     "km": "{{km}} км",
     "reset": "Скинути",
     "addMore": "+ додати",
-    "lang": {
-      "russian": "Російська",
-      "ukrainian": "Українська",
-      "english": "Англійська",
-      "german": "Німецька"
-    },
     "subtitle": "Застосовується до мапи та списку",
     "minRating": "Мінімальний рейтинг",
     "anyone": "Будь-хто",
-    "paid": "Платно",
     "show": "Показати місця",
     "showNone": "Нічого не знайдено",
     "showPlaces_one": "Показати {{count}} місце",
