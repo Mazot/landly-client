@@ -49,6 +49,24 @@ describe('App routes', () => {
     }
   })
 
+  it('/add and /add/sent/{id} need an account: a guest is sent to sign in', async () => {
+    capture('get', '/api/common/countries', [])
+    for (const route of ['/add', '/add/sent/some-id']) {
+      const { unmount } = renderApp(<App />, { route })
+      expect(await screen.findByText('Welcome back')).toBeInTheDocument()
+      unmount()
+    }
+  })
+
+  it('/add is the add-a-place screen for a signed-in user', async () => {
+    useAuthStore.getState().setAuth(authUser())
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    capture('get', '/api/corridor/list', { items: [], total: 0 })
+    renderApp(<App />, { route: '/add' })
+    expect(await screen.findByRole('heading', { name: 'Add a place' })).toBeInTheDocument()
+  })
+
   it('renders nothing for routes that are not built yet (claim links, unknown paths)', () => {
     for (const route of ['/claim/token', '/nope']) {
       const { container, unmount } = renderApp(<App />, { route })

@@ -1,6 +1,6 @@
 import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { describe, expect, it } from 'vitest'
-import { apiErrorConstraint, apiErrorMessage, apiErrorStatus } from '../errors'
+import { apiErrorBodyText, apiErrorConstraint, apiErrorMessage, apiErrorStatus } from '../errors'
 
 const httpError = (status: number, data: unknown, message = 'Request failed') =>
   new AxiosError(message, 'ERR_BAD_RESPONSE', undefined, undefined, {
@@ -55,5 +55,19 @@ describe('apiErrorConstraint', () => {
     expect(apiErrorConstraint(httpError(500, 'Internal Server Error'))).toBeUndefined()
     expect(apiErrorConstraint(httpError(422, { error: 'bad' }))).toBeUndefined()
     expect(apiErrorConstraint(new Error('boom'))).toBeUndefined()
+  })
+})
+
+describe('apiErrorBodyText', () => {
+  it("returns only the server's own `{ error }` text", () => {
+    expect(apiErrorBodyText(httpError(422, { error: 'name must be at most 200 characters' }))).toBe('name must be at most 200 characters')
+  })
+
+  it('is undefined without one — never the axios message', () => {
+    expect(apiErrorBodyText(httpError(422, {}, 'Request failed with status code 422'))).toBeUndefined()
+    expect(apiErrorBodyText(httpError(422, { error: '' }))).toBeUndefined()
+    expect(apiErrorBodyText(httpError(500, 'Internal Server Error'))).toBeUndefined()
+    expect(apiErrorBodyText(httpError(500, null))).toBeUndefined()
+    expect(apiErrorBodyText(new Error('boom'))).toBeUndefined()
   })
 })

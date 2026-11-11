@@ -88,4 +88,6 @@ export const queryKeys = {
 
   /** Live Google Places data (never sent to the server). */
   googlePlace: (placeId: string, fields: readonly string[]) => ['google-place', placeId, fields] as const,
+  /** Google Places Autocomplete suggestions (session-billed, never cached long). */
+  googleSuggestions: (input: string, bias: unknown) => ['google-suggestions', input, bias] as const,
 }

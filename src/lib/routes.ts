@@ -10,4 +10,6 @@ export const ROUTES = {
   saved: '/saved',
   account: '/account',
   add: '/add',
+  /** `/add/sent/{organisationId}` — the place was submitted. */
+  addSent: '/add/sent',
 } as const

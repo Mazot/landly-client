@@ -94,6 +94,14 @@ describe('List / ToggleRow', () => {
     expect(screen.getByText('+49 157')).toBeInTheDocument()
   })
 
+  it('ToggleRow puts extra controls before its switch, which can be named apart from the title', async () => {
+    const onChange = vi.fn()
+    render(<ToggleRow title="Mon" switchLabel="Open on Monday" checked extra={<input aria-label="Opens" />} onChange={onChange} />)
+    expect(screen.getByRole('textbox', { name: 'Opens' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('switch', { name: 'Open on Monday' }))
+    expect(onChange).toHaveBeenCalledWith(false)
+  })
+
   it('ToggleRow without description', () => {
     render(<ToggleRow title="Allow reviews" defaultChecked />)
     expect(screen.getByRole('switch')).toHaveAttribute('aria-checked', 'true')

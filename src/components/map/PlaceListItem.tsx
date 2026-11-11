@@ -4,25 +4,29 @@ import { Avatar, colors, IconButton, ListItem, Meta, OpenStatus, Rating, TypeTag
 import { formatInterval, hoursToday } from '@/lib/openingHours'
 import type { Organisation, OrganisationType } from '@/types/api'
 
-export interface PlaceListItemProps {
-  place: Organisation
+/** What a row shows of a place: a search result, or the draft of the add-a-place preview. */
+export type PlaceRow = Pick<Organisation, 'name' | 'verified' | 'ratingAvg' | 'reviewsCount' | 'distanceKm' | 'city' | 'openingHours' | 'timezone' | 'openNow'>
+
+export interface PlaceListItemProps<P extends PlaceRow = Organisation> {
+  place: P
   /** The place's organisation type, when it has one. */
   type?: OrganisationType
   /** The place whose pin is selected on the map. */
   active: boolean
   /** Tighter row for tablet and phone. */
   compact: boolean
-  onSelect: (place: Organisation) => void
+  /** Makes the row a button (the map list); without it the row only shows the place (a preview). */
+  onSelect?: (place: P) => void
   /** Bookmark state; `undefined` hides the bookmark (guests cannot save). */
   saved?: boolean
-  onToggleSaved?: (place: Organisation) => void
+  onToggleSaved?: (place: P) => void
 }
 
 /** Distance is shown up to 50 km, farther away the city says more. */
 const NEAR_KM = 50
 
 /** One place in the map results: avatar, name, type, rating, distance or city, today's hours, bookmark. */
-export function PlaceListItem({ place, type, active, compact, onSelect, saved, onToggleSaved }: PlaceListItemProps) {
+export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, active, compact, onSelect, saved, onToggleSaved }: PlaceListItemProps<P>) {
   const { t } = useTranslation()
   const row = useRef<HTMLDivElement>(null)
   // A place picked on the map comes into view in the list.
@@ -53,7 +57,7 @@ export function PlaceListItem({ place, type, active, compact, onSelect, saved, o
         // Room for the bookmark, which sits above the row (a button inside a button row is not valid).
         trailing={onToggleSaved ? <span aria-hidden="true" className="size-9" /> : undefined}
         active={active}
-        onClick={() => onSelect(place)}
+        onClick={onSelect && (() => onSelect(place))}
       />
       {onToggleSaved && (
         <IconButton
