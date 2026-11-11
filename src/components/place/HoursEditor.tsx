@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { List, TextField, ToggleRow } from '@/components/ui'
-import { hoursToCopy, isValidInterval, weekdayLabels, type DayHours } from '@/lib/placeDraft'
+import { hoursToCopy, isOvernight, isValidInterval, weekdayLabels, type DayHours } from '@/lib/placeDraft'
 import { WEEKDAYS, type Weekday } from '@/types/api'
 
 export interface HoursEditorProps {
@@ -10,8 +10,8 @@ export interface HoursEditorProps {
 
 /**
  * The week, one row a day: open / closed, and the opening and closing times of an open day.
- * Switching a day on copies the hours of the nearest open day before it. Day names come from Intl
- * in the UI language.
+ * Switching a day on copies the hours of the nearest open day before it; a closing time earlier
+ * than the opening one is after midnight ("closes the next day"). Day names come from Intl in the UI language.
  */
 export function HoursEditor({ value, onChange }: HoursEditorProps) {
   const { t, i18n } = useTranslation()
@@ -30,7 +30,7 @@ export function HoursEditor({ value, onChange }: HoursEditorProps) {
             switchLabel={t('addPlace.hours.openOn', { day: labels[day] })}
             checked={!!interval}
             onChange={(open) => set(day, open ? hoursToCopy(value, day) : null)}
-            description={interval ? undefined : t('addPlace.hours.closed')}
+            description={!interval ? t('addPlace.hours.closed') : isOvernight(interval) ? t('addPlace.hours.nextDay') : undefined}
             extra={
               interval && (
                 <>

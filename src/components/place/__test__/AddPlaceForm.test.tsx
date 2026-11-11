@@ -84,6 +84,10 @@ describe('AddPlaceForm', () => {
     await userEvent.click(screen.getByRole('switch', { name: 'Open on Mon' }))
     fireEvent.change(screen.getByLabelText('Mon opens at'), { target: { value: '08:00' } })
     fireEvent.change(screen.getByLabelText('Mon closes at'), { target: { value: '20:00' } })
+    // Friday runs past midnight: it is sent split, the night on Saturday.
+    await userEvent.click(screen.getByRole('switch', { name: 'Open on Fri' }))
+    fireEvent.change(screen.getByLabelText('Fri opens at'), { target: { value: '18:00' } })
+    fireEvent.change(screen.getByLabelText('Fri closes at'), { target: { value: '02:00' } })
     await submit()
 
     await waitFor(() => expect(created).toHaveLength(1))
@@ -93,7 +97,7 @@ describe('AddPlaceForm', () => {
       tel: '+381 11 555',
       services: ['Groceries'],
       languages: ['Serbian'],
-      opening_hours: { mon: [['08:00', '20:00']] },
+      opening_hours: { mon: [['08:00', '20:00']], fri: [['18:00', '24:00']], sat: [['00:00', '02:00']] },
       location_country_id: serbia.id,
       founder_country_id: russia.id,
       latitude: 44.8198,
@@ -169,7 +173,7 @@ describe('AddPlaceForm', () => {
     await userEvent.click(screen.getByRole('switch', { name: 'Open on Mon' }))
     expect(screen.queryByText(/Check the hours/)).not.toBeInTheDocument()
     await submit()
-    expect(await screen.findByText('Check the hours: each open day needs an opening time before its closing time')).toBeInTheDocument()
+    expect(await screen.findByText("Check the hours: each open day needs an opening and a closing time, and they can't be the same")).toBeInTheDocument()
   })
 
   it.each([

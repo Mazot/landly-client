@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -51,9 +51,11 @@ describe('GooglePlaceSearch', () => {
     await userEvent.type(input, 'Ka')
     expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).not.toHaveBeenCalled()
     await userEvent.type(input, 'lemegdan')
+    // The input is deferred: wait for the request with the whole text before picking.
+    await waitFor(() =>
+      expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).toHaveBeenLastCalledWith(expect.objectContaining({ input: 'Kalemegdan', locationBias: bias, sessionToken: expect.any(places.AutocompleteSessionToken) })),
+    )
     await userEvent.click(await screen.findByRole('button', { name: /Kalemegdan/ }))
-
-    expect(places.AutocompleteSuggestion.fetchAutocompleteSuggestions).toHaveBeenLastCalledWith(expect.objectContaining({ input: 'Kalemegdan', locationBias: bias, sessionToken: expect.any(places.AutocompleteSessionToken) }))
     expect(onPick).toHaveBeenCalledWith({ placeId: 'ChIJ1', lat: 44.82, lng: 20.45 })
     expect(input).toHaveValue('')
     expect(screen.queryByRole('list')).not.toBeInTheDocument()

@@ -628,7 +628,8 @@
       "closes": "{{day}} closes at",
       "closed": "Closed",
       "timezone": "Time zone: {{zone}} — used to show “Open now”",
-      "timezoneLater": "The time zone is taken from the pin — it is used to show “Open now”"
+      "timezoneLater": "The time zone is taken from the pin — it is used to show “Open now”",
+      "nextDay": "Closes the next day"
     },
     "duplicate": {
       "title": "A place with a similar name is {{distance}} km away",
@@ -646,7 +647,7 @@
       "tagTooLong": "One of the entries is too long",
       "tooManyTags": "Too many entries",
       "email": "Enter a valid email",
-      "hours": "Check the hours: each open day needs an opening time before its closing time",
+      "hours": "Check the hours: each open day needs an opening and a closing time, and they can't be the same",
       "location": "Set the pin on the map or pick the place on Google Maps",
       "quota": "You've submitted a lot of places — wait until moderators review them, or try again tomorrow.",
       "googleDown": "Google Maps is unavailable right now. Try again in a minute.",

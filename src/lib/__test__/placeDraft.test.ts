@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { emptyHours, hoursToCopy, isValidInterval, searchTextFromMapsLink, toCreateRequest, toOpeningHours, weekdayLabels, type PlaceFormValues } from '../placeDraft'
+import { emptyHours, hoursToCopy, isOvernight, isValidInterval, searchTextFromMapsLink, toCreateRequest, toOpeningHours, weekdayLabels, type PlaceFormValues } from '../placeDraft'
 
 const values = (over: Partial<PlaceFormValues> = {}): PlaceFormValues => ({
   name: '  Kyiv Coffee ',
@@ -38,13 +38,32 @@ describe('hours', () => {
     expect(hoursToCopy(hours, 'tue')).not.toBe(hours.mon)
   })
 
-  it('accepts complete intervals that open before they close; 00:00 closes at midnight', () => {
+  it('accepts complete intervals with two different times — past midnight too; 00:00 closes at midnight', () => {
     expect(isValidInterval(['09:00', '18:00'])).toBe(true)
     expect(isValidInterval(['20:00', '00:00'])).toBe(true)
-    expect(isValidInterval(['18:00', '09:00'])).toBe(false)
+    expect(isValidInterval(['18:00', '02:00'])).toBe(true)
+    expect(isValidInterval(['00:00', '00:00'])).toBe(true)
     expect(isValidInterval(['09:00', '09:00'])).toBe(false)
     expect(isValidInterval(['', '18:00'])).toBe(false)
     expect(isValidInterval(['09:00', ''])).toBe(false)
+  })
+
+  it('knows an interval that closes after midnight', () => {
+    expect(isOvernight(['18:00', '02:00'])).toBe(true)
+    expect(isOvernight(['18:00', '00:00'])).toBe(false)
+    expect(isOvernight(['09:00', '18:00'])).toBe(false)
+    expect(isOvernight(['18:00', ''])).toBe(false)
+  })
+
+  it('splits a night at midnight into the next day — Sunday into Monday — keeping each day in order', () => {
+    expect(
+      toOpeningHours({ ...emptyHours(), mon: ['18:00', '02:00'], tue: ['12:00', '15:00'], sun: ['22:00', '04:00'] }),
+    ).toEqual({
+      mon: [['00:00', '04:00'], ['18:00', '24:00']],
+      tue: [['00:00', '02:00'], ['12:00', '15:00']],
+      sun: [['22:00', '24:00']],
+    })
+    expect(toOpeningHours({ ...emptyHours(), fri: ['00:00', '00:00'] })).toEqual({ fri: [['00:00', '24:00']] })
   })
 
   it('sends the open days only, a midnight close as 24:00, and nothing without an open day', () => {

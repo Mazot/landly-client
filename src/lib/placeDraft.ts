@@ -53,15 +53,32 @@ export function hoursToCopy(hours: Record<Weekday, DayHours>, day: Weekday): Ope
 /** A time input cannot say 24:00: a day that closes at 00:00 closes at midnight. */
 const closing = (close: string) => (close === '00:00' ? '24:00' : close)
 
-/** Whether a day's interval is complete and opens before it closes. */
-export const isValidInterval = ([open, close]: OpeningInterval) => !!open && !!close && open < closing(close)
+/**
+ * Whether a day's interval is complete and closes at another time than it opens. A close earlier
+ * than the open is past midnight (a bar open 18:00–02:00); 00:00–00:00 is round the clock.
+ */
+export const isValidInterval = ([open, close]: OpeningInterval) => !!open && !!close && closing(close) !== open
 
-/** The open days as the server stores them; `undefined` when no day is open (hours unknown). */
+/** Whether a (valid) interval closes after midnight, on the next day. */
+export const isOvernight = ([open, close]: OpeningInterval) => !!open && !!close && closing(close) < open
+
+/**
+ * The open days as the server stores them (each interval within one day, open before close):
+ * an overnight interval is split at midnight — Monday 18:00–02:00 is Monday 18:00–24:00 and
+ * Tuesday 00:00–02:00 (Sunday's night goes on Monday). `undefined` when no day is open.
+ */
 export function toOpeningHours(hours: Record<Weekday, DayHours>): OpeningHours | undefined {
-  const open = WEEKDAYS.flatMap((day) => {
+  const days: Partial<Record<Weekday, OpeningInterval[]>> = {}
+  const add = (day: Weekday, interval: OpeningInterval) => (days[day] ??= []).push(interval)
+  WEEKDAYS.forEach((day, index) => {
     const interval = hours[day]
-    return interval ? [[day, [[interval[0], closing(interval[1])]]] as const] : []
+    if (!interval) return
+    const [open, close] = interval
+    if (!isOvernight(interval)) return add(day, [open, closing(close)])
+    add(day, [open, '24:00'])
+    add(WEEKDAYS[(index + 1) % WEEKDAYS.length], ['00:00', close])
   })
+  const open = WEEKDAYS.flatMap((day) => (days[day] ? [[day, days[day].sort((a, b) => a[0].localeCompare(b[0]))] as const] : []))
   return open.length ? Object.fromEntries(open) : undefined
 }
 

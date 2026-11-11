@@ -48,8 +48,10 @@ describe('HoursEditor', () => {
     expect(screen.queryByLabelText('Mon opens at')).not.toBeInTheDocument()
   })
 
-  it('marks a day that closes before it opens', () => {
-    renderApp(<Hours initial={{ ...emptyHours(), mon: ['18:00', '09:00'], tue: ['09:00', ''] }} />)
+  it('marks a day that closes when it opens, and says when a day closes after midnight', () => {
+    renderApp(<Hours initial={{ ...emptyHours(), mon: ['09:00', '09:00'], tue: ['09:00', ''], wed: ['18:00', '02:00'] }} />)
+    expect(screen.getByText('Closes the next day')).toBeInTheDocument()
+    expect(screen.getByLabelText('Wed closes at')).not.toHaveAttribute('aria-invalid')
     expect(screen.getByLabelText('Mon opens at')).toHaveAttribute('aria-invalid', 'true')
     expect(screen.getByLabelText('Mon closes at')).toHaveAttribute('aria-invalid', 'true')
     // An unfinished day is not wrong yet.
