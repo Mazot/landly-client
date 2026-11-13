@@ -121,47 +121,6 @@
   "common": {
     "cancel": "Cancel"
   },
-  "createOrg": {
-    "titleDetails": "Create Organization",
-    "subtitleDetails": "Fill in the basic details about the organization",
-    "titleImages": "Add Photos",
-    "subtitleImages": "Upload photos for the organization (optional)",
-    "stepDetails": "Details",
-    "stepImages": "Photos",
-    "name": "Name",
-    "namePlaceholder": "Organization name",
-    "description": "Description",
-    "descriptionPlaceholder": "Brief description of the organization",
-    "address": "Address",
-    "addressPlaceholder": "Street, city, country",
-    "tel": "Phone",
-    "email": "Email",
-    "latitude": "Latitude",
-    "longitude": "Longitude",
-    "orgType": "Organization Type",
-    "selectType": "Select type",
-    "locationCountry": "Location Country",
-    "founderCountry": "Origin Country",
-    "searchCountry": "Search country...",
-    "selectCountry": "Select country",
-    "nextStep": "Next: Add Photos →",
-    "creating": "Creating...",
-    "createError": "Failed to create organization. Please try again.",
-    "dropZoneTitle": "Drag & drop images here or click to browse",
-    "dropZoneSubtitle": "PNG, JPG, WEBP up to 10 MB each",
-    "primary": "★ Primary",
-    "setPrimary": "Set as primary",
-    "skip": "Skip & Finish",
-    "uploading": "Uploading...",
-    "uploadAndFinish": "Upload {{count}} photo(s) & Finish",
-    "uploadError": "Upload failed",
-    "errors": {
-      "nameRequired": "Name is required",
-      "invalidEmail": "Invalid email address",
-      "invalidLatitude": "Latitude must be between -90 and 90",
-      "invalidLongitude": "Longitude must be between -180 and 180"
-    }
-  },
   "ui": {
     "continueGoogle": "Continue with Google",
     "continueApple": "Continue with Apple",
@@ -613,6 +572,108 @@
     "errors": {
       "exists": "You already have this corridor.",
       "generic": "The corridor could not be added. Try again."
+    }
+  },
+  "addPlace": {
+    "eyebrow": "New organization",
+    "title": "Add a place",
+    "lede": "New places appear on the map right away, marked as pending review until a moderator checks them — usually within a day.",
+    "loading": "Loading…",
+    "submit": "Submit for review",
+    "photosLater": "You can add photos right after submitting.",
+    "add": "Add",
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "from": "Community from",
+      "to": "Located in",
+      "address": "Address",
+      "tel": "Phone",
+      "email": "Email",
+      "website": "Website",
+      "description": "Description",
+      "services": "Services",
+      "languages": "Languages spoken",
+      "hours": "Opening hours"
+    },
+    "placeholders": {
+      "name": "e.g. Kyiv Coffee Kreuzberg",
+      "address": "Street, house number, city"
+    },
+    "google": {
+      "title": "Find it on Google Maps",
+      "hint": "Search by name or address, or paste a Google Maps link — it sets the pin and links the Google listing.",
+      "search": "Search Google Maps",
+      "placeholder": "Name, address or maps.google.com/…",
+      "failed": "Google Maps didn't answer. Set the pin on the map instead.",
+      "suggestions": "Places on Google Maps",
+      "linked": "Linked to Google Maps",
+      "unlink": "Unlink"
+    },
+    "location": {
+      "hint": "Tap the map to set the pin, drag it if the location is off",
+      "pin": "The place"
+    },
+    "services": {
+      "hint": "Press Enter to add",
+      "placeholder": "e.g. Breakfast"
+    },
+    "languages": {
+      "other": "Another language…"
+    },
+    "hours": {
+      "label": "Opening days",
+      "openOn": "Open on {{day}}",
+      "opens": "{{day}} opens at",
+      "closes": "{{day}} closes at",
+      "closed": "Closed",
+      "timezone": "Time zone: {{zone}} — used to show “Open now”",
+      "timezoneLater": "The time zone is taken from the pin — it is used to show “Open now”",
+      "nextDay": "Closes the next day"
+    },
+    "duplicate": {
+      "title": "A place with a similar name is {{distance}} km away",
+      "different": "It's different",
+      "hint": "If it's the same place, there's no need to add it again — moderators check for duplicates anyway."
+    },
+    "preview": {
+      "untitled": "New place"
+    },
+    "errors": {
+      "nameRequired": "Enter the name of the place",
+      "typeRequired": "Choose a type",
+      "countryRequired": "Choose a country",
+      "tooLong": "This is too long",
+      "tagTooLong": "One of the entries is too long",
+      "tooManyTags": "Too many entries",
+      "email": "Enter a valid email",
+      "hours": "Check the hours: each open day needs an opening and a closing time, and they can't be the same",
+      "location": "Set the pin on the map or pick the place on Google Maps",
+      "quota": "You've submitted a lot of places — wait until moderators review them, or try again tomorrow.",
+      "googleDown": "Google Maps is unavailable right now. Try again in a minute.",
+      "googleTaken": "This Google Maps place is already on Landly.",
+      "generic": "Couldn't submit the place. Please try again."
+    },
+    "sent": {
+      "title": "Sent for review",
+      "lede": "<b>{{name}}</b> is already on the map, marked as pending review until a moderator approves it.",
+      "steps": {
+        "submitted": "Submitted",
+        "submittedHint": "Status: pending",
+        "review": "Moderator review",
+        "reviewHint": "Automatic checks: nearby duplicates, phone format",
+        "live": "Approved",
+        "liveHint": "The “Pending review” mark goes away once a moderator approves it"
+      },
+      "uploaded_one": "{{count}} photo added",
+      "uploaded_other": "{{count}} photos added",
+      "rejected_one": "{{count}} photo couldn't be added",
+      "rejected_other": "{{count}} photos couldn't be added",
+      "addPhotos": "Add photos",
+      "backToMap": "Back to the map",
+      "editNote": "Editing a place after it goes live sends it back to review.",
+      "notYours": "Nothing to show here",
+      "notYoursHint": "This page is for a place you have just submitted."
     }
   }
 }

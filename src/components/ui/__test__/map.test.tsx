@@ -41,6 +41,15 @@ describe('MapPin', () => {
     expect(pin).not.toHaveAttribute('style')
   })
 
+  it('is muted, and says so, while the place waits for moderation', () => {
+    const { rerender } = render(<MapPin slug="business" label="Neka" />)
+    expect(screen.getByRole('img', { name: 'Neka' })).not.toHaveClass('brightness-75')
+    rerender(<MapPin slug="business" label="Neka" pending />)
+    const pin = screen.getByRole('img', { name: 'Neka · Pending review' })
+    // Still the type's colour, darker and duller.
+    expect(pin).toHaveClass('bg-type-business', 'brightness-75', 'saturate-50')
+  })
+
   it('grows with a ring when selected', () => {
     const { rerender } = render(<MapPin slug="helper" label="Helper" />)
     expect(screen.getByRole('img')).not.toHaveClass('scale-150')

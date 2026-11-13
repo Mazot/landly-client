@@ -5,6 +5,7 @@ import { organisationApi } from '@/services/organisation.service'
 import type {
   CheckinRequest,
   CreateOrganisationRequest,
+  FindDuplicatesQuery,
   Organisation,
   OrganisationsListQuery,
   SearchOrganisationsQuery,
@@ -28,6 +29,19 @@ export const useSearchOrganisations = (query: SearchOrganisationsQuery | undefin
     queryFn: () => organisationApi.search(query!),
     enabled: !!query,
     placeholderData: keepPreviousData,
+  })
+
+/**
+ * Live places like the one being added (same spot, like name). Pass `undefined` until there
+ * are a name and a point; the answer for the previous name stays while the next loads.
+ */
+export const useDuplicates = (query: FindDuplicatesQuery | undefined) =>
+  useQuery({
+    queryKey: queryKeys.organisations.duplicates(query ?? { name: '', lat: 0, lng: 0 }),
+    queryFn: () => organisationApi.duplicates(query!),
+    enabled: !!query,
+    placeholderData: keepPreviousData,
+    select: (answer) => answer.items,
   })
 
 export const useOrganisation = (id: Uuid | undefined) =>

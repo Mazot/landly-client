@@ -52,7 +52,7 @@ Everything `VITE_*` ends up in the public bundle — never put server secrets he
 
 ## Status
 
-The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`). Screens are rebuilt one design section at a time (design: "Landly v3 (API-aligned)"); done so far: **1 · Sign in & Sign up** — the guest landing (`/`), `/signin`, `/signup` (two steps; all three under `GuestOnly`, which sends a signed-in user to `/map`) and the Google callback (`/auth/google/callback`); and **2 · Map** (design states: Map, Filters, Corridors, each on desktop / tablet / phone) — `/map` (`MapPage`, public: guests browse too, a signed-in user lands here) inside `AppShell` (top bar with the corridor pill and sections from `md`, bottom tab bar on phones), the filters sheet and the corridor picker. Not built yet: place detail (compact panel / full page), people, countries, saved, account and add-a-place screens (their routes in `ROUTES` exist, the pages do not), and a server-side text search (the search box filters the places in view by name, city, address and services client-side — `GET /organisation/search` has no text parameter). The data layer is complete and mirrors the current landly-server. Translation files still hold some copy of the old screens (`header`, `home`, …); the new screens use the `landing`, `auth`, `corridor` and `language` keys.
+The design system is in `src/components/ui` (tokens, components, constants, `ui` i18n namespace — see its `README.md`). Screens are rebuilt one design section at a time (design: "Landly v3 (API-aligned)"); done so far: **1 · Sign in & Sign up** — the guest landing (`/`), `/signin`, `/signup` (two steps; all three under `GuestOnly`, which sends a signed-in user to `/map`) and the Google callback (`/auth/google/callback`); and **2 · Map** (design states: Map, Filters, Corridors, each on desktop / tablet / phone) — `/map` (`MapPage`, public: guests browse too, a signed-in user lands here) inside `AppShell` (top bar with the corridor pill and sections from `md`, bottom tab bar on phones), the filters sheet and the corridor picker — the map shows places waiting for moderation too (`status: 'pending'` from `GET /organisation/search`): their pin is the type's colour muted (`MapPin pending`) and their row carries a "Pending review" `StatusBadge`; and **7 · Add organization** — `/add` (`AddPlacePage`, form in `components/place/`) and `/add/sent/{id}` (`AddPlaceSentPage`: what happens next + photo upload), both under `RequireAuth` (a guest is sent to `/signin`). The form takes the point from a Google Maps pick (only the place id and its point are sent — Google's name, address, phone and hours are shown live, never copied into the form) or a pin on the map, the countries from the current corridor, languages from `GET /common/languages?country_ids=`, the time-zone hint from `GET /common/timezone`, and warns about like places nearby (`GET /organisation/duplicates`). Not built yet: place detail (compact panel / full page), people, countries, saved and account screens (their routes in `ROUTES` exist, the pages do not), and a server-side text search (the search box filters the places in view by name, city, address and services client-side — `GET /organisation/search` has no text parameter). The data layer is complete and mirrors the current landly-server. Translation files still hold some copy of the old screens (`header`, `home`, …); the new screens use the `landing`, `auth`, `corridor` and `language` keys.
 
 ## Documentation is part of every change
 
@@ -84,6 +84,17 @@ How:
 ## Library-first (skill `library-first`)
 
 Before writing code, follow `.claude/skills/library-first/SKILL.md`: use the functions the installed libraries and `src/lib` already provide (listed there, verified against the installed versions), re-check an API against the installed version before using it, and for new functionality install an npm package — TanStack first, versions at least 14 days old — instead of writing it. Keep its lists in sync when dependencies change.
+
+## No hardcoded data
+
+Nothing the app shows or sends is hardcoded in code:
+
+- **Domain data comes from the backend** — organisation types, countries, languages, corridors, counts, statuses, limits. Never inline a list of domain values (`['Ukrainian', 'Russian']`, `['embassy', …]`, `'Europe/Berlin'`) in a component, hook or service; derive it from an API response or from the contract constants in `src/types/api` (which mirror the server's enums and limits and are guarded by the contract tests). If the backend has no source for something the UI needs, add one there (an endpoint or a field) instead of a client-side copy.
+- **Text goes through i18n** (`t('…')`, keys in all three locales); **configuration** through env (`import.meta.env.VITE_*`) or a named constant in `src/lib` that says what it is and why.
+- **Design values** come from DS tokens and components, never raw colours/sizes.
+- Test data lives in `src/test/factories.ts` and test files only.
+
+A design mock's sample content (names, addresses, hours, chips) is an example of the shape, not data to copy.
 
 ## UI: design system, mobile-first (skill `design-system`)
 
@@ -146,7 +157,7 @@ Source of truth is the server's OpenAPI spec (`/api-docs/openapi.json`; per-feat
 
 ### Authentication
 
-`authStore` keeps the JWT in `localStorage`; the axios request interceptor adds `Authorization: Bearer`. Sessions start and end only through `lib/session.ts` (`startSession` / `endSession`), which also clears the React Query cache (`lib/queryClient.ts`) — disabled queries would otherwise keep serving the previous account's data. A 401 on a request that carried the token calls `endSession` (no redirect — screens decide). The user id is never sent in bodies: the server takes it from the token.
+`authStore` keeps the JWT in `localStorage`; the axios request interceptor adds `Authorization: Bearer`. Sessions start and end only through `lib/session.ts` (`startSession` / `endSession`), which also clears the React Query cache (`lib/queryClient.ts`) — disabled queries would otherwise keep serving the previous account's data. A 401 on a request that carried the token calls `endSession` (no redirect — screens decide). Screens that need an account sit under the `RequireAuth` layout route (`components/auth/RequireAuth.tsx`). The user id is never sent in bodies: the server takes it from the token.
 
 Screens: `/signin` (`SignInForm`) and `/signup` sit under `GuestOnly`, which sends a signed-in user to `ROUTES.map`. Sign-up is two steps on one URL held in `SignUpPage` state — step 1 (username, email, password; validated by `components/auth/schemas.ts`, which mirrors `user/entities.rs`) and step 2 (corridor, name, "I'm here as", language, avatar colour; all optional) — and **one** `POST /api/user/signup` after step 2 ("Skip for now" sends just the account + the UI locale). The password never leaves the component's state. Step 2 stays mounted (only hidden) once reached, so its draft — including the corridor draft — survives the round trip to step 1 after a taken username/email; "Back" and "Skip" are ignored while the request is running, so a second account cannot be started. Length rules count Unicode code points like the server (`chars` in `components/auth/schemas.ts`). The corridor sent is the guest corridor (`useGuestCorridor`: `corridorStore` resolved against `useAllCountries`, default Russia → Germany); `home_country_id` is set to the "from" country. Username/email are only checked by the server: a 422 whose `constraint` is in `SIGNUP_CONFLICT_CONSTRAINTS` sends the user back to step 1 with the field marked; sign-in shows one message for a 401 (unknown email and wrong password are indistinguishable). Messages are translated client-side (`auth.errors.*`), never the server's English text. The landing's "Open the map · N places" and type breakdown come from the public `GET /api/common/countries/{id}` (`useCountry`) — `/corridor/stats` needs a session.
 
@@ -164,7 +175,7 @@ Google's terms: only `google_place_id` (and a refreshable point) is stored serve
 
 ### API proxy
 
-In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localhost:8080`). Note that the axios base URL is `VITE_API_URL` itself, so with it set requests go to the server directly and its CORS (`FRONTEND_ORIGIN`) applies.
+In development, Vite proxies `/api/*` to `VITE_API_URL` (default `http://localhost:8080`). Note that the axios base URL is `VITE_API_URL` itself, so with it set requests go to the server directly and its CORS (`FRONTEND_ORIGIN`) applies. `apiClient` sets no default `Content-Type` (axios adds `application/json` to JSON bodies), so anonymous GETs stay CORS-simple — no preflight.
 
 ### Adding a new page
 

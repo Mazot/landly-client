@@ -1,6 +1,7 @@
 import type {
   CountriesQuery,
   CountryConnectionsQuery,
+  FindDuplicatesQuery,
   LanguagesQuery,
   ModerationQueueQuery,
   OrganisationsListQuery,
@@ -9,6 +10,7 @@ import type {
   ReviewsListQuery,
   SavedListQuery,
   SearchOrganisationsQuery,
+  TimeZoneQuery,
   Uuid,
 } from '@/types/api'
 
@@ -32,11 +34,13 @@ export const queryKeys = {
   },
   organisationTypes: ['organisation-types'] as const,
   languages: (query?: LanguagesQuery) => ['languages', query ?? {}] as const,
+  timeZone: (point: TimeZoneQuery) => ['time-zone', point.lat, point.lng] as const,
 
   organisations: {
     all: ['organisations'] as const,
     list: (query?: OrganisationsListQuery) => ['organisations', 'list', query ?? {}] as const,
     search: (query: SearchOrganisationsQuery) => ['organisations', 'search', query] as const,
+    duplicates: (query: FindDuplicatesQuery) => ['organisations', 'duplicates', query] as const,
     detail: (id: Uuid) => ['organisations', 'detail', id] as const,
   },
   images: {
@@ -84,4 +88,6 @@ export const queryKeys = {
 
   /** Live Google Places data (never sent to the server). */
   googlePlace: (placeId: string, fields: readonly string[]) => ['google-place', placeId, fields] as const,
+  /** Google Places Autocomplete suggestions (session-billed, never cached long). */
+  googleSuggestions: (input: string, bias: unknown) => ['google-suggestions', input, bias] as const,
 }

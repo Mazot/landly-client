@@ -15,6 +15,13 @@ export function apiErrorMessage(error: unknown): string | undefined {
   return error.message
 }
 
+/** The server's own message (`{ "error": "…" }`), without falling back to the HTTP library's text. */
+export function apiErrorBodyText(error: unknown): string | undefined {
+  if (!axios.isAxiosError<ApiErrorBody>(error)) return undefined
+  const body = error.response?.data
+  return body && typeof body === 'object' && typeof body.error === 'string' && body.error ? body.error : undefined
+}
+
 /** DB constraint name of a 422 caused by a unique/FK/CHECK violation. */
 export function apiErrorConstraint(error: unknown): string | undefined {
   if (!axios.isAxiosError<ApiErrorBody>(error)) return undefined

@@ -2,6 +2,7 @@ import apiClient from '@/lib/axios'
 import type {
   CheckinRequest,
   CreateOrganisationRequest,
+  FindDuplicatesQuery,
   ListResponse,
   Organisation,
   OrganisationsListQuery,
@@ -19,6 +20,10 @@ export const organisationApi = {
   /** Map search by bbox or origin. */
   search: async (query: SearchOrganisationsQuery): Promise<ListResponse<Organisation>> =>
     (await apiClient.get('/api/organisation/search', { params: query })).data,
+
+  /** Live places near a point with a like name — the add-a-place duplicate hint. */
+  duplicates: async (query: FindDuplicatesQuery): Promise<ListResponse<Organisation>> =>
+    (await apiClient.get('/api/organisation/duplicates', { params: query })).data,
 
   /** Detail payload, including `community` signals. */
   fetch: async (id: Uuid): Promise<Organisation> =>

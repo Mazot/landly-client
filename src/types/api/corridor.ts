@@ -22,7 +22,7 @@ export interface CreateCorridorRequest {
   is_default?: boolean
 }
 
-/** `GET /api/corridor/stats/{id}` — live places in the destination country. */
+/** `GET /api/corridor/stats/{id}` — the corridor's places on the map (live + pending): in the destination, founded from the origin. */
 export interface CorridorStats {
   corridorId: Uuid
   fromCountryId: Uuid

@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryKeys'
 import { commonApi } from '@/services/common.service'
-import type { CountriesQuery, CreateOrganisationTypeRequest, LanguagesQuery, Uuid } from '@/types/api'
+import type { CountriesQuery, CreateOrganisationTypeRequest, LanguagesQuery, TimeZoneQuery, Uuid } from '@/types/api'
 
 // The server clamps `offset` to 150 and `limit` to 250. Pages of 50 land
 // exactly on offset 150, and that last reachable page asks for the max limit,
@@ -78,6 +78,28 @@ export const useLanguages = (query: LanguagesQuery = { limit: LANGUAGES_MAX_LIMI
   useQuery({
     queryKey: queryKeys.languages(query),
     queryFn: () => commonApi.getLanguages(query),
+    staleTime: Infinity,
+  })
+
+/**
+ * The official languages of `countryIds` (a corridor's two countries); nothing is asked
+ * without a country.
+ */
+export const useCountryLanguages = (countryIds: Uuid[]) =>
+  useQuery({
+    queryKey: queryKeys.languages({ country_ids: countryIds, limit: LANGUAGES_MAX_LIMIT }),
+    queryFn: () => commonApi.getLanguages({ country_ids: countryIds, limit: LANGUAGES_MAX_LIMIT }),
+    enabled: countryIds.length > 0,
+    staleTime: Infinity,
+  })
+
+/** The IANA time zone of a point (`undefined` until there is one); a point's zone never changes. */
+export const useTimeZone = (point: TimeZoneQuery | undefined) =>
+  useQuery({
+    queryKey: queryKeys.timeZone(point ?? { lat: 0, lng: 0 }),
+    queryFn: () => commonApi.getTimeZone(point!),
+    enabled: !!point,
+    select: (answer) => answer.timezone,
     staleTime: Infinity,
   })
 

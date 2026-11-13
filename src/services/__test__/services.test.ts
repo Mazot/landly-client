@@ -31,6 +31,7 @@ interface Case {
 }
 
 const ID = '11111111-1111-4111-8111-111111111111'
+const ID2 = '22222222-2222-4222-8222-222222222222'
 const OK = { ok: true }
 
 const cases: Case[] = [
@@ -41,6 +42,8 @@ const cases: Case[] = [
   { name: 'common.getCountries', call: () => commonApi.getCountries({ name: 'ger', limit: 20, offset: 0, brief: true }), method: 'get', path: '/api/common/countries', query: { name: 'ger', limit: '20', offset: '0', brief: 'true' }, response: [OK] },
   { name: 'common.getCountry', call: () => commonApi.getCountry(ID), method: 'get', path: `/api/common/countries/${ID}`, response: OK },
   { name: 'common.getLanguages', call: () => commonApi.getLanguages({ limit: 500 }), method: 'get', path: '/api/common/languages', query: { limit: '500' }, response: [OK] },
+  { name: 'common.getLanguages (by country)', call: () => commonApi.getLanguages({ country_ids: [ID, ID2], limit: 500 }), method: 'get', path: '/api/common/languages', query: { country_ids: `${ID},${ID2}`, limit: '500' }, response: [OK] },
+  { name: 'common.getTimeZone', call: () => commonApi.getTimeZone({ lat: 44.8, lng: 20.46 }), method: 'get', path: '/api/common/timezone', query: { lat: '44.8', lng: '20.46' }, response: { timezone: 'Europe/Belgrade' } },
   { name: 'common.getOrganisationTypes', call: () => commonApi.getOrganisationTypes(), method: 'get', path: '/api/common/org_types', response: [OK] },
   { name: 'common.createOrganisationType', call: () => commonApi.createOrganisationType({ org_type: 'embassy', title: 'Embassy', color: '#4A6D8C' }), method: 'post', path: '/api/common/org_types', body: { org_type: 'embassy', title: 'Embassy', color: '#4A6D8C' }, response: OK },
 
@@ -48,6 +51,7 @@ const cases: Case[] = [
   { name: 'organisation.list', call: () => organisationApi.list({ name: 'emb', limit: 10 }), method: 'get', path: '/api/organisation/list', query: { name: 'emb', limit: '10' }, response: { items: [], total: 0 } },
   { name: 'organisation.search', call: () => organisationApi.search({ lat: 52.5, lng: 13.4, types: ['embassy', 'helper'], open_now: true, sort: 'nearest' }), method: 'get', path: '/api/organisation/search', query: { lat: '52.5', lng: '13.4', types: 'embassy,helper', open_now: 'true', sort: 'nearest' }, response: { items: [], total: 0 } },
   { name: 'organisation.fetch', call: () => organisationApi.fetch(ID), method: 'get', path: `/api/organisation/fetch/${ID}`, response: OK },
+  { name: 'organisation.duplicates', call: () => organisationApi.duplicates({ name: 'Kyiv Coffee', lat: 52.5, lng: 13.4 }), method: 'get', path: '/api/organisation/duplicates', query: { name: 'Kyiv Coffee', lat: '52.5', lng: '13.4' }, response: { items: [], total: 0 } },
   { name: 'organisation.create', call: () => organisationApi.create({ name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }), method: 'post', path: '/api/organisation/create', body: { name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }, response: OK },
   { name: 'organisation.update', call: () => organisationApi.update(ID, { name: 'Renamed' }), method: 'put', path: `/api/organisation/update/${ID}`, body: { name: 'Renamed' }, response: OK },
   { name: 'organisation.update (added_by)', call: () => organisationApi.update(ID, { added_by: 'community' }), method: 'put', path: `/api/organisation/update/${ID}`, body: { added_by: 'community' }, response: OK },
