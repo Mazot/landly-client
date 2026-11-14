@@ -48,3 +48,5 @@ export const FILTER_LIST_ITEMS_MAX = 20
 
 /** Largest page of the caller's own lists (`GET /organisation/mine`, `GET /person/mine`). */
 export const MINE_MAX_LIMIT = 100
+/** Their page size when `limit` is not sent. */
+export const MINE_DEFAULT_LIMIT = 20

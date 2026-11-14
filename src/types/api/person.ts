@@ -47,6 +47,8 @@ export interface MyPerson extends Person {
   moderationNote: string | null
   /** Last change: moderation, or the person answering the claim link. */
   updatedAt: ServerDateTime
+  /** `declined` because a moderator rejected it — not because the person turned the claim down. */
+  rejectedByModerator: boolean
 }
 
 /** `GET /api/person/mine` — newest first (limit default 20, max 100). */

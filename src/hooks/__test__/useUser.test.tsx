@@ -93,7 +93,7 @@ describe('user languages', () => {
     expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(false)
   })
 
-  it('useSaveProfile drops and adds languages, then stores the saved profile', async () => {
+  it('useSaveProfile saves the profile, then drops and adds languages', async () => {
     useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
     const saved = userProfile({ id: 'u1', city: 'Berlin' })
     const removed = capture('delete', '/api/user/languages', 'OK')
@@ -111,16 +111,31 @@ describe('user languages', () => {
     expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(true)
   })
 
-  it('useSaveProfile leaves the languages alone when none changed, and refreshes them even when the save fails', async () => {
+  it('useSaveProfile keeps the profile saved when a language change fails afterwards', async () => {
+    useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
+    const saved = userProfile({ id: 'u1', city: 'Berlin' })
+    capture('put', '/api/user/me', saved)
+    capture('post', '/api/user/languages', { error: 'boom' }, 500)
+    const { result, client } = renderQueryHook(() => useSaveProfile())
+
+    await act(() => result.current.mutateAsync({ profile: { city: 'Berlin' }, addLanguageIds: ['l2'], removeLanguageIds: [] }).catch(() => undefined))
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    expect(client.getQueryData(queryKeys.me)).toEqual(saved)
+  })
+
+  it('useSaveProfile changes no language when the profile is refused, and refreshes them anyway', async () => {
     useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
     const added = capture('post', '/api/user/languages', null)
+    const removed = capture('delete', '/api/user/languages', 'OK')
     capture('put', '/api/user/me', { error: 'boom' }, 500)
     const { result, client } = renderQueryHook(() => useSaveProfile())
     seed(client, queryKeys.userLanguages('u1'))
 
-    await act(() => result.current.mutateAsync({ profile: {}, addLanguageIds: [], removeLanguageIds: [] }).catch(() => undefined))
+    await act(() => result.current.mutateAsync({ profile: {}, addLanguageIds: ['l2'], removeLanguageIds: ['l1'] }).catch(() => undefined))
 
     expect(added).toHaveLength(0)
+    expect(removed).toHaveLength(0)
     expect(client.getQueryData(queryKeys.me)).toBeUndefined()
     expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(true)
   })

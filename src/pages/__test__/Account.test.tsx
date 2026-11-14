@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { delay, http } from 'msw'
+import { delay, http, HttpResponse } from 'msw'
 import { beforeEach, describe, expect, it } from 'vitest'
 import i18n from '@/i18n'
 import { useAuthStore } from '@/stores/authStore'
@@ -9,7 +9,7 @@ import { authUser, corridor, country, list, organisation, person, userProfile } 
 import { renderApp } from '@/test/render'
 import { API, capture, server } from '@/test/server'
 import { setViewportWidth } from '@/test/viewport'
-import { BIO_MAX_CHARS, type MyOrganisation, type MyPerson } from '@/types/api'
+import { BIO_MAX_CHARS, MINE_DEFAULT_LIMIT, type MyOrganisation, type MyPerson } from '@/types/api'
 import AccountPage from '../AccountPage'
 import EditProfilePage from '../EditProfilePage'
 
@@ -26,7 +26,7 @@ const custom = { id: 'type-custom', type: 'club', slug: 'club', title: null, col
 const ago = (ms: number) => new Date(Date.now() - ms).toISOString()
 const HOUR = 3_600_000
 const myPlace = (over: Partial<MyOrganisation>): MyOrganisation => ({ ...organisation(), moderationNote: null, ...over })
-const myPerson = (over: Partial<MyPerson>): MyPerson => ({ ...person(), moderationNote: null, updatedAt: ago(2 * HOUR), ...over })
+const myPerson = (over: Partial<MyPerson>): MyPerson => ({ ...person(), moderationNote: null, updatedAt: ago(2 * HOUR), rejectedByModerator: false, ...over })
 
 function Probe() {
   return <output data-testid="path">{useLocation().pathname}</output>
@@ -140,6 +140,7 @@ describe('AccountPage', () => {
         myPerson({ name: 'Dmitri', status: 'claimed' }),
         myPerson({ name: 'Elena', status: 'confirmed' }),
         myPerson({ name: 'Pavel', status: 'declined' }),
+        myPerson({ name: 'Viktor', status: 'declined', rejectedByModerator: true }),
       ]),
     )
     open('/account')
@@ -151,6 +152,34 @@ describe('AccountPage', () => {
     expect(people.getByText('Linked their Landly account')).toBeInTheDocument()
     expect(people.getByText('Confirmed 2 hours ago')).toBeInTheDocument()
     expect(people.getByText('Declined 2 hours ago')).toBeInTheDocument()
+    // A moderator's reject is not the person turning the claim down.
+    const viktor = people.getAllByRole('listitem').find((item) => item.textContent?.includes('Viktor'))!
+    expect(within(viktor).getByText('Rejected by a moderator · 2 hours ago')).toBeInTheDocument()
+    expect(within(viktor).getByText('Rejected')).toBeInTheDocument()
+  })
+
+  it('loads more of the own places and people with "Show more" until the last page', async () => {
+    const places = Array.from({ length: MINE_DEFAULT_LIMIT + 1 }, (_, i) => myPlace({ name: `Place ${i + 1}`, status: 'live' }))
+    const people = Array.from({ length: MINE_DEFAULT_LIMIT + 1 }, (_, i) => myPerson({ name: `Person ${i + 1}`, status: 'awaiting' }))
+    for (const [path, all] of [['/api/organisation/mine', places], ['/api/person/mine', people]] as [string, unknown[]][]) {
+      server.use(
+        http.get(`${API}${path}`, ({ request }) => {
+          const query = new URL(request.url).searchParams
+          const offset = Number(query.get('offset'))
+          return HttpResponse.json(list(all.slice(offset, offset + Number(query.get('limit')))))
+        }),
+      )
+    }
+    open('/account')
+    for (const [name, last] of [['My places', `Place ${MINE_DEFAULT_LIMIT + 1}`], ['People I recommended', `Person ${MINE_DEFAULT_LIMIT + 1}`]]) {
+      const block = await screen.findByRole('list', { name })
+      expect(within(block).getAllByRole('listitem')).toHaveLength(MINE_DEFAULT_LIMIT)
+      const section = block.closest('section')!
+      await userEvent.click(within(section).getByRole('button', { name: 'Show more' }))
+      expect(await within(block).findByText(last)).toBeInTheDocument()
+      // A short page is the last one.
+      await waitFor(() => expect(within(section).queryByRole('button', { name: 'Show more' })).not.toBeInTheDocument())
+    }
   })
 
   it('lists the corridors and opens the corridor picker from "Manage"', async () => {
@@ -254,6 +283,18 @@ describe('EditProfilePage', () => {
     await waitFor(() => expect(saved).toHaveLength(1))
     expect(saved[0].body).toEqual({ name: '', city: '', bio: '', locale: 'en' })
     expect(added).toHaveLength(0)
+  })
+
+  it('starts from the language the interface is in, not the one stored in the profile', async () => {
+    // The stored profile says English; the user switched the interface to Russian in the top bar.
+    await i18n.changeLanguage('ru')
+    const saved = capture('put', '/api/user/me', { ...profile, locale: 'ru' })
+    open('/account/edit')
+    expect(await screen.findByRole('radio', { name: 'Русский' })).toBeChecked()
+    await userEvent.click(screen.getByRole('button', { name: 'Сохранить изменения' }))
+    await waitFor(() => expect(saved).toHaveLength(1))
+    expect(saved[0].body).toMatchObject({ locale: 'ru' })
+    expect(i18n.resolvedLanguage).toBe('ru')
   })
 
   it('keeps the form and says so when the save is refused', async () => {

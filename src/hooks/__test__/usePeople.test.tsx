@@ -37,13 +37,16 @@ describe('useMyPeople', () => {
     expect(result.current.fetchStatus).toBe('idle')
   })
 
-  it("lists the caller's recommendations in every status, with paging", async () => {
+  it("lists the caller's recommendations in every status, with paging, never stale", async () => {
     useAuthStore.getState().setAuth(authUser())
-    const mine = { ...person({ status: 'pending' }), moderationNote: 'Add a city', updatedAt: '2026-11-01T10:00:00' }
+    const mine = { ...person({ status: 'pending' }), moderationNote: 'Add a city', updatedAt: '2026-11-01T10:00:00', rejectedByModerator: false }
     const requests = capture('get', '/api/person/mine', list([mine]))
-    const { result } = renderQueryHook(() => useMyPeople({ limit: 50 }))
-    await waitFor(() => expect(result.current.data?.items).toEqual([mine]))
-    expect(requests[0].query.get('limit')).toBe('50')
+    const { result } = renderQueryHook(() => useMyPeople())
+    await waitFor(() => expect(result.current.data).toEqual([mine]))
+    expect(requests[0].query.get('limit')).toBe('20')
+    expect(requests[0].query.get('offset')).toBe('0')
+    expect(result.current.hasNextPage).toBe(false)
+    expect(result.current.isStale).toBe(true)
   })
 })
 

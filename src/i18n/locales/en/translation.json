@@ -722,7 +722,8 @@
         "awaiting": "Claim link created {{ago}}",
         "confirmed": "Confirmed {{ago}}",
         "claimed": "Linked their Landly account",
-        "declined": "Declined {{ago}}"
+        "declined": "Declined {{ago}}",
+        "rejected": "Rejected by a moderator · {{ago}}"
       }
     },
     "corridors": {
@@ -748,6 +749,7 @@
         "tooLong": "This is too long"
       }
     },
-    "changesRequested": "Changes requested · {{ago}}"
+    "changesRequested": "Changes requested · {{ago}}",
+    "showMore": "Show more"
   }
 }

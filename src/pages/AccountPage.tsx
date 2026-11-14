@@ -15,10 +15,6 @@ import { useMe, useUserLanguages } from '@/hooks/useUser'
 import { ROUTES } from '@/lib/routes'
 import { endSession } from '@/lib/session'
 import { useBreakpoint } from '@/lib/useBreakpoint'
-import { MINE_MAX_LIMIT } from '@/types/api'
-
-/** The caller's own lists are asked for in one page. */
-const MINE = { limit: MINE_MAX_LIMIT }
 
 /**
  * Account (signed in): who you are, your counters and languages, and where everything you added
@@ -42,8 +38,8 @@ function AccountScreen() {
   const orgTypes = useOrganisationTypes().data ?? []
   const allLanguages = useLanguages().data ?? []
   const spoken = useUserLanguages(me.data?.id).data?.languageIds ?? []
-  const places = useMyOrganisations(MINE)
-  const people = useMyPeople(MINE)
+  const places = useMyOrganisations()
+  const people = useMyPeople()
   const corridors = useCorridors()
 
   const signOut = () => {
@@ -82,8 +78,17 @@ function AccountScreen() {
                 />
               </div>
               <div className="flex min-w-0 flex-1 flex-col gap-7.5">
-                <MyPlaces places={places.data?.items} error={places.isError} orgTypes={orgTypes} />
-                <MyPeople people={people.data?.items} error={people.isError} />
+                <MyPlaces
+                  places={places.data}
+                  error={places.isError}
+                  orgTypes={orgTypes}
+                  more={{ hasMore: places.hasNextPage, loading: places.isFetchingNextPage, onMore: () => void places.fetchNextPage() }}
+                />
+                <MyPeople
+                  people={people.data}
+                  error={people.isError}
+                  more={{ hasMore: people.hasNextPage, loading: people.isFetchingNextPage, onMore: () => void people.fetchNextPage() }}
+                />
                 <MyCorridors corridors={corridors.data?.items} error={corridors.isError} countries={countries} orgTypes={orgTypes} onManage={openCorridors} />
               </div>
             </>

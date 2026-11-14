@@ -1,5 +1,6 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { invalidatePlaceSummaries } from '@/lib/invalidation'
+import { nextOffset } from '@/lib/query'
 import { queryKeys } from '@/lib/queryKeys'
 import { organisationApi } from '@/services/organisation.service'
 import { useAuthStore } from '@/stores/authStore'
@@ -7,13 +8,13 @@ import type {
   CheckinRequest,
   CreateOrganisationRequest,
   FindDuplicatesQuery,
-  MyOrganisationsQuery,
   Organisation,
   OrganisationsListQuery,
   SearchOrganisationsQuery,
   UpdateOrganisationRequest,
   Uuid,
 } from '@/types/api'
+import { MINE_DEFAULT_LIMIT } from '@/types/api'
 
 export const useOrganisations = (query?: OrganisationsListQuery) =>
   useQuery({
@@ -46,13 +47,21 @@ export const useDuplicates = (query: FindDuplicatesQuery | undefined) =>
     select: (answer) => answer.items,
   })
 
-/** The caller's own places in every moderation status; disabled while signed out. */
-export const useMyOrganisations = (query?: MyOrganisationsQuery) => {
+/**
+ * The caller's own places in every moderation status, `pageSize` at a time (`fetchNextPage` for
+ * more); disabled while signed out. Never served stale: the server does not cache it either, so
+ * the owner sees a moderator's decision as soon as the screen is opened again.
+ */
+export const useMyOrganisations = (pageSize = MINE_DEFAULT_LIMIT) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  return useQuery({
-    queryKey: queryKeys.organisations.mine(query),
-    queryFn: () => organisationApi.mine(query),
+  return useInfiniteQuery({
+    queryKey: queryKeys.organisations.mine({ limit: pageSize }),
+    queryFn: ({ pageParam }) => organisationApi.mine({ limit: pageSize, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: nextOffset(pageSize),
+    select: (data) => data.pages.flatMap((page) => page.items),
     enabled: isAuthenticated,
+    staleTime: 0,
   })
 }
 

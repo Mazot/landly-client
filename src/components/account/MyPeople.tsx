@@ -3,16 +3,26 @@ import { Avatar, Callout, EmptyState, InlineStatus, List, ListItem, Section, Sta
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo } from '@/lib/dates'
 import { ROUTES } from '@/lib/routes'
+import { ShowMore, type ShowMoreProps } from './ShowMore'
 import type { MyPerson } from '@/types/api'
 
 export interface MyPeopleProps {
   /** `undefined` while loading. */
   people: MyPerson[] | undefined
   error: boolean
+  /** Paging: more of the caller's recommendations on the server. */
+  more: ShowMoreProps
 }
 
 /** "People I recommended": the caller's recommendations in every status — moderation, the claim link, the answer. */
-export function MyPeople({ people, error }: MyPeopleProps) {
+/** What happened last: sent to moderation (or back with a note), rejected by a moderator, the claim link went out, the person answered. */
+function standingKey(person: MyPerson): string {
+  if (person.rejectedByModerator) return 'account.people.standing.rejected'
+  if (person.status === 'pending' && person.moderationNote) return 'account.changesRequested'
+  return `account.people.standing.${person.status}`
+}
+
+export function MyPeople({ people, error, more }: MyPeopleProps) {
   const { t } = useTranslation()
   const locale = useUiLocale()
 
@@ -25,16 +35,16 @@ export function MyPeople({ people, error }: MyPeopleProps) {
       ) : people.length === 0 ? (
         <EmptyState icon="users" title={t('account.people.empty')} description={t('account.people.emptyHint')} />
       ) : (
-        <List label={t('account.people.title')}>
+        <>
+          <List label={t('account.people.title')}>
           {people.map((person) => (
             <ListItem
               key={person.id}
               variant="card"
               leading={<Avatar name={person.name} />}
               title={person.name}
-              // What happened last: sent to moderation (or sent back with a note), the claim link went out, the person answered.
-              subtitle={t(person.status === 'pending' && person.moderationNote ? 'account.changesRequested' : `account.people.standing.${person.status}`, { ago: formatAgo(person.updatedAt, locale) })}
-              trailing={<StatusBadge status={person.status} />}
+              subtitle={t(standingKey(person), { ago: formatAgo(person.updatedAt, locale) })}
+              trailing={<StatusBadge status={person.rejectedByModerator ? 'rejected' : person.status} />}
               footer={
                 person.moderationNote ? (
                   <Callout tone="danger" icon={false}>
@@ -44,7 +54,9 @@ export function MyPeople({ people, error }: MyPeopleProps) {
               }
             />
           ))}
-        </List>
+          </List>
+          <ShowMore {...more} />
+        </>
       )}
     </Section>
   )

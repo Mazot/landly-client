@@ -752,7 +752,8 @@
         "awaiting": "Посилання для підтвердження створено {{ago}}",
         "confirmed": "Підтверджено {{ago}}",
         "claimed": "Прив’язано акаунт Landly",
-        "declined": "Відхилено {{ago}}"
+        "declined": "Відхилено {{ago}}",
+        "rejected": "Відхилено модератором · {{ago}}"
       }
     },
     "corridors": {
@@ -778,6 +779,7 @@
         "tooLong": "Задовго"
       }
     },
-    "changesRequested": "Запитано правки · {{ago}}"
+    "changesRequested": "Запитано правки · {{ago}}",
+    "showMore": "Показати ще"
   }
 }

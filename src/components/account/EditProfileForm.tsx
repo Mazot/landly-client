@@ -4,6 +4,7 @@ import { FormTextField } from '@/components/auth/FormTextField'
 import { firstErrorKey } from '@/components/auth/schemas'
 import { AVATAR_COLOR_KEYS, type AvatarColor } from '@/components/profile/avatarColors'
 import { AVATAR_COLORS, Avatar, Button, Callout, ChipGroup, ColorSwatches, Divider, Field, KeyValueList, Segmented, Select, Tag, TextArea } from '@/components/ui'
+import { useUiLocale } from '@/hooks/useUiLocale'
 import { LOCALE_OPTIONS } from '@/lib/locales'
 import { BIO_MAX_CHARS, CITY_MAX_CHARS, HERE_AS, LANGUAGE_IDS_MAX, NAME_MAX_CHARS, type Country, type Language, type UserProfile, type Uuid } from '@/types/api'
 import { editProfileSchema, type EditProfileValues } from './schemas'
@@ -29,12 +30,14 @@ export interface EditProfileFormProps {
 /** Edit profile: avatar colour, name, city, bio, home country, interface language, role and languages. */
 export function EditProfileForm({ id, profile, spokenLanguageIds, languages, countries, compact, pending, failed, onCancel, onSubmit }: EditProfileFormProps) {
   const { t } = useTranslation()
+  // The language the UI is in now — it may have been switched in the top bar since the profile was saved.
+  const uiLocale = useUiLocale()
   const defaultValues: EditProfileValues = {
     name: profile.name ?? '',
     city: profile.city ?? '',
     bio: profile.bio ?? '',
     homeCountryId: profile.homeCountryId ?? '',
-    locale: profile.locale,
+    locale: uiLocale,
     hereAs: profile.hereAs ?? '',
     avatarColor: profile.avatarColor ?? '',
     languageIds: spokenLanguageIds,

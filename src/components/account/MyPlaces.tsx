@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { Avatar, Callout, colors, EmptyState, InlineStatus, List, ListItem, Section, StatusBadge, TextLink } from '@/components/ui'
+import { Avatar, Callout, EmptyState, InlineStatus, List, ListItem, Section, StatusBadge, TextLink } from '@/components/ui'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo, formatDay } from '@/lib/dates'
+import { orgTypeColor } from '@/lib/orgTypes'
 import { ROUTES } from '@/lib/routes'
+import { ShowMore, type ShowMoreProps } from './ShowMore'
 import type { MyOrganisation, OrganisationType } from '@/types/api'
 
 export interface MyPlacesProps {
@@ -11,6 +13,8 @@ export interface MyPlacesProps {
   error: boolean
   /** Resolves `organisationTypeId`. */
   orgTypes: OrganisationType[]
+  /** Paging: more of the caller's places on the server. */
+  more: ShowMoreProps
 }
 
 /**
@@ -25,7 +29,7 @@ function standing(place: MyOrganisation, locale: string, t: (key: string, values
 }
 
 /** "My places": the caller's own organisations in every moderation status, with the moderator's note. */
-export function MyPlaces({ places, error, orgTypes }: MyPlacesProps) {
+export function MyPlaces({ places, error, orgTypes, more }: MyPlacesProps) {
   const { t } = useTranslation()
   const locale = useUiLocale()
 
@@ -38,15 +42,15 @@ export function MyPlaces({ places, error, orgTypes }: MyPlacesProps) {
       ) : places.length === 0 ? (
         <EmptyState icon="pin" title={t('account.places.empty')} description={t('account.places.emptyHint')} />
       ) : (
-        <List label={t('account.places.title')}>
+        <>
+          <List label={t('account.places.title')}>
           {places.map((place) => {
             const type = orgTypes.find((candidate) => candidate.id === place.organisationTypeId)
-            const typeColor = type?.color ?? (type?.slug ? colors.type[type.slug as keyof typeof colors.type]?.DEFAULT : undefined)
             return (
               <ListItem
                 key={place.id}
                 variant="card"
-                leading={<Avatar name={place.name} color={typeColor} />}
+                leading={<Avatar name={place.name} color={orgTypeColor(type)} />}
                 title={place.name}
                 subtitle={[type && (type.title ?? type.type), standing(place, locale, t)].filter(Boolean).join(' · ')}
                 trailing={<StatusBadge status={place.status} />}
@@ -60,7 +64,9 @@ export function MyPlaces({ places, error, orgTypes }: MyPlacesProps) {
               />
             )
           })}
-        </List>
+          </List>
+          <ShowMore {...more} />
+        </>
       )}
     </Section>
   )

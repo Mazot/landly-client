@@ -37,13 +37,28 @@ describe('useMyOrganisations', () => {
     expect(result.current.fetchStatus).toBe('idle')
   })
 
-  it("lists the caller's own places in every status, with the moderator's note", async () => {
+  it("lists the caller's own places page by page, with the moderator's note, and is never served stale", async () => {
     useAuthStore.getState().setAuth(authUser())
-    const mine = { ...organisation({ status: 'pending' }), moderationNote: 'Add a phone number' }
-    const requests = capture('get', '/api/organisation/mine', list([mine]))
-    const { result } = renderQueryHook(() => useMyOrganisations({ limit: 50 }))
-    await waitFor(() => expect(result.current.data?.items).toEqual([mine]))
-    expect(requests[0].query.get('limit')).toBe('50')
+    const all = Array.from({ length: 3 }, (_, i) => ({ ...organisation({ status: 'pending', name: `Place ${i}` }), moderationNote: i === 0 ? 'Add a phone number' : null }))
+    const offsets: (string | null)[] = []
+    server.use(
+      http.get(`${API}/api/organisation/mine`, ({ request }) => {
+        const query = new URL(request.url).searchParams
+        offsets.push(query.get('offset'))
+        const offset = Number(query.get('offset'))
+        return HttpResponse.json(list(all.slice(offset, offset + Number(query.get('limit')))))
+      }),
+    )
+    const { result } = renderQueryHook(() => useMyOrganisations(2))
+    await waitFor(() => expect(result.current.data).toEqual(all.slice(0, 2)))
+    // A full page: the server may hold more. Stale at once, so reopening the screen refetches.
+    expect(result.current.hasNextPage).toBe(true)
+    expect(result.current.isStale).toBe(true)
+    await act(() => result.current.fetchNextPage())
+    await waitFor(() => expect(result.current.data).toEqual(all))
+    // A short page is the last one.
+    expect(result.current.hasNextPage).toBe(false)
+    expect(offsets).toEqual(['0', '2'])
   })
 })
 
