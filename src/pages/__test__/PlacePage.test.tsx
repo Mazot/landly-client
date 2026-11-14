@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { ReactNode } from 'react'
+import { StrictMode, type ReactNode } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '@/i18n'
@@ -14,7 +14,7 @@ import PlacePage from '../PlacePage'
 vi.mock('@vis.gl/react-google-maps', async () => {
   const { createElement } = await import('react')
   return {
-    Map: ({ children }: { children: ReactNode }) => createElement('div', { 'data-testid': 'mini-map' }, children),
+    Map: ({ children, defaultCenter }: { children: ReactNode; defaultCenter: object }) => createElement('div', { 'data-testid': 'mini-map', 'data-center': JSON.stringify(defaultCenter) }, children),
     AdvancedMarker: ({ children }: { children: ReactNode }) => createElement('div', null, children),
   }
 })
@@ -89,6 +89,21 @@ describe('PlacePage', () => {
     expect(visits).toHaveLength(1)
   })
 
+  it('counts one visit even when StrictMode runs the effect twice', async () => {
+    const visits = capture('post', '/api/organisation/visit/o1', { visitsCount: 1 })
+    renderApp(
+      <StrictMode>
+        <Routes>
+          <Route path="/place/:id" element={<PlacePage />} />
+        </Routes>
+      </StrictMode>,
+      { route: '/place/o1' },
+    )
+    expect(await screen.findByRole('heading', { level: 1, name: 'Embassy of Russia' })).toBeInTheDocument()
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    expect(visits).toHaveLength(1)
+  })
+
   it('tablet: the side card sits under the head, not beside the page', async () => {
     setViewportWidth(834)
     open()
@@ -131,6 +146,19 @@ describe('PlacePage', () => {
     capture('get', '/api/saved/list', list([savedItem({ kind: 'org', targetId: 'o1' })]))
     open()
     expect(await screen.findByRole('button', { name: 'Remove Embassy of Russia from saved' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('opens another place from the consular network fresh: its own head and mini map', async () => {
+    capture('get', '/api/country-connection/list', list([{ id: 'c1', commonInfo: null, embassyOrgId: 'o1', consulateOrgId: 'k1', locationCountryId: null, embassy: null, consulate: { id: 'k1', name: 'Consulate', city: 'Niš' } }]))
+    capture('get', '/api/organisation/fetch/k1', organisation({ id: 'k1', name: 'Consulate in Niš', latitude: 43.32, longitude: 21.9 }))
+    const visits = capture('post', '/api/organisation/visit/:id', { visitsCount: 1 })
+    open()
+    expect(JSON.parse((await screen.findByTestId('mini-map')).dataset.center!)).toEqual({ lat: full.latitude, lng: full.longitude })
+    await userEvent.click((await screen.findAllByRole('link', { name: 'Consulate · Niš' }))[0])
+    expect(await screen.findByRole('heading', { level: 1, name: 'Consulate in Niš' })).toBeInTheDocument()
+    expect(JSON.parse(screen.getByTestId('mini-map').dataset.center!)).toEqual({ lat: 43.32, lng: 21.9 })
+    // Each place opened counts its own visit.
+    await waitFor(() => expect(visits).toHaveLength(2))
   })
 
   it('leaves out what a place does not have', async () => {

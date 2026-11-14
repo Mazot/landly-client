@@ -135,7 +135,7 @@ async function ready(searches = arrange()) {
 }
 
 describe('MapPage', () => {
-  const map = { panTo: vi.fn(), panBy: vi.fn(), setZoom: vi.fn(), getZoom: vi.fn(() => 6) }
+  const map = { panTo: vi.fn(), panBy: vi.fn(), setZoom: vi.fn(), getZoom: vi.fn(() => 6), getDiv: () => ({ getBoundingClientRect: () => ({ right: 1000 }) }) }
   beforeEach(() => {
     vi.clearAllMocks()
     map.getZoom.mockReturnValue(6)
@@ -473,7 +473,8 @@ describe('MapPage', () => {
       await userEvent.click(within(panel()).getByRole('button', { name: /Russian Embassy/ }))
       const place = screen.getByRole('region', { name: 'Russian Embassy' })
       expect(within(place).getByRole('heading', { name: 'Russian Embassy' })).toBeInTheDocument()
-      expect(map.panBy).toHaveBeenCalledWith(218, 0)
+      // jsdom lays nothing out: the panel starts at 0, so it "covers" the whole 1000 px map.
+      await waitFor(() => expect(map.panBy).toHaveBeenCalledWith(500, 0))
       // The corridor summary gives way to the panel; "Search this area" and the zoom sit beside it.
       expect(screen.queryByRole('button', { name: /73 places/ })).not.toBeInTheDocument()
       expect(screen.getByRole('button', { name: 'Zoom in' }).closest('.absolute')).toHaveClass('right-105.5')
@@ -482,6 +483,16 @@ describe('MapPage', () => {
       await userEvent.click(within(place).getByRole('button', { name: 'Close' }))
       expect(screen.queryByRole('region', { name: 'Russian Embassy' })).not.toBeInTheDocument()
       expect(screen.getByRole('button', { name: /73 places/ })).toBeInTheDocument()
+    })
+
+    it('does not shift the map when the panel covers none of it', async () => {
+      map.getDiv = () => ({ getBoundingClientRect: () => ({ right: 0 }) })
+      await ready()
+      await userEvent.click(within(panel()).getByRole('button', { name: /Russian Embassy/ }))
+      expect(await screen.findByRole('region', { name: 'Russian Embassy' })).toBeInTheDocument()
+      expect(map.panTo).toHaveBeenCalled()
+      expect(map.panBy).not.toHaveBeenCalled()
+      map.getDiv = () => ({ getBoundingClientRect: () => ({ right: 1000 }) })
     })
 
     it('selects from a pin too, without moving the map', async () => {

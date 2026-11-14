@@ -10,6 +10,7 @@ import { createTestQueryClient, isInvalidated, renderQueryHook, runMutation, see
 import { API, capture, server } from '@/test/server'
 import {
   useCheckin,
+  useCountVisit,
   useCreateOrganisation,
   useDeleteOrganisation,
   useOrganisation,
@@ -149,6 +150,25 @@ describe('useCheckin', () => {
 
     expect(requests[0].body).toEqual({ tip: 'Bring a photo' })
     expect(client.getQueryData(queryKeys.organisations.detail('o1'))).toEqual(fresh)
+  })
+})
+
+describe('useCountVisit', () => {
+  it('counts one visit per opening and puts the count on the cached detail', async () => {
+    const visits = capture('post', '/api/organisation/visit/o1', { visitsCount: 8 })
+    const { result, client } = renderQueryHook(() => useCountVisit('o1'))
+    client.setQueryData(queryKeys.organisations.detail('o1'), organisation({ id: 'o1', visitsCount: 7 }))
+    await waitFor(() => expect(result.current.data).toBe(8))
+    expect(client.getQueryData<{ visitsCount: number }>(queryKeys.organisations.detail('o1'))?.visitsCount).toBe(8)
+    expect(visits).toHaveLength(1)
+  })
+
+  it('waits for an id, and does not invent a detail that was never loaded', async () => {
+    expect(renderQueryHook(() => useCountVisit(undefined)).result.current.fetchStatus).toBe('idle')
+    capture('post', '/api/organisation/visit/o2', { visitsCount: 1 })
+    const { result, client } = renderQueryHook(() => useCountVisit('o2'))
+    await waitFor(() => expect(result.current.data).toBe(1))
+    expect(client.getQueryData(queryKeys.organisations.detail('o2'))).toBeUndefined()
   })
 })
 

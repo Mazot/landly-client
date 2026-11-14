@@ -1,6 +1,6 @@
 import { AdvancedMarker, Map, useMap } from '@vis.gl/react-google-maps'
 import clsx from 'clsx'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
@@ -22,9 +22,6 @@ import { boundsToSearchBox, geometryBounds, GOOGLE_MAPS_MAP_ID, MAP_SEARCH_LIMIT
 import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/authStore'
 import type { Organisation } from '@/types/api'
-
-/** How much of the map's width the place panel covers from tablets up (its width plus the gap), in px. */
-const PANEL_COVER_PX = 436
 
 const MAP_ID = 'landly-map'
 /** How far a place is zoomed to when the user asks for their location. */
@@ -70,6 +67,9 @@ function MapScreen() {
   const [sheetExpanded, setSheetExpanded] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [locateDenied, setLocateDenied] = useState(false)
+  // A pick from the list asks to move the place clear of the panel once the panel is on screen.
+  const panelRef = useRef<HTMLDivElement>(null)
+  const [shiftRequest, setShiftRequest] = useState(0)
 
   const { from, to, corridor, isPending: corridorPending } = useCurrentCorridor()
   // The country list is brief (no borders): the destination's detail carries its border and, for guests, its stats.
@@ -119,6 +119,14 @@ function MapScreen() {
     <PlaceCompactPanel place={selected} type={types.find((type) => type.id === selected.organisationTypeId)} showPhoto={size !== 'phone'} onClose={() => setSelectedId(undefined)} />
   )
 
+  // From tablets up the panel covers the map's right side: keep the place in the middle of the part
+  // left uncovered — measured, so it follows the panel's width at every size.
+  useEffect(() => {
+    if (!shiftRequest || !map || !panelRef.current) return
+    const covered = map.getDiv().getBoundingClientRect().right - panelRef.current.getBoundingClientRect().left
+    if (covered > 0) map.panBy(covered / 2, 0)
+  }, [shiftRequest, map])
+
   /** Opens the place's panel (on phones the sheet opens with it). */
   const pick = (place: Organisation) => {
     setSelectedId(place.id)
@@ -131,8 +139,7 @@ function MapScreen() {
     const position = organisationPosition(place)
     if (!map || !position) return
     map.panTo(position)
-    // From tablets up the panel covers the map's right side: keep the place in the part left uncovered.
-    if (size !== 'phone') map.panBy(PANEL_COVER_PX / 2, 0)
+    if (size !== 'phone') setShiftRequest((count) => count + 1)
   }
 
   // The two biggest kinds of place in the destination, named as the backend names them.
@@ -167,7 +174,7 @@ function MapScreen() {
           </div>
         )}
         {panel ? (
-          <div className="absolute top-4 right-4 bottom-4 z-10 w-97.5 overflow-y-auto overscroll-contain rounded-r4 bg-surface p-5.5 shadow-pop lg:w-105">{panel}</div>
+          <div ref={panelRef} className="absolute top-4 right-4 bottom-4 z-10 w-97.5 overflow-y-auto overscroll-contain rounded-r4 bg-surface p-5.5 shadow-pop lg:w-105">{panel}</div>
         ) : (
           <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-end">
             <div className="pointer-events-auto min-w-0">{bubble}</div>

@@ -43,6 +43,7 @@ export const queryKeys = {
     search: (query: SearchOrganisationsQuery) => ['organisations', 'search', query] as const,
     /** The caller's own places (any status). */
     mine: (query?: PaginationParams) => ['organisations', 'mine', query ?? {}] as const,
+    visit: (id: Uuid) => ['organisations', 'visit', id] as const,
     duplicates: (query: FindDuplicatesQuery) => ['organisations', 'duplicates', query] as const,
     detail: (id: Uuid) => ['organisations', 'detail', id] as const,
   },

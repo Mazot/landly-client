@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
@@ -15,7 +15,7 @@ import { PlaceReviews } from '@/components/place/PlaceReviews'
 import { Button, Card, Divider, EmptyState, Icon, IconButton, ImageFrame, InlineStatus, MobileHeader, Section, Tag, TextLink } from '@/components/ui'
 import { useAllCountries, useOrganisationTypes } from '@/hooks/useCommon'
 import { useOrganisationImages } from '@/hooks/useImages'
-import { useOrganisation, useRecordVisit } from '@/hooks/useOrganisations'
+import { useCountVisit, useOrganisation } from '@/hooks/useOrganisations'
 import { useSavedPlaces } from '@/hooks/useSavedPlaces'
 import { apiErrorStatus } from '@/lib/errors'
 import { ROUTES, type ReturnState } from '@/lib/routes'
@@ -44,15 +44,7 @@ function PlaceScreen() {
   const size = useBreakpoint()
   const navigate = useNavigate()
   const place = useOrganisation(id)
-  const visit = useRecordVisit()
-  const counted = useRef<string | undefined>(undefined)
-
-  // One visit per opening of the page (StrictMode runs effects twice; the ref keeps it to one).
-  useEffect(() => {
-    if (!id || counted.current === id) return
-    counted.current = id
-    visit.mutate(id)
-  }, [id, visit])
+  useCountVisit(id)
 
   const back = () => navigate(ROUTES.map)
   const phone = size === 'phone'
@@ -87,7 +79,8 @@ function PlaceScreen() {
       </Shell>
     )
   }
-  return <PlaceDetail place={place.data} phone={phone} wide={size === 'desktop'} onBack={back} />
+  // Keyed by the place: another place (a consular-network link) starts at the top, with its own mini map.
+  return <PlaceDetail key={place.data.id} place={place.data} phone={phone} wide={size === 'desktop'} onBack={back} />
 }
 
 /** Page frame: the phone header, or nothing (the app bar is enough) from tablets up. */

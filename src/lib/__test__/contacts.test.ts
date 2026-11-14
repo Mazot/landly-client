@@ -8,6 +8,14 @@ describe('contact links', () => {
     expect(websiteLabel('https://example.org/')).toBe('example.org')
   })
 
+  it('never keeps a scheme other than http(s): a stored javascript: link must not run', () => {
+    for (const value of ['javascript://%0aalert(1)', 'data://text/html,x', 'JavaScript://x']) {
+      expect(websiteUrl(value)).toBe(`https://${value}`)
+      expect(telegramUrl(value)).toMatch(/^https:\/\/t\.me\//)
+      expect(whatsappUrl(value)).toMatch(/^https:\/\/wa\.me\//)
+    }
+  })
+
   it('calls the digits of a phone number', () => {
     expect(phoneUrl('+49 30 1234-567')).toBe('tel:+49301234567')
   })

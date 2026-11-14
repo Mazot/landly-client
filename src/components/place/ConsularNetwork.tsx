@@ -22,10 +22,12 @@ export function ConsularNetwork({ organisationId, children }: ConsularNetworkPro
   const { t } = useTranslation()
   const consulates = useCountryConnections({ embassy_org_id: organisationId, limit: CONSULAR_NETWORK_LIMIT })
   const embassies = useCountryConnections({ consulate_org_id: organisationId, limit: CONSULAR_NETWORK_LIMIT })
-  const links: { org: ConnectedOrganisation; role: 'consulate' | 'embassy' }[] = [
+  const all: { org: ConnectedOrganisation; role: 'consulate' | 'embassy' }[] = [
     ...(embassies.data?.items ?? []).flatMap((connection) => (connection.embassy ? [{ org: connection.embassy, role: 'embassy' as const }] : [])),
     ...(consulates.data?.items ?? []).flatMap((connection) => (connection.consulate ? [{ org: connection.consulate, role: 'consulate' as const }] : [])),
   ]
+  // One place can be linked by several connections (one per country): list it once.
+  const links = all.filter((link, index) => all.findIndex((other) => other.role === link.role && other.org.id === link.org.id) === index)
   if (links.length === 0) return null
 
   return children(

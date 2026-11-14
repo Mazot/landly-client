@@ -101,6 +101,13 @@ describe('PlaceActions', () => {
     expect(screen.getByRole('button', { name: 'Copy link to this place' })).toBeInTheDocument()
   })
 
+  it('stays as it was when the clipboard refuses', async () => {
+    Object.assign(navigator, { clipboard: { writeText: vi.fn().mockRejectedValue(new Error('denied')) } })
+    show(<PlaceActions place={organisation({ id: 'o1' })} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Copy link to this place' }))
+    expect(screen.getByRole('button', { name: 'Copy link to this place' })).toBeInTheDocument()
+  })
+
   it('sends a guest who saves to sign in, and back here afterwards', async () => {
     show(<PlaceActions place={organisation({ latitude: null, longitude: null, address: null, city: null })} />, '/place/o1?x=1')
     expect(screen.queryByRole('link', { name: 'Directions' })).not.toBeInTheDocument()
@@ -272,6 +279,14 @@ describe('ConsularNetwork', () => {
     expect(network.getAllByRole('link', { name: 'Consulate · Consulate in Niš' })[0]).toHaveAttribute('href', '/place/k1')
     await waitFor(() => expect(lists).toHaveLength(2))
     expect(lists.map((request) => [request.query.get('embassy_org_id'), request.query.get('consulate_org_id')])).toEqual(expect.arrayContaining([['o1', null], [null, 'o1']]))
+  })
+
+  it('lists a place linked by several connections once', async () => {
+    const consulate = { id: 'k1', name: 'Consulate', city: 'Niš' }
+    capture('get', '/api/country-connection/list', list([connection({ id: 'c1', consulate }), connection({ id: 'c2', consulate })]))
+    show(<ConsularNetwork organisationId="o1">{section}</ConsularNetwork>)
+    const network = within(await screen.findByRole('region', { name: 'Network' }))
+    expect(network.getAllByRole('link', { name: 'Consulate · Niš' })).toHaveLength(1)
   })
 
   it('renders nothing without links (or with places not on the map)', async () => {

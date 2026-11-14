@@ -39,8 +39,12 @@ export function PlaceActions({ place }: PlaceActionsProps) {
   }
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(new URL(placePath(place.id), window.location.origin).href)
-    setCopied(true)
+    try {
+      await navigator.clipboard.writeText(new URL(placePath(place.id), window.location.origin).href)
+      setCopied(true)
+    } catch {
+      // No clipboard (plain http) or permission refused: the button simply stays as it was.
+    }
   }
 
   return (
