@@ -35,6 +35,7 @@ function App() {
             <Route path={ROUTES.signIn} element={<SignInPage />} />
             <Route path={ROUTES.signUp} element={<SignUpPage />} />
           </Route>
+          <Route path={GOOGLE_CALLBACK_PATH} element={<GoogleCallbackPage />} />
           <Route path={ROUTES.map} element={<MapPage />} />
           <Route path={`${ROUTES.place}/:id`} element={<PlacePage />} />
           <Route element={<RequireAuth />}>
@@ -47,7 +48,6 @@ function App() {
           <Route path={ROUTES.account} element={<AccountPage />} />
           <Route path={ROUTES.accountEdit} element={<EditProfilePage />} />
         </Route>
-        <Route path={GOOGLE_CALLBACK_PATH} element={<GoogleCallbackPage />} />
         <Route path="*" element={null} />
       </Routes>
     </RouteBoundary>

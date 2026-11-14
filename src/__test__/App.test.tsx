@@ -8,8 +8,20 @@ import App from '../App'
 
 // The real map needs Google's script; routing is all these tests are about.
 vi.mock('@vis.gl/react-google-maps', async () => {
-  const { createElement } = await import('react')
-  return { APIProvider: ({ children }: { children?: unknown }) => children, useMap: () => null, useMapsLibrary: () => null, Map: () => createElement('div', { 'data-testid': 'map' }), AdvancedMarker: () => null }
+  const { createContext, createElement, useContext } = await import('react')
+  // Like the real library: a <Map> outside an <APIProvider> throws — so a route that shows a map but
+  // sits outside the provider fails here, not only in the browser.
+  const InProvider = createContext(false)
+  return {
+    APIProvider: ({ children }: { children?: React.ReactNode }) => createElement(InProvider.Provider, { value: true }, children),
+    useMap: () => null,
+    useMapsLibrary: () => null,
+    Map: () => {
+      if (!useContext(InProvider)) throw new Error('<Map> can only be used inside an <ApiProvider> component.')
+      return createElement('div', { 'data-testid': 'map' })
+    },
+    AdvancedMarker: () => null,
+  }
 })
 
 describe('App routes', () => {
