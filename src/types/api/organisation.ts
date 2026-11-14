@@ -91,6 +91,18 @@ export interface Organisation {
 }
 
 /**
+ * `GET /api/organisation/mine` item (auth): the caller's own place in any moderation status.
+ * The public payload plus the moderator's note, which only the submitter is shown.
+ */
+export interface MyOrganisation extends Organisation {
+  /** Set by request-changes (the place stays `pending`) and reject; null otherwise. */
+  moderationNote: string | null
+}
+
+/** `GET /api/organisation/mine` — newest first (limit default 20, max 100). */
+export type MyOrganisationsQuery = PaginationParams
+
+/**
  * `POST /api/organisation/create` — the place is created as `pending`.
  * Location: with `google_place_id` the server re-resolves the point from Google
  * (when it has a Places key), without it `latitude`/`longitude` are a user pin.

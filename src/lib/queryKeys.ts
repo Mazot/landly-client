@@ -40,6 +40,8 @@ export const queryKeys = {
     all: ['organisations'] as const,
     list: (query?: OrganisationsListQuery) => ['organisations', 'list', query ?? {}] as const,
     search: (query: SearchOrganisationsQuery) => ['organisations', 'search', query] as const,
+    /** The caller's own places (any status). */
+    mine: (query?: PaginationParams) => ['organisations', 'mine', query ?? {}] as const,
     duplicates: (query: FindDuplicatesQuery) => ['organisations', 'duplicates', query] as const,
     detail: (id: Uuid) => ['organisations', 'detail', id] as const,
   },
@@ -69,6 +71,8 @@ export const queryKeys = {
     all: ['people'] as const,
     lists: ['people', 'list'] as const,
     list: (query?: PeopleListQuery) => ['people', 'list', query ?? {}] as const,
+    /** The people the caller recommended (any status). */
+    mine: (query?: PaginationParams) => ['people', 'mine', query ?? {}] as const,
     detail: (id: Uuid) => ['people', 'detail', id] as const,
     claim: (token: string) => ['people', 'claim', token] as const,
   },

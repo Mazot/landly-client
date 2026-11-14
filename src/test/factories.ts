@@ -38,7 +38,7 @@ export const userProfile = (over: Partial<UserProfile> = {}): UserProfile => ({
   locale: 'en',
   avatarColor: null,
   notificationSettings: null,
-  stats: { placesAdded: 0, peopleHelped: 0, peopleRecommended: 0, rating: null },
+  stats: { placesAdded: 0, peopleHelped: 0, peopleRecommended: 0, reviews: 0, saved: 0, rating: null },
   ...over,
 })
 

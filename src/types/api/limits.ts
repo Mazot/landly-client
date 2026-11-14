@@ -45,3 +45,6 @@ export const SLUG_MAX_CHARS = 64
 // Query-string filters
 export const FILTER_MAX_CHARS = 100
 export const FILTER_LIST_ITEMS_MAX = 20
+
+/** Largest page of the caller's own lists (`GET /organisation/mine`, `GET /person/mine`). */
+export const MINE_MAX_LIMIT = 100

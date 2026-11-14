@@ -2,10 +2,12 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { invalidatePlaceSummaries } from '@/lib/invalidation'
 import { queryKeys } from '@/lib/queryKeys'
 import { organisationApi } from '@/services/organisation.service'
+import { useAuthStore } from '@/stores/authStore'
 import type {
   CheckinRequest,
   CreateOrganisationRequest,
   FindDuplicatesQuery,
+  MyOrganisationsQuery,
   Organisation,
   OrganisationsListQuery,
   SearchOrganisationsQuery,
@@ -43,6 +45,16 @@ export const useDuplicates = (query: FindDuplicatesQuery | undefined) =>
     placeholderData: keepPreviousData,
     select: (answer) => answer.items,
   })
+
+/** The caller's own places in every moderation status; disabled while signed out. */
+export const useMyOrganisations = (query?: MyOrganisationsQuery) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  return useQuery({
+    queryKey: queryKeys.organisations.mine(query),
+    queryFn: () => organisationApi.mine(query),
+    enabled: isAuthenticated,
+  })
+}
 
 export const useOrganisation = (id: Uuid | undefined) =>
   useQuery({

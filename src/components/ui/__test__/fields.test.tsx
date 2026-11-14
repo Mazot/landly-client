@@ -40,6 +40,18 @@ describe('Field', () => {
     expect(screen.getByLabelText('Country')).toHaveAttribute('aria-invalid', 'true')
   })
 
+  it('captions a group without a <label for> pointing at no form element', () => {
+    render(
+      <Field group label="I'm here as" optional>
+        <div role="group" aria-label="I'm here as" />
+      </Field>,
+    )
+    const caption = screen.getByText("I'm here as").parentElement!
+    expect(caption.tagName).toBe('DIV')
+    expect(caption).not.toHaveAttribute('for')
+    expect(caption).toHaveTextContent('Optional')
+  })
+
   it('renders without a label or note', () => {
     render(<Field><TextField placeholder="Free" /></Field>)
     expect(screen.getByPlaceholderText('Free')).not.toHaveAttribute('aria-describedby')

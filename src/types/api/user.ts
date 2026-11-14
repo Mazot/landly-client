@@ -80,8 +80,12 @@ export interface UserProfileStats {
   placesAdded: number
   /** Not computed yet — always 0. */
   peopleHelped: number
-  /** Not computed yet — always 0. */
+  /** People this user recommended (any status). */
   peopleRecommended: number
+  /** Reviews this user wrote. */
+  reviews: number
+  /** Items this user saved (all kinds). */
+  saved: number
   /** Not computed yet — always null. */
   rating: number | null
 }

@@ -28,7 +28,8 @@ describe('review writes', () => {
   ] as const)('%s refreshes reviews and the target ratings', async (_, method, path, run) => {
     capture(method, path, review())
     const client = createTestQueryClient()
-    const keys = [queryKeys.reviews.list({ organisation_id: 'o1' }), queryKeys.organisations.detail('o1'), queryKeys.people.detail('p1')]
+    // The profile counts the caller's reviews, so it is refreshed too.
+    const keys = [queryKeys.reviews.list({ organisation_id: 'o1' }), queryKeys.organisations.detail('o1'), queryKeys.people.detail('p1'), queryKeys.me]
     seed(client, ...keys)
 
     await run(client)

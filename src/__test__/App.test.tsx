@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
-import { authUser } from '@/test/factories'
+import { authUser, userProfile } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
 import App from '../App'
@@ -49,9 +49,9 @@ describe('App routes', () => {
     }
   })
 
-  it('/add and /add/sent/{id} need an account: a guest is sent to sign in', async () => {
+  it('/add, /add/sent/{id}, /account and /account/edit need an account: a guest is sent to sign in', async () => {
     capture('get', '/api/common/countries', [])
-    for (const route of ['/add', '/add/sent/some-id']) {
+    for (const route of ['/add', '/add/sent/some-id', '/account', '/account/edit']) {
       const { unmount } = renderApp(<App />, { route })
       expect(await screen.findByText('Welcome back')).toBeInTheDocument()
       unmount()
@@ -65,6 +65,24 @@ describe('App routes', () => {
     capture('get', '/api/corridor/list', { items: [], total: 0 })
     renderApp(<App />, { route: '/add' })
     expect(await screen.findByRole('heading', { name: 'Add a place' })).toBeInTheDocument()
+  })
+
+  it('/account and /account/edit are the account screens for a signed-in user', async () => {
+    const me = authUser()
+    useAuthStore.getState().setAuth(me)
+    capture('get', '/api/user/me', userProfile({ id: me.id, name: 'Daria K.' }))
+    capture('get', `/api/user/${me.id}/languages`, { userId: me.id, languageIds: [] })
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/organisation/mine', { items: [], total: 0 })
+    capture('get', '/api/person/mine', { items: [], total: 0 })
+    capture('get', '/api/corridor/list', { items: [], total: 0 })
+    const account = renderApp(<App />, { route: '/account' })
+    expect(await screen.findByRole('heading', { name: 'Daria K.' })).toBeInTheDocument()
+    account.unmount()
+    renderApp(<App />, { route: '/account/edit' })
+    expect(await screen.findByRole('heading', { name: 'Edit profile' })).toBeInTheDocument()
   })
 
   it('renders nothing for routes that are not built yet (claim links, unknown paths)', () => {

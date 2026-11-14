@@ -43,21 +43,24 @@ describe('AppShell · desktop', () => {
     expect(screen.getByLabelText('Language')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Sign in' })).toHaveAttribute('href', '/signin')
     expect(screen.getByRole('link', { name: 'Create account' })).toHaveAttribute('href', '/signup')
-    expect(screen.queryByRole('link', { name: 'Profile' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^Profile/ })).not.toBeInTheDocument()
   })
 
   it('signed in: add a place and the avatar of the profile instead of the sign-in buttons', async () => {
     open({ signedIn: true })
     expect(await screen.findByRole('link', { name: 'Add' })).toHaveAttribute('href', '/add')
-    const profile = screen.getByRole('link', { name: 'Profile' })
+    const profile = screen.getByRole('link', { name: /^Profile/ })
     expect(profile).toHaveAttribute('href', '/account')
     await waitFor(() => expect(within(profile).getByRole('img', { name: 'Alina Morozova' })).toHaveStyle({ backgroundColor: '#123456' }))
+    // Named by its content, not aria-label, so the visible initials never contradict the name.
+    expect(profile).not.toHaveAttribute('aria-label')
+    expect(profile).toHaveAccessibleName('Profile Alina Morozova')
     expect(screen.queryByRole('link', { name: 'Sign in' })).not.toBeInTheDocument()
   })
 
   it('names the avatar after the username until the profile arrives', async () => {
     open({ signedIn: true })
-    expect(await within(await screen.findByRole('link', { name: 'Profile' })).findByRole('img')).toHaveAccessibleName(/alina|Alina/)
+    expect(await within(await screen.findByRole('link', { name: /^Profile/ })).findByRole('img')).toHaveAccessibleName(/alina|Alina/)
   })
 
   it('opens the corridor picker from the pill — a guest chooses a pair', async () => {

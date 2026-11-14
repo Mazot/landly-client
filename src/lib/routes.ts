@@ -9,6 +9,7 @@ export const ROUTES = {
   countries: '/countries',
   saved: '/saved',
   account: '/account',
+  accountEdit: '/account/edit',
   add: '/add',
   /** `/add/sent/{organisationId}` — the place was submitted. */
   addSent: '/add/sent',

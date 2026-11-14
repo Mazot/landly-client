@@ -4,7 +4,8 @@ import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { queryKeys } from '@/lib/queryKeys'
 import type { SearchOrganisationsQuery } from '@/types/api'
-import { list, organisation } from '@/test/factories'
+import { useAuthStore } from '@/stores/authStore'
+import { authUser, list, organisation } from '@/test/factories'
 import { createTestQueryClient, isInvalidated, renderQueryHook, runMutation, seed } from '@/test/render'
 import { API, capture, server } from '@/test/server'
 import {
@@ -14,6 +15,7 @@ import {
   useOrganisation,
   useOrganisations,
   useRecordVisit,
+  useMyOrganisations,
   useSearchOrganisations,
   useDuplicates,
   useUpdateOrganisation,
@@ -26,6 +28,22 @@ describe('useOrganisations', () => {
     const { result } = renderQueryHook(() => useOrganisations({ name: 'emb' }))
     await waitFor(() => expect(result.current.data?.items).toEqual([org]))
     expect(requests[0].query.get('name')).toBe('emb')
+  })
+})
+
+describe('useMyOrganisations', () => {
+  it('is idle for a guest', () => {
+    const { result } = renderQueryHook(() => useMyOrganisations())
+    expect(result.current.fetchStatus).toBe('idle')
+  })
+
+  it("lists the caller's own places in every status, with the moderator's note", async () => {
+    useAuthStore.getState().setAuth(authUser())
+    const mine = { ...organisation({ status: 'pending' }), moderationNote: 'Add a phone number' }
+    const requests = capture('get', '/api/organisation/mine', list([mine]))
+    const { result } = renderQueryHook(() => useMyOrganisations({ limit: 50 }))
+    await waitFor(() => expect(result.current.data?.items).toEqual([mine]))
+    expect(requests[0].query.get('limit')).toBe('50')
   })
 })
 
@@ -83,6 +101,7 @@ describe('useOrganisation', () => {
 describe('organisation writes', () => {
   const affected = [
     queryKeys.organisations.list(),
+    queryKeys.organisations.mine(),
     queryKeys.organisations.detail('o1'),
     queryKeys.me,
     queryKeys.countries.detail('c1'),

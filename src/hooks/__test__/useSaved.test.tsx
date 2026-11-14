@@ -38,10 +38,12 @@ describe('saved writes', () => {
   ] as const)('%s refreshes items and counts', async (_, method, path, run) => {
     capture(method, path, savedItem())
     const client = createTestQueryClient()
-    seed(client, queryKeys.saved.list(), queryKeys.saved.counts)
+    seed(client, queryKeys.saved.list(), queryKeys.saved.counts, queryKeys.me)
 
     await run(client)
 
+    // The profile counts saved items.
+    expect(isInvalidated(client, queryKeys.me)).toBe(true)
     expect(isInvalidated(client, queryKeys.saved.list())).toBe(true)
     expect(isInvalidated(client, queryKeys.saved.counts)).toBe(true)
   })

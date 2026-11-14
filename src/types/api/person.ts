@@ -38,6 +38,20 @@ export interface Person {
   whatsapp?: string
 }
 
+/**
+ * `GET /api/person/mine` item (auth): a person the caller recommended, in any status.
+ * The public payload (contacts gated as everywhere) plus what only the recommender is told.
+ */
+export interface MyPerson extends Person {
+  /** Moderator's note from request-changes / reject; null otherwise. */
+  moderationNote: string | null
+  /** Last change: moderation, or the person answering the claim link. */
+  updatedAt: ServerDateTime
+}
+
+/** `GET /api/person/mine` — newest first (limit default 20, max 100). */
+export type MyPeopleQuery = PaginationParams
+
 /** `POST /api/person/create` (auth). Email or WhatsApp is required. */
 export interface CreatePersonRequest {
   name: string

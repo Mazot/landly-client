@@ -17,6 +17,8 @@ const useInvalidateReviews = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.reviews.all })
     queryClient.invalidateQueries({ queryKey: queryKeys.organisations.all })
     queryClient.invalidateQueries({ queryKey: queryKeys.people.all })
+    // The profile counts the caller's reviews (`stats.reviews`).
+    queryClient.invalidateQueries({ queryKey: queryKeys.me })
   }
 }
 

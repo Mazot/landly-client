@@ -1,13 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryKeys'
 import { personApi } from '@/services/person.service'
-import type { ClaimConfirmRequest, CreatePersonRequest, PeopleListQuery, Uuid, VouchPersonRequest } from '@/types/api'
+import { useAuthStore } from '@/stores/authStore'
+import type { ClaimConfirmRequest, CreatePersonRequest, MyPeopleQuery, PeopleListQuery, Uuid, VouchPersonRequest } from '@/types/api'
 
 export const usePeople = (query?: PeopleListQuery) =>
   useQuery({
     queryKey: queryKeys.people.list(query),
     queryFn: () => personApi.list(query),
   })
+
+/** The people the caller recommended, in every status; disabled while signed out. */
+export const useMyPeople = (query?: MyPeopleQuery) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  return useQuery({
+    queryKey: queryKeys.people.mine(query),
+    queryFn: () => personApi.mine(query),
+    enabled: isAuthenticated,
+  })
+}
 
 export const usePerson = (id: Uuid | undefined) =>
   useQuery({
@@ -21,7 +32,11 @@ export const useCreatePerson = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: CreatePersonRequest) => personApi.create(body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.people.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.all })
+      // The profile counts recommendations (`stats.peopleRecommended`).
+      queryClient.invalidateQueries({ queryKey: queryKeys.me })
+    },
   })
 }
 

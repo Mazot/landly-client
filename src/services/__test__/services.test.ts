@@ -50,6 +50,7 @@ const cases: Case[] = [
   // organisation
   { name: 'organisation.list', call: () => organisationApi.list({ name: 'emb', limit: 10 }), method: 'get', path: '/api/organisation/list', query: { name: 'emb', limit: '10' }, response: { items: [], total: 0 } },
   { name: 'organisation.search', call: () => organisationApi.search({ lat: 52.5, lng: 13.4, types: ['embassy', 'helper'], open_now: true, sort: 'nearest' }), method: 'get', path: '/api/organisation/search', query: { lat: '52.5', lng: '13.4', types: 'embassy,helper', open_now: 'true', sort: 'nearest' }, response: { items: [], total: 0 } },
+  { name: 'organisation.mine', call: () => organisationApi.mine({ limit: 50, offset: 10 }), method: 'get', path: '/api/organisation/mine', query: { limit: '50', offset: '10' }, response: { items: [], total: 0 } },
   { name: 'organisation.fetch', call: () => organisationApi.fetch(ID), method: 'get', path: `/api/organisation/fetch/${ID}`, response: OK },
   { name: 'organisation.duplicates', call: () => organisationApi.duplicates({ name: 'Kyiv Coffee', lat: 52.5, lng: 13.4 }), method: 'get', path: '/api/organisation/duplicates', query: { name: 'Kyiv Coffee', lat: '52.5', lng: '13.4' }, response: { items: [], total: 0 } },
   { name: 'organisation.create', call: () => organisationApi.create({ name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }), method: 'post', path: '/api/organisation/create', body: { name: 'Embassy', google_place_id: 'p1', latitude: 1, longitude: 2 }, response: OK },
@@ -93,6 +94,7 @@ const cases: Case[] = [
 
   // person
   { name: 'person.list', call: () => personApi.list({ skills: ['Housing', 'Language'], language_ids: [ID], city: 'Ber' }), method: 'get', path: '/api/person/list', query: { skills: 'Housing,Language', language_ids: ID, city: 'Ber' }, response: { items: [], total: 0 } },
+  { name: 'person.mine', call: () => personApi.mine({ limit: 50 }), method: 'get', path: '/api/person/mine', query: { limit: '50' }, response: { items: [], total: 0 } },
   { name: 'person.fetch', call: () => personApi.fetch(ID), method: 'get', path: `/api/person/fetch/${ID}`, response: OK },
   { name: 'person.create', call: () => personApi.create({ name: 'Daria K.', consent_given: true, email: 'd@x.io' }), method: 'post', path: '/api/person/create', body: { name: 'Daria K.', consent_given: true, email: 'd@x.io' }, response: OK },
   { name: 'person.vouch', call: () => personApi.vouch(ID, { note: 'Helped me' }), method: 'post', path: `/api/person/vouch/${ID}`, body: { note: 'Helped me' }, response: OK },

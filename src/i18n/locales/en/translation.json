@@ -675,5 +675,79 @@
       "notYours": "Nothing to show here",
       "notYoursHint": "This page is for a place you have just submitted."
     }
+  },
+  "account": {
+    "title": "Account",
+    "loading": "Loading…",
+    "loadFailed": "Couldn't load your account",
+    "retry": "Try again",
+    "from": "from {{country}}",
+    "editProfile": "Edit profile",
+    "signOut": "Sign out",
+    "moderator": "Moderator:",
+    "stats": {
+      "placesAdded_one": "place added",
+      "placesAdded_other": "places added",
+      "peopleRecommended_one": "person recommended",
+      "peopleRecommended_other": "people recommended",
+      "reviews_one": "review",
+      "reviews_other": "reviews",
+      "saved_one": "saved",
+      "saved_other": "saved"
+    },
+    "languages": {
+      "title": "Languages I speak",
+      "edit": "Edit",
+      "empty": "No languages added yet."
+    },
+    "places": {
+      "title": "My places",
+      "subtitle": "Organizations you added",
+      "add": "Add a place",
+      "empty": "You haven't added a place yet",
+      "emptyHint": "Places you add appear here with their moderation status.",
+      "loadFailed": "Couldn't load your places",
+      "liveSince": "Live since {{date}}",
+      "submitted": "Submitted {{ago}}",
+      "rejected": "Rejected · {{ago}}"
+    },
+    "people": {
+      "title": "People I recommended",
+      "recommend": "Recommend",
+      "empty": "You haven't recommended anyone yet",
+      "emptyHint": "People you recommend appear here with the state of their claim link.",
+      "loadFailed": "Couldn't load your recommendations",
+      "standing": {
+        "pending": "Sent for review {{ago}}",
+        "awaiting": "Claim link created {{ago}}",
+        "confirmed": "Confirmed {{ago}}",
+        "claimed": "Linked their Landly account",
+        "declined": "Declined {{ago}}"
+      }
+    },
+    "corridors": {
+      "title": "My corridors",
+      "manage": "Manage",
+      "empty": "No corridors yet",
+      "emptyHint": "Add a corridor to open the map on your countries."
+    },
+    "edit": {
+      "title": "Edit profile",
+      "save": "Save changes",
+      "saveShort": "Save",
+      "failed": "Couldn't save your profile. Try again.",
+      "chooseCountry": "Choose a country",
+      "addLanguage": "Add a language",
+      "fields": {
+        "name": "Name",
+        "city": "City",
+        "bio": "About me",
+        "homeCountry": "Home country"
+      },
+      "errors": {
+        "tooLong": "This is too long"
+      }
+    },
+    "changesRequested": "Changes requested · {{ago}}"
   }
 }

@@ -5,6 +5,8 @@ import { GOOGLE_CALLBACK_PATH } from '@/services/user.service'
 import { ROUTES } from '@/lib/routes'
 import GoogleCallbackPage from '@/pages/GoogleCallbackPage'
 import AddPlacePage from '@/pages/AddPlacePage'
+import AccountPage from '@/pages/AccountPage'
+import EditProfilePage from '@/pages/EditProfilePage'
 import AddPlaceSentPage from '@/pages/AddPlaceSentPage'
 import LandingPage from '@/pages/LandingPage'
 import MapPage from '@/pages/MapPage'
@@ -12,7 +14,7 @@ import SignInPage from '@/pages/SignInPage'
 import SignUpPage from '@/pages/SignUpPage'
 
 /**
- * Screens are added one design section at a time (done: sign in & sign up, the map, add a place).
+ * Screens are added one design section at a time (done: sign in & sign up, the map, add a place, account).
  * Claim links point to `/claim/{token}`; `ROUTES.map` is public and is where a signed-in user lands.
  */
 function App() {
@@ -27,6 +29,8 @@ function App() {
       <Route element={<RequireAuth />}>
         <Route path={ROUTES.add} element={<AddPlacePage />} />
         <Route path={`${ROUTES.addSent}/:id`} element={<AddPlaceSentPage />} />
+        <Route path={ROUTES.account} element={<AccountPage />} />
+        <Route path={ROUTES.accountEdit} element={<EditProfilePage />} />
       </Route>
       <Route path={GOOGLE_CALLBACK_PATH} element={<GoogleCallbackPage />} />
       <Route path="*" element={null} />
