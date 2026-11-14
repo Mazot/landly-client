@@ -159,10 +159,20 @@ describe('editing a stored place', () => {
       description: 'Café',
       services: ['Breakfast'],
       languages: ['Russian'],
-      opening_hours: {},
       location_country_id: undefined,
       founder_country_id: undefined,
     })
+    expect(request).not.toHaveProperty('opening_hours')
     expect(toUpdateRequest(values(), { lat: 1, lng: 2 }, place)).toMatchObject({ latitude: 1, longitude: 2, location_country_id: 'rs' })
+  })
+
+  it('leaves stored hours alone unless they were edited — a split shift the editor cannot show survives', () => {
+    const place = organisation({ openingHours: { mon: [['09:00', '13:00'], ['14:00', '18:00']] } })
+    const shown = toFormValues(place)
+    expect(toUpdateRequest(shown, { lat: place.latitude!, lng: place.longitude! }, place)).not.toHaveProperty('opening_hours')
+    const edited = { ...shown, hours: { ...shown.hours, tue: ['10:00', '12:00'] as [string, string] } }
+    expect(toUpdateRequest(edited, { lat: place.latitude!, lng: place.longitude! }, place).opening_hours).toEqual({ mon: [['09:00', '13:00']], tue: [['10:00', '12:00']] })
+    // Closing every day is an edit too: it sends an empty week.
+    expect(toUpdateRequest({ ...shown, hours: emptyHours() }, { lat: place.latitude!, lng: place.longitude! }, place).opening_hours).toEqual({})
   })
 })

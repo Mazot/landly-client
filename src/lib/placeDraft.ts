@@ -169,11 +169,13 @@ export function searchTextFromMapsLink(input: string): string {
 
 /**
  * The update request (`PUT /organisation/update/{id}`, omitted fields keep their value): every field
- * the form shows is sent — a cleared one as `""`, no open day as `{}` — so a deletion is saved too.
+ * the form shows is sent — a cleared one as `""`, no open day as `{}` — so a deletion is saved too
+ * (the hours only when they were edited).
  * The point goes only when it was moved, so an untouched place keeps its Google-sourced coordinates.
  */
 export function toUpdateRequest(values: PlaceFormValues, location: PlaceLocation, place: Organisation): UpdateOrganisationRequest {
   const moved = location.lat !== place.latitude || location.lng !== place.longitude
+  const hoursChanged = JSON.stringify(values.hours) !== JSON.stringify(fromOpeningHours(place.openingHours))
   return {
     name: values.name.trim(),
     organisation_type_id: values.typeId || undefined,
@@ -184,7 +186,8 @@ export function toUpdateRequest(values: PlaceFormValues, location: PlaceLocation
     description: values.description.trim(),
     services: values.services,
     languages: values.languages,
-    opening_hours: toOpeningHours(values.hours) ?? {},
+    // Hours the user did not touch stay as stored: the editor shows one interval a day, the server may hold more.
+    ...(hoursChanged && { opening_hours: toOpeningHours(values.hours) ?? {} }),
     location_country_id: values.toId || undefined,
     founder_country_id: values.fromId || undefined,
     ...(moved && { latitude: location.lat, longitude: location.lng }),

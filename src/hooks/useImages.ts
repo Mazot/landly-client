@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryKeys'
 import { imageApi } from '@/services/image.service'
 import type { PaginationParams, UploadImageInput, Uuid } from '@/types/api'
@@ -21,12 +21,14 @@ export const useImage = (id: Uuid | undefined) =>
  * Refreshes the organisation's lists and every cached image detail: setting a
  * primary flips `isPrimary` on the previous primary too.
  */
+const invalidateImages = (queryClient: QueryClient, organisationId: Uuid) => {
+  queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) })
+  queryClient.invalidateQueries({ queryKey: queryKeys.images.details })
+}
+
 const useInvalidateImages = (organisationId: Uuid) => {
   const queryClient = useQueryClient()
-  return () => {
-    queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) })
-    queryClient.invalidateQueries({ queryKey: queryKeys.images.details })
-  }
+  return () => invalidateImages(queryClient, organisationId)
 }
 
 export const useUploadImage = (organisationId: Uuid) => {
@@ -67,7 +69,7 @@ export const useUploadImages = () => {
       }
       return { uploaded, failed }
     },
-    onSettled: (_result, _error, { organisationId }) => queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) }),
+    onSettled: (_result, _error, { organisationId }) => invalidateImages(queryClient, organisationId),
   })
 }
 

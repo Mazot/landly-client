@@ -6,7 +6,8 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
 import { authUser, country, organisation } from '@/test/factories'
-import { renderApp } from '@/test/render'
+import { queryKeys } from '@/lib/queryKeys'
+import { createTestQueryClient, renderApp } from '@/test/render'
 import { API, capture, server } from '@/test/server'
 import { setViewportWidth } from '@/test/viewport'
 import EditPlacePage from '../EditPlacePage'
@@ -81,6 +82,28 @@ describe('EditPlacePage', () => {
     server.use(http.get(`${API}/api/organisation/fetch/my-place`, () => new Promise(() => {})))
     open()
     expect(screen.getByText('Loading…')).toBeInTheDocument()
+  })
+
+  it('starts from what the server says now, not from the copy the place page cached', async () => {
+    capture('get', '/api/organisation/fetch/my-place', place({ name: 'Svetofor (new)' }))
+    const client = createTestQueryClient()
+    client.setQueryData(queryKeys.organisations.detail('my-place'), place({ name: 'Svetofor (old)' }))
+    renderApp(
+      <Routes>
+        <Route path="/place/:id/edit" element={<EditPlacePage />} />
+      </Routes>,
+      { route: '/place/my-place/edit', client },
+    )
+    expect(screen.getByText('Loading…')).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Svetofor (new)'))
+  })
+
+  it('says the place could not be loaded — not that it is not theirs — and tries again', async () => {
+    let calls = 0
+    server.use(http.get(`${API}/api/organisation/fetch/my-place`, () => (++calls === 1 ? HttpResponse.json({ error: 'boom' }, { status: 500 }) : HttpResponse.json(place()))))
+    open()
+    await userEvent.click(await screen.findByRole('button', { name: 'Try again' }, { timeout: 5000 }))
+    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('Svetofor'))
   })
 
   it.each([

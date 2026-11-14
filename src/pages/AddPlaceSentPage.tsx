@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useLocation, useParams } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button, Callout, Dropzone, EmptyState, FormNote, IconTile, InlineStatus, PageHeader, StepList } from '@/components/ui'
-import { useUploadImage } from '@/hooks/useImages'
+import { useUploadImages } from '@/hooks/useImages'
 import { useOrganisation } from '@/hooks/useOrganisations'
 import { ROUTES } from '@/lib/routes'
 import { useAuthStore } from '@/stores/authStore'
@@ -25,7 +25,7 @@ function SentScreen() {
   const { id = '' } = useParams()
   const userId = useAuthStore((state) => state.user?.id)
   const place = useOrganisation(id)
-  const upload = useUploadImage(id)
+  const upload = useUploadImages()
   const [addingPhotos, setAddingPhotos] = useState(false)
   const [uploading, setUploading] = useState<{ name: string; done: number; total: number }>()
   // Photos picked on the form were sent right after the place was created: say how that went.
@@ -35,19 +35,11 @@ function SentScreen() {
 
   const uploadAll = async (files: File[]) => {
     setRejected(0)
-    // The first photo that arrives is the cover — a failed first file does not leave the place without one.
-    let hasPrimary = uploaded > 0
-    for (const [index, file] of files.entries()) {
-      setUploading({ name: file.name, done: index, total: files.length })
-      try {
-        await upload.mutateAsync({ file, isPrimary: !hasPrimary })
-        hasPrimary = true
-        setUploaded((count) => count + 1)
-      } catch {
-        setRejected((count) => count + 1)
-      }
-    }
+    // The first photo that arrives is the cover (unless one already did) — a failed first file does not leave the place without one.
+    const result = await upload.mutateAsync({ organisationId: id, files, hasPrimary: uploaded > 0, onProgress: setUploading })
     setUploading(undefined)
+    setUploaded((count) => count + result.uploaded)
+    setRejected(result.failed)
   }
 
   if (place.isPending) {

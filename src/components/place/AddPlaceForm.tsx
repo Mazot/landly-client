@@ -76,6 +76,8 @@ export function AddPlaceForm({ size, corridor, onCreated, place, onSaved }: AddP
     }) as PlaceFormValues,
     validators: { onSubmit: placeSchema },
     onSubmit: ({ value }) => {
+      // Enter in a field can submit again while the place or its photos are on their way.
+      if (saving.isPending || uploadImages.isPending) return
       if (!location) return setLocationError(true)
       if (place) return update.mutate({ id: place.id, body: toUpdateRequest(value, location, place) }, { onSuccess: (saved) => onSaved?.(saved) })
       create.mutate(toCreateRequest(value, location), {

@@ -4,6 +4,9 @@ import { Badge, Button, Callout, Dropzone, IconButton, ImageFrame, InlineStatus 
 import { useDeleteImage, useOrganisationImages, useSetPrimaryImage, useUploadImages, type UploadProgress } from '@/hooks/useImages'
 import type { Uuid } from '@/types/api'
 
+/** Photos loaded for the editor: the server's largest page, so the cover is found among them. */
+const PHOTOS_LIMIT = 100
+
 /** One photo of the grid. */
 export interface PhotoItem {
   key: string
@@ -86,13 +89,14 @@ export function QueuedPhotos({ files, onChange }: QueuedPhotosProps) {
 /** The photos of a place that exists: each change (add, cover, remove) is saved at once. */
 export function PlacePhotosEditor({ organisationId }: { organisationId: Uuid }) {
   const { t } = useTranslation()
-  const images = useOrganisationImages(organisationId)
+  const images = useOrganisationImages(organisationId, { limit: PHOTOS_LIMIT })
   const upload = useUploadImages()
   const setPrimary = useSetPrimaryImage(organisationId)
   const remove = useDeleteImage(organisationId)
   const [uploading, setUploading] = useState<UploadProgress>()
   const [rejected, setRejected] = useState(0)
 
+  const changeFailed = setPrimary.isError || remove.isError
   if (images.isError) return <Callout tone="danger" title={t('photosField.loadFailed')} />
   if (!images.data) return <InlineStatus>{t('addPlace.loading')}</InlineStatus>
 
@@ -106,14 +110,23 @@ export function PlacePhotosEditor({ organisationId }: { organisationId: Uuid }) 
   }
 
   return (
-    <PhotosGrid
+    <div className="flex flex-col gap-3.5">
+      {changeFailed && <Callout tone="danger" title={t('photosField.changeFailed')} />}
+      <PhotosGrid
       photos={photos}
       uploading={uploading}
       rejected={rejected}
       onFiles={(files) => void send(files)}
       onReject={(refused) => setRejected(refused.length)}
-      onRemove={(id) => remove.mutate(id)}
-      onMakeCover={(id) => setPrimary.mutate(id)}
-    />
+      onRemove={(id) => {
+        setPrimary.reset()
+        remove.mutate(id)
+      }}
+      onMakeCover={(id) => {
+        remove.reset()
+        setPrimary.mutate(id)
+      }}
+      />
+    </div>
   )
 }

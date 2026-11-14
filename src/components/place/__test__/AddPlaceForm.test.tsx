@@ -237,6 +237,20 @@ describe('AddPlaceForm: photos', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Business' }))
   }
 
+  it('does not create the place twice when submitted again while its photos are going up', async () => {
+    const created = arrange()
+    server.use(http.post(`${API}/api/images/upload/new-place`, () => new Promise(() => {})))
+    const { container } = render()
+    await fillRequired()
+    await pick(png('a.png'))
+    await submit()
+    await waitFor(() => expect(created).toHaveLength(1))
+    // Enter in a text field submits the form once more while the upload is still running.
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(created).toHaveLength(1)
+  })
+
   it('queues the picked photos: the first is the cover, "Make cover" moves one to the front, ✕ drops one', async () => {
     arrange()
     const revoke = vi.spyOn(URL, 'revokeObjectURL')
@@ -339,7 +353,6 @@ describe('AddPlaceForm: editing a place', () => {
       description: '',
       services: ['Groceries'],
       languages: [],
-      opening_hours: { mon: [['08:00', '20:00']] },
       location_country_id: serbia.id,
       founder_country_id: russia.id,
     })
@@ -407,6 +420,20 @@ describe('AddPlaceForm: editing a place', () => {
     await screen.findByTestId('dropzone-input')
     await userEvent.setup({ applyAccept: false }).upload(screen.getByTestId('dropzone-input'), [new File(['x'], 'notes.pdf', { type: 'application/pdf' })])
     expect(await screen.findByText("1 photo couldn't be added")).toBeInTheDocument()
+  })
+
+  it('says so when making a cover or removing a photo fails, and asks the server for its largest page', async () => {
+    arrangeEdit()
+    const photos = capture('get', '/api/images/list/my-place', list([image({ id: 'i1', organisationId: 'my-place', fileName: 'front.jpg', isPrimary: false })]))
+    capture('put', '/api/images/set-primary/i1', { error: 'boom' }, 500)
+    capture('delete', '/api/images/delete/i1', { error: 'boom' }, 500)
+    renderEdit()
+    const list_ = within(await screen.findByRole('list', { name: 'Photos' }))
+    expect(photos[0].query.get('limit')).toBe('100')
+    await userEvent.click(list_.getByRole('button', { name: 'Make front.jpg the cover' }))
+    expect(await screen.findByText("Couldn't update the photos. Try again.")).toBeInTheDocument()
+    await userEvent.click(list_.getByRole('button', { name: 'Remove front.jpg' }))
+    expect(await screen.findByText("Couldn't update the photos. Try again.")).toBeInTheDocument()
   })
 
   it('counts the photos the server refused', async () => {

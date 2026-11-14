@@ -575,6 +575,7 @@
     }
   },
   "photosField": {
+    "changeFailed": "Couldn't update the photos. Try again.",
     "list": "Photos",
     "cover": "Cover",
     "remove": "Remove {{name}}",
