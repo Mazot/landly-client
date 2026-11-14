@@ -8,6 +8,7 @@ import type {
   PaginationParams,
   PeopleListQuery,
   ReviewsListQuery,
+  ReviewSummaryQuery,
   SavedListQuery,
   SearchOrganisationsQuery,
   TimeZoneQuery,
@@ -79,6 +80,7 @@ export const queryKeys = {
   reviews: {
     all: ['reviews'] as const,
     list: (query: ReviewsListQuery) => ['reviews', 'list', query] as const,
+    summary: (query: ReviewSummaryQuery) => ['reviews', 'summary', query] as const,
   },
   saved: {
     all: ['saved'] as const,

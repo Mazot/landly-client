@@ -1,10 +1,14 @@
 import apiClient from '@/lib/axios'
-import type { CreateReviewRequest, ListResponse, Review, ReviewsListQuery, Uuid } from '@/types/api'
+import type { CreateReviewRequest, ListResponse, Review, ReviewsListQuery, ReviewSummary, ReviewSummaryQuery, Uuid } from '@/types/api'
 
 export const reviewApi = {
   /** Newest first; give exactly one target. */
   list: async (query: ReviewsListQuery): Promise<ListResponse<Review>> =>
     (await apiClient.get('/api/review/list', { params: query })).data,
+
+  /** Count, average and the per-rating breakdown; give exactly one target. */
+  summary: async (query: ReviewSummaryQuery): Promise<ReviewSummary> =>
+    (await apiClient.get('/api/review/summary', { params: query })).data,
 
   /** Auth; refreshes the target's `ratingAvg` / `reviewsCount`. 403 for your own submission or a person you recommended / are. */
   create: async (body: CreateReviewRequest): Promise<Review> =>

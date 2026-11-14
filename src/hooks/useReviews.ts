@@ -1,12 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { queryKeys } from '@/lib/queryKeys'
 import { reviewApi } from '@/services/review.service'
-import type { CreateReviewRequest, ReviewsListQuery, Uuid } from '@/types/api'
+import type { CreateReviewRequest, ReviewsListQuery, ReviewSummaryQuery, Uuid } from '@/types/api'
 
 export const useReviews = (query: ReviewsListQuery | undefined) =>
   useQuery({
     queryKey: queryKeys.reviews.list(query!),
     queryFn: () => reviewApi.list(query!),
+    enabled: !!query,
+  })
+
+/** Count, average and per-rating breakdown of a target's reviews; idle until a target is known. */
+export const useReviewSummary = (query: ReviewSummaryQuery | undefined) =>
+  useQuery({
+    queryKey: queryKeys.reviews.summary(query!),
+    queryFn: () => reviewApi.summary(query!),
     enabled: !!query,
   })
 

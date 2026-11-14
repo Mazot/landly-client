@@ -141,7 +141,7 @@ describe('organisation writes', () => {
 
 describe('useCheckin', () => {
   it('replaces the cached detail with the fresh payload', async () => {
-    const fresh = organisation({ id: 'o1', community: { peopleCame: 5, stillActivePct: 80, lastCheckinAt: null, tips: ['Bring a photo'] } })
+    const fresh = organisation({ id: 'o1', community: { peopleCame: 5, stillActivePct: 80, lastCheckinAt: null, tips: [{ text: 'Bring a photo', createdAt: '2026-11-01T10:00:00', author: null }] } })
     const requests = capture('post', '/api/organisation/checkin/o1', fresh)
     const { result, client } = renderQueryHook(() => useCheckin())
 

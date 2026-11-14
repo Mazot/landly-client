@@ -8,6 +8,7 @@ import { InlineStatus } from '../DS/InlineStatus'
 import { Logo } from '../DS/Logo'
 import { PageHeader } from '../DS/PageHeader'
 import { TopBar } from '../DS/TopBar'
+import { RatingBreakdown } from '../RatingBreakdown'
 import { TypeBar } from '../TypeBar'
 
 describe('Logo', () => {
@@ -32,6 +33,31 @@ describe('Logo', () => {
       </MemoryRouter>,
     )
     expect(screen.getByRole('link', { name: 'landly' })).toHaveAttribute('href', '/home')
+  })
+})
+
+describe('RatingBreakdown', () => {
+  it('names every rating and scales the bars to the most common one', () => {
+    const { container } = render(
+      <RatingBreakdown
+        label="Ratings"
+        rowLabel={(row) => `${row.rating}: ${row.count}`}
+        rows={[
+          { rating: 5, count: 4 },
+          { rating: 4, count: 2 },
+          { rating: 3, count: 0 },
+        ]}
+      />,
+    )
+    const list = screen.getByRole('list', { name: 'Ratings' })
+    expect(within(list).getAllByRole('listitem').map((li) => li.getAttribute('aria-label'))).toEqual(['5: 4', '4: 2', '3: 0'])
+    const bars = container.querySelectorAll<HTMLElement>('.bg-star')
+    expect([...bars].map((bar) => bar.style.width)).toEqual(['100%', '50%', '0%'])
+  })
+
+  it('draws empty bars without reviews', () => {
+    const { container } = render(<RatingBreakdown label="Ratings" rowLabel={(row) => String(row.rating)} rows={[{ rating: 5, count: 0 }]} />)
+    expect(container.querySelector<HTMLElement>('.bg-star')!.style.width).toBe('0%')
   })
 })
 

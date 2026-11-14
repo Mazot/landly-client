@@ -17,7 +17,7 @@ src/components/ui/
 ├── DS/                 # reusable, purely visual components (Button, TextField, Sheet, Card, TabBar, Icon + iconPaths, Logo, …), one per file
 │   └── stories/        # their Storybook stories: <Name>.stories.tsx
 ├── stories/            # stories of the product components below + Tokens.stories.tsx
-└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop, MapLayout) · map pieces (MapPin, CorridorPill, CorridorBubble, VerifiedMark)
+└── <Component>.tsx     # product components: data-aware (Chip, ChipGroup, Tag, TypeTag, StatusBadge, TypeBar, RatingBreakdown, Dropzone, StarInput), domain-specific (CorridorFields, CorridorFlags, OpenStatus, Rating) or screen frames (AuthLayout, MapBackdrop, MapLayout) · map pieces (MapPin, CorridorPill, CorridorBubble, VerifiedMark)
 ```
 
 `tailwind.config.ts` builds the theme from `tokens.ts`, so a token is added in one place
@@ -41,7 +41,7 @@ src/components/ui/
 |---|---|---|
 | Primitives | `Icon` | line icons · `name`, `size`, `filled`, `label` |
 | | `Spinner` | `size`, `label` |
-| | `Button` | `to` (router link looking like a button); `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
+| | `Button` | `to` (router link looking like a button), `href` (another site, new tab); `variant` primary · accent · secondary · ghost · success · danger · whatsapp; `size` sm/md/lg; `icon`, `iconRight`, `block`, `loading`; no children → icon button |
 | | `IconButton` | `icon`, `label` (required), `variant` plain · outline · floating, `size`, `pressed` |
 | | `TextLink` | `to` (router) / `href` / `onClick`; `tone` accent · muted · strong · danger |
 | | `Divider` | optional `label` |
@@ -62,6 +62,7 @@ src/components/ui/
 | | `CorridorPill` / `CorridorBubble` | current corridor as a pill (app bar, dark over the map) · dark summary over the map: `from` / `to` flags, `label`, `title`, `detail`, `onClick` |
 | | `VerifiedMark` | the blue check after a verified place's name |
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
+| | `RatingBreakdown` | reviews per rating, bars scaled to the most common one (star colour) · `rows` (`rating`, `count`, highest first), `label`, `rowLabel` |
 | Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control · `group` for a control that names itself (ChipGroup, ColorSwatches, Segmented): the label becomes a caption |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
 | | `FormNote` | centred muted line under a form · `size` md / sm |

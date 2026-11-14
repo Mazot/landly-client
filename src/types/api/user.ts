@@ -90,6 +90,16 @@ export interface UserProfileStats {
   rating: number | null
 }
 
+/**
+ * `PublicUserContent` — a user as anyone may see them next to their content (a review's author, a
+ * check-in tip's author, who added a place). No id, email or role.
+ */
+export interface PublicUser {
+  username: string
+  name: string | null
+  avatarColor: string | null
+}
+
 /** `GET/PUT /api/user/me` — the caller's own profile. */
 export interface UserProfile {
   id: Uuid

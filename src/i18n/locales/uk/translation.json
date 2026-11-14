@@ -781,5 +781,91 @@
     },
     "changesRequested": "Запитано правки · {{ago}}",
     "showMore": "Показати ще"
+  },
+  "place": {
+    "title": "Місце",
+    "loading": "Завантаження…",
+    "loadFailed": "Не вдалося завантажити місце",
+    "retry": "Повторити",
+    "notFound": "Такого місця немає або його видалено",
+    "backToMap": "Повернутися до мапи",
+    "close": "Закрити",
+    "verified": "Перевірено",
+    "visits_one": "{{formatted}} перегляд",
+    "visits_few": "{{formatted}} перегляди",
+    "visits_many": "{{formatted}} переглядів",
+    "visits_other": "{{formatted}} перегляду",
+    "directions": "Маршрут",
+    "save": "Зберегти",
+    "saved": "Збережено",
+    "copyLink": "Скопіювати посилання на місце",
+    "linkCopied": "Посилання скопійовано",
+    "openFullPage": "Відкрити сторінку місця",
+    "about": "Про місце",
+    "services": "Послуги",
+    "hours": "Години роботи",
+    "closed": "Зачинено",
+    "localTime": "Місцевий час · {{zone}}",
+    "languages": "Мови",
+    "map": "Мапа",
+    "breadcrumbs": "Навігація",
+    "contacts": {
+      "title": "Контакти",
+      "phone": "Телефон",
+      "email": "Email",
+      "website": "Сайт",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "photos": {
+      "title_one": "Фото · {{count}}",
+      "title_few": "Фото · {{count}}",
+      "title_many": "Фото · {{count}}",
+      "title_other": "Фото · {{count}}",
+      "primary": "Фото: {{name}}",
+      "alt": "{{name}}, фото {{index}}"
+    },
+    "network": {
+      "title": "Консульська мережа",
+      "subtitle": "Посольства й консульства, пов’язані з цим місцем",
+      "consulate": "Консульство · {{place}}",
+      "embassy": "Посольство · {{place}}"
+    },
+    "community": {
+      "title": "Відмітки відвідувачів",
+      "subtitle": "Відвідувачі підтверджують, що місце працює, і залишають поради",
+      "empty": "Відміток поки немає.",
+      "stillActive": "кажуть, що працює",
+      "checkins_one": "відмітка",
+      "checkins_few": "відмітки",
+      "checkins_many": "відміток",
+      "checkins_other": "відмітки",
+      "lastCheckin": "остання відмітка",
+      "tips": "Поради відвідувачів",
+      "tip": "«{{text}}»",
+      "tipBy": "— {{name}}, {{ago}}",
+      "someone": "відвідувач"
+    },
+    "reviews": {
+      "title": "Відгуки",
+      "loadFailed": "Не вдалося завантажити відгуки",
+      "empty": "Відгуків поки немає.",
+      "count_one": "{{count}} відгук",
+      "count_few": "{{count}} відгуки",
+      "count_many": "{{count}} відгуків",
+      "count_other": "{{count}} відгуку",
+      "latest": "Останні відгуки",
+      "deletedAuthor": "Колишній учасник",
+      "bar_one": "Оцінка {{rating}}: {{count}} відгук",
+      "bar_few": "Оцінка {{rating}}: {{count}} відгуки",
+      "bar_many": "Оцінка {{rating}}: {{count}} відгуків",
+      "bar_other": "Оцінка {{rating}}: {{count}} відгуку",
+      "breakdown": "Відгуки за оцінками"
+    },
+    "addedBy": {
+      "title": "Додав",
+      "who": "@{{username}} · додав це місце",
+      "fromGoogle": "Точка з Google Карт"
+    }
   }
 }

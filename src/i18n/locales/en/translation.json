@@ -751,5 +751,81 @@
     },
     "changesRequested": "Changes requested · {{ago}}",
     "showMore": "Show more"
+  },
+  "place": {
+    "title": "Place",
+    "loading": "Loading…",
+    "loadFailed": "Couldn't load this place",
+    "retry": "Try again",
+    "notFound": "This place doesn't exist or was removed",
+    "backToMap": "Back to the map",
+    "close": "Close",
+    "verified": "Verified",
+    "visits_one": "{{formatted}} visit",
+    "visits_other": "{{formatted}} visits",
+    "directions": "Directions",
+    "save": "Save",
+    "saved": "Saved",
+    "copyLink": "Copy link to this place",
+    "linkCopied": "Link copied",
+    "openFullPage": "Open full page",
+    "about": "About",
+    "services": "Services",
+    "hours": "Opening hours",
+    "closed": "Closed",
+    "localTime": "Local time · {{zone}}",
+    "languages": "Languages",
+    "map": "Map",
+    "breadcrumbs": "Breadcrumbs",
+    "contacts": {
+      "title": "Contacts",
+      "phone": "Phone",
+      "email": "Email",
+      "website": "Website",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "photos": {
+      "title_one": "Photos · {{count}}",
+      "title_other": "Photos · {{count}}",
+      "primary": "Photo of {{name}}",
+      "alt": "{{name}}, photo {{index}}"
+    },
+    "network": {
+      "title": "Consular network",
+      "subtitle": "Embassies and consulates linked to this place",
+      "consulate": "Consulate · {{place}}",
+      "embassy": "Embassy · {{place}}"
+    },
+    "community": {
+      "title": "Community check-ins",
+      "subtitle": "Visitors confirm the place is still active and leave tips",
+      "empty": "No check-ins yet.",
+      "stillActive": "say it's still active",
+      "checkins_one": "check-in",
+      "checkins_other": "check-ins",
+      "lastCheckin": "last check-in",
+      "tips": "Tips from visitors",
+      "tip": "“{{text}}”",
+      "tipBy": "— {{name}}, {{ago}}",
+      "someone": "a visitor"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "loadFailed": "Couldn't load the reviews",
+      "empty": "No reviews yet.",
+      "count_one": "{{count}} review",
+      "count_other": "{{count}} reviews",
+      "latest": "Latest reviews",
+      "deletedAuthor": "Former member",
+      "bar_one": "Rating {{rating}}: {{count}} review",
+      "bar_other": "Rating {{rating}}: {{count}} reviews",
+      "breakdown": "Reviews by rating"
+    },
+    "addedBy": {
+      "title": "Added by",
+      "who": "@{{username}} · added this place",
+      "fromGoogle": "Location from Google Maps"
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, IconButton, ListItem, Meta, OpenStatus, Rating, StatusBadge, TypeTag, VerifiedMark } from '@/components/ui'
-import { formatInterval, hoursToday } from '@/lib/openingHours'
+import { Avatar, IconButton, ListItem, Meta, Rating, StatusBadge, TypeTag, VerifiedMark } from '@/components/ui'
+import { PlaceOpenStatus } from '@/components/place/PlaceOpenStatus'
 import { orgTypeColor } from '@/lib/orgTypes'
 import type { Organisation, OrganisationType } from '@/types/api'
 
@@ -34,8 +34,6 @@ export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, 
   useEffect(() => {
     if (active) row.current?.scrollIntoView({ block: 'nearest' })
   }, [active])
-  const hours = hoursToday(place.openingHours, place.timezone)
-  const hoursText = hours === undefined ? undefined : hours ? formatInterval(hours) : t('map.closedToday')
   const near = place.distanceKm !== undefined && place.distanceKm < NEAR_KM
   const where = near ? t('filters.km', { km: place.distanceKm!.toFixed(1) }) : place.city
   const typeColor = orgTypeColor(type)
@@ -55,7 +53,7 @@ export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, 
             {where && <Meta>{where}</Meta>}
           </>
         }
-        footer={place.openNow === null ? undefined : <OpenStatus open={place.openNow} hours={hoursText} size="sm" />}
+        footer={place.openNow === null ? undefined : <PlaceOpenStatus place={place} size="sm" />}
         // Room for the bookmark, which sits above the row (a button inside a button row is not valid).
         trailing={onToggleSaved ? <span aria-hidden="true" className="size-9" /> : undefined}
         active={active}

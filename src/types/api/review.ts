@@ -1,5 +1,6 @@
 // Reviews of an organisation or a person — server feature `review`.
 import type { PaginationParams, ServerDateTime, Uuid } from './shared'
+import type { PublicUser } from './user'
 
 export const MIN_RATING = 1
 export const MAX_RATING = 5
@@ -16,6 +17,8 @@ export interface Review {
   /** Topic tag, e.g. "Anmeldung help". */
   topic: string | null
   createdAt: ServerDateTime
+  /** Who wrote it — their public face; null when the account is gone. */
+  author: PublicUser | null
 }
 
 /** Exactly one review target. */
@@ -36,3 +39,20 @@ export type CreateReviewRequest = ReviewTarget & {
 
 /** `GET /api/review/list` — newest first (limit default 20, max 100; offset max 500). */
 export type ReviewsListQuery = ReviewTarget & PaginationParams
+
+/** `GET /api/review/summary` — give exactly one target. */
+export type ReviewSummaryQuery = ReviewTarget
+
+/** `ReviewSummaryContent` — how a target is rated. */
+export interface ReviewSummary {
+  count: number
+  /** Null without reviews. */
+  ratingAvg: number | null
+  /** One row per rating, highest first (`MAX_RATING` … `MIN_RATING`), zeros included. */
+  byRating: RatingCount[]
+}
+
+export interface RatingCount {
+  rating: number
+  count: number
+}

@@ -37,6 +37,7 @@ export { OpenStatus, type OpenStatusProps } from './OpenStatus'
 export { Meta } from './DS/Meta'
 export { CorridorFlags, type CorridorFlagsProps } from './CorridorFlags'
 export { ImageFrame, type ImageFrameProps } from './DS/ImageFrame'
+export { RatingBreakdown, type RatingBreakdownProps, type RatingBreakdownRow } from './RatingBreakdown'
 export { TypeBar, type TypeBarProps, type TypeBarSegment } from './TypeBar'
 
 // Forms

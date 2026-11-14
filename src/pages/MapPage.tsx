@@ -1,4 +1,5 @@
 import { AdvancedMarker, Map, useMap } from '@vis.gl/react-google-maps'
+import clsx from 'clsx'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -7,6 +8,7 @@ import { useAppShell } from '@/components/layout/appShellContext'
 import { FiltersSheet } from '@/components/map/FiltersSheet'
 import { MapControls } from '@/components/map/MapControls'
 import { MapToolbar } from '@/components/map/MapToolbar'
+import { PlaceCompactPanel } from '@/components/place/PlaceCompactPanel'
 import { PlaceList } from '@/components/map/PlaceList'
 import { ResultsHeader } from '@/components/map/ResultsHeader'
 import { Button, CorridorBubble, InlineStatus, MapLayout, MapPin } from '@/components/ui'
@@ -20,6 +22,9 @@ import { boundsToSearchBox, geometryBounds, GOOGLE_MAPS_MAP_ID, MAP_SEARCH_LIMIT
 import { useBreakpoint } from '@/lib/useBreakpoint'
 import { useAuthStore } from '@/stores/authStore'
 import type { Organisation } from '@/types/api'
+
+/** How much of the map's width the place panel covers from tablets up (its width plus the gap), in px. */
+const PANEL_COVER_PX = 436
 
 const MAP_ID = 'landly-map'
 /** How far a place is zoomed to when the user asks for their location. */
@@ -108,11 +113,26 @@ function MapScreen() {
     if (size === 'phone' || !current) setApplied(next)
   }
 
-  const select = (place: Organisation) => {
+  // The picked place's panel: over the map from tablets up, in the bottom sheet on phones.
+  const selected = places.find((place) => place.id === selectedId)
+  const panel = selected && (
+    <PlaceCompactPanel place={selected} type={types.find((type) => type.id === selected.organisationTypeId)} showPhoto={size !== 'phone'} onClose={() => setSelectedId(undefined)} />
+  )
+
+  /** Opens the place's panel (on phones the sheet opens with it). */
+  const pick = (place: Organisation) => {
     setSelectedId(place.id)
-    setSheetExpanded(false)
+    setSheetExpanded(size === 'phone')
+  }
+
+  /** From the list: the panel, and the map moves to the place. A pin is where the user already looks. */
+  const select = (place: Organisation) => {
+    pick(place)
     const position = organisationPosition(place)
-    if (map && position) map.panTo(position)
+    if (!map || !position) return
+    map.panTo(position)
+    // From tablets up the panel covers the map's right side: keep the place in the part left uncovered.
+    if (size !== 'phone') map.panBy(PANEL_COVER_PX / 2, 0)
   }
 
   // The two biggest kinds of place in the destination, named as the backend names them.
@@ -138,7 +158,7 @@ function MapScreen() {
     size === 'phone' ? null : (
       <>
         {moved && (
-          <div className="pointer-events-none absolute inset-x-0 top-4 flex justify-center">
+          <div className={clsx('pointer-events-none absolute top-4 left-0 flex justify-center', panel ? 'right-105.5 lg:right-113' : 'right-0')}>
             <div className="pointer-events-auto">
               <Button variant="secondary" size="sm" icon="search" onClick={() => setApplied(latest)}>
                 {t('map.searchThisArea')}
@@ -146,10 +166,15 @@ function MapScreen() {
             </div>
           </div>
         )}
-        <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-end">
-          <div className="pointer-events-auto min-w-0">{bubble}</div>
-        </div>
-        <div className="absolute right-4 bottom-4">
+        {panel ? (
+          <div className="absolute top-4 right-4 bottom-4 z-10 w-97.5 overflow-y-auto overscroll-contain rounded-r4 bg-surface p-5.5 shadow-pop lg:w-105">{panel}</div>
+        ) : (
+          <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-end">
+            <div className="pointer-events-auto min-w-0">{bubble}</div>
+          </div>
+        )}
+        {/* Left of the panel while it is open (its width plus both gaps). */}
+        <div className={clsx('absolute bottom-4', panel ? 'right-105.5 lg:right-113' : 'right-4')}>
           <MapControls
             onZoomIn={() => map?.setZoom((map.getZoom() ?? WORLD_VIEW.zoom) + 1)}
             onZoomOut={() => map?.setZoom((map.getZoom() ?? WORLD_VIEW.zoom) - 1)}
@@ -211,7 +236,7 @@ function MapScreen() {
                 if (!position) return null
                 const type = types.find((candidate) => candidate.id === place.organisationTypeId)
                 return (
-                  <AdvancedMarker key={place.id} position={position} zIndex={place.id === selectedId ? 1 : 0} title={place.name} onClick={() => setSelectedId(place.id)}>
+                  <AdvancedMarker key={place.id} position={position} zIndex={place.id === selectedId ? 1 : 0} title={place.name} onClick={() => pick(place)}>
                     <MapPin slug={type?.slug ?? null} color={type?.color} label={place.name} selected={place.id === selectedId} pending={place.status === 'pending'} />
                   </AdvancedMarker>
                 )
@@ -220,25 +245,29 @@ function MapScreen() {
           )
         }
         overlay={overlay}
-        resultsHeader={<ResultsHeader size={size} count={loading ? null : places.length} capped={capped} sort={filters.sort} onSortChange={(sort) => setFilters({ ...filters, sort })} />}
+        resultsHeader={size === 'phone' && panel ? null : <ResultsHeader size={size} count={loading ? null : places.length} capped={capped} sort={filters.sort} onSortChange={(sort) => setFilters({ ...filters, sort })} />}
         results={
-          <PlaceList
-            places={places}
-            orgTypes={types}
-            selectedId={selectedId}
-            onSelect={select}
-            compact={size !== 'desktop'}
-            loading={loading}
-            error={search.isError}
-            narrowed={activeCount > 0 || needle !== ''}
-            onResetFilters={() => {
-              setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })
-              setQuery('')
-            }}
-            capped={capped}
-            isSaved={isAuthenticated ? (place) => saved.isSaved(place.id) : undefined}
-            onToggleSaved={isAuthenticated ? (place) => saved.toggle(place.id) : undefined}
-          />
+          size === 'phone' && panel ? (
+            <div className="pt-1">{panel}</div>
+          ) : (
+            <PlaceList
+              places={places}
+              orgTypes={types}
+              selectedId={selectedId}
+              onSelect={select}
+              compact={size !== 'desktop'}
+              loading={loading}
+              error={search.isError}
+              narrowed={activeCount > 0 || needle !== ''}
+              onResetFilters={() => {
+                setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })
+                setQuery('')
+              }}
+              capped={capped}
+              isSaved={isAuthenticated ? (place) => saved.isSaved(place.id) : undefined}
+              onToggleSaved={isAuthenticated ? (place) => saved.toggle(place.id) : undefined}
+            />
+          )
         }
         resultsLabel={t('map.panelTitle')}
         sheetExpanded={sheetExpanded}

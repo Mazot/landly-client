@@ -106,6 +106,7 @@ const cases: Case[] = [
 
   // review
   { name: 'review.list', call: () => reviewApi.list({ organisation_id: ID, limit: 5 }), method: 'get', path: '/api/review/list', query: { organisation_id: ID, limit: '5' }, response: { items: [], total: 0 } },
+  { name: 'review.summary', call: () => reviewApi.summary({ person_id: ID }), method: 'get', path: '/api/review/summary', query: { person_id: ID }, response: { count: 0, ratingAvg: null, byRating: [] } },
   { name: 'review.create', call: () => reviewApi.create({ person_id: ID, rating: 5, topic: 'Anmeldung help' }), method: 'post', path: '/api/review/create', body: { person_id: ID, rating: 5, topic: 'Anmeldung help' }, response: OK },
   { name: 'review.remove', call: () => reviewApi.remove(ID), method: 'delete', path: `/api/review/delete/${ID}`, response: 'OK', void: true },
 
