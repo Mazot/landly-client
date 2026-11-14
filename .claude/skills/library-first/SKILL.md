@@ -63,6 +63,13 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 | Client routes / leaving the SPA | `ROUTES` (`lib/routes.ts`), `redirectTo(url)` (`lib/navigation.ts`) |
 | Enum values / limits | the `as const` arrays and limit constants in `types/api/*` (`ORGANISATION_STATUSES`, `LOCALES`, `PASSWORD_MIN_CHARS`, `MAX_IMAGE_BYTES`, …) |
 
+### es-toolkit 1.53 (utilities — use instead of hand-written helpers)
+
+- Arrays: `compact` (instead of `.filter(Boolean)`; in a file with a `compact` prop import it as `compact as compactList`), `uniq` / `uniqBy` (instead of `findIndex` dedupe or `new Set`), `orderBy` / `sortBy` (copy, then sort by keys — not for locale-aware order), `sumBy`, `range`, `chunk`, `groupBy`, `keyBy`, `partition`
+- Objects: `pick`, `omit`, `mapValues`, `isEqual` (instead of comparing `JSON.stringify`), `cloneDeep`
+- Numbers / checks: `clamp`, `isNil`, `isNotNil`
+- Not replaced on purpose: `localeCompare` sorts (different order), `[...value].length` code-point counts
+
 ### @tanstack/react-query 5.104 (+ react-query-devtools 5.104)
 
 - Reading: `useQuery`, `useInfiniteQuery`, `useQueries`, `useSuspenseQuery`, `useSuspenseInfiniteQuery`, `usePrefetchQuery`, `usePrefetchInfiniteQuery`

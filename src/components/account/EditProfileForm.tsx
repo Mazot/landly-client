@@ -1,3 +1,4 @@
+import { compact as compactList } from 'es-toolkit'
 import { useForm } from '@tanstack/react-form'
 import { useTranslation } from 'react-i18next'
 import { FormTextField } from '@/components/auth/FormTextField'
@@ -94,7 +95,7 @@ export function EditProfileForm({ id, profile, spokenLanguageIds, languages, cou
             <Field label={t('account.edit.fields.homeCountry')}>
               <Select
                 placeholder={t('account.edit.chooseCountry')}
-                options={countries.map((country) => ({ value: country.id, label: [country.flag, country.name].filter(Boolean).join(' ') }))}
+                options={countries.map((country) => ({ value: country.id, label: compactList([country.flag, country.name]).join(' ') }))}
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
               />

@@ -1,3 +1,4 @@
+import { compact, isEqual, orderBy } from 'es-toolkit'
 import { AdvancedMarker, Map, useMap } from '@vis.gl/react-google-maps'
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
@@ -84,7 +85,7 @@ function MapScreen() {
   const [applied, setApplied] = useState<Viewport>()
   const inCorridor = (view: Viewport | undefined) => (view?.destinationId === to?.id && view?.originId === from?.id ? view : undefined)
   const current = inCorridor(applied)
-  const moved = !!latest && !!current && !!inCorridor(latest) && JSON.stringify(latest.box) !== JSON.stringify(current.box)
+  const moved = !!latest && !!current && !!inCorridor(latest) && !isEqual(latest.box, current.box)
 
   const search = useSearchOrganisations(current && { ...current.box, lat: current.center.lat, lng: current.center.lng, ...filtersToQuery(filters), location_country_id: current.destinationId, founder_country_id: current.originId, limit: MAP_SEARCH_LIMIT })
   // The list keeps the previous answer while the next one loads (panning), but not across a new
@@ -144,8 +145,7 @@ function MapScreen() {
 
   // The two biggest kinds of place in the destination, named as the backend names them.
   const titleOf = (slug: string) => types.find((type) => type.slug === slug)?.title ?? slug
-  const typeFigures = [...(corridorStats.data?.byType ?? destination.data?.placesByType ?? [])]
-    .sort((a, b) => b.count - a.count)
+  const typeFigures = orderBy(corridorStats.data?.byType ?? destination.data?.placesByType ?? [], ['count'], ['desc'])
     .slice(0, 2)
     .map((entry) => `${titleOf(entry.slug)} ${entry.count}`)
 
@@ -155,7 +155,7 @@ function MapScreen() {
       to={to.flag}
       label={t('corridorSwitcher.label', { from: from.name, to: to.name })}
       title={t('map.corridorPlaces', { count: corridorStats.data?.totalPlaces ?? destination.data.totalPlaces })}
-      detail={[...typeFigures, corridorStats.data && t('map.newThisWeek', { count: corridorStats.data.newThisWeek })].filter(Boolean).join(' · ')}
+      detail={compact([...typeFigures, corridorStats.data && t('map.newThisWeek', { count: corridorStats.data.newThisWeek })]).join(' · ')}
       onClick={openCorridors}
     />
   )

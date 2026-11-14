@@ -1,3 +1,4 @@
+import { sortBy } from 'es-toolkit'
 import { WEEKDAYS, type OpeningHours, type OpeningInterval, type Weekday } from '@/types/api'
 
 /** `Intl` short weekday (en-US) → API weekday key. */
@@ -36,7 +37,7 @@ export function hoursToday(openingHours: OpeningHours | null, timezone: string |
     return undefined // not an IANA zone: a bad value on one place must not break the list
   }
   const { weekday, time } = local
-  const today = [...(openingHours[weekday] ?? [])].sort((a, b) => a[0].localeCompare(b[0]))
+  const today = sortBy(openingHours[weekday] ?? [], [(interval) => interval[0]])
   return today.find(([open, close]) => open <= time && time < close) ?? today.find(([open]) => open > time) ?? null
 }
 

@@ -1,3 +1,4 @@
+import { compact } from 'es-toolkit'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Callout, CorridorFields, Field, List, Select, Sheet } from '@/components/ui'
@@ -12,7 +13,7 @@ import type { Corridor, Country } from '@/types/api'
 import { CorridorCard } from './CorridorCard'
 import { CorridorPicker } from './CorridorPicker'
 
-const countryOptions = (countries: Country[]) => countries.map((c) => ({ value: c.id, label: [c.flag, c.name].filter(Boolean).join('  ') }))
+const countryOptions = (countries: Country[]) => countries.map((c) => ({ value: c.id, label: compact([c.flag, c.name]).join('  ') }))
 
 /**
  * The corridor picker, opened from the nav pill and the map's corridor summary. A signed-in user

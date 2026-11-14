@@ -460,6 +460,9 @@
       }
     }
   },
+  "app": {
+    "loading": "Loading…"
+  },
   "language": "Language",
   "corridor": {
     "choose": "Choose a country",

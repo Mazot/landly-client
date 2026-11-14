@@ -1,3 +1,4 @@
+import { uniqBy } from 'es-toolkit'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui'
@@ -27,7 +28,7 @@ export function ConsularNetwork({ organisationId, children }: ConsularNetworkPro
     ...(consulates.data?.items ?? []).flatMap((connection) => (connection.consulate ? [{ org: connection.consulate, role: 'consulate' as const }] : [])),
   ]
   // One place can be linked by several connections (one per country): list it once.
-  const links = all.filter((link, index) => all.findIndex((other) => other.role === link.role && other.org.id === link.org.id) === index)
+  const links = uniqBy(all, (link) => `${link.role}:${link.org.id}`)
   if (links.length === 0) return null
 
   return children(

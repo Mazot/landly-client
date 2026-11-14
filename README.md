@@ -1,112 +1,75 @@
-# 🌍 Landly Client
+# 🌍 Landly
 
 [![CI](https://github.com/Mazot/landly-client/actions/workflows/ci.yml/badge.svg)](https://github.com/Mazot/landly-client/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/Mazot/landly-client/branch/master/graph/badge.svg)](https://codecov.io/gh/Mazot/landly-client)
 
-React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
+**Find your people in a new country.**
 
-> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) **the map** (`/map` with its filters sheet and corridor picker), **a place** (its panel on the map and its full page `/place/{id}`), **add and edit a place** (with photos) (`/add`, `/add/sent/{id}`, `/place/{id}/edit` for whoever added it) and **the account** (`/account` — profile, counters, languages, your places and recommendations with their moderation status, your corridors — and `/account/edit`), each on desktop / tablet / phone; people, countries and saved are next. In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
+Landly is a map for people who have moved abroad. It gathers what a newcomer looks for in the first weeks — an embassy or consulate, a shop with food from home, a doctor or a lawyer who speaks your language, a community to meet — in one place, checked by moderators and by the community itself.
 
-## 🛠️ Stack
+## Who it is for
 
-- **React 19** + **TypeScript 6** + **Vite 8**
-- **TanStack Query** — server state; **Zustand** — client state (session, guest corridor)
-- **Axios** — HTTP client (`src/lib/axios.ts`)
-- **React Router** — routing
-- **TanStack Form** + **zod** — forms and validation
-- **Google Maps Platform** via [`@vis.gl/react-google-maps`](https://visgl.github.io/react-google-maps/) — map, markers, Places
-- **i18next** — `en`, `ru`, `uk`
-- **Tailwind CSS** + design system in `src/components/ui` (tokens in `tokens/tokens.ts`, see [its README](src/components/ui/README.md)), browsable in **Storybook**
+- **Newcomers** who need to find help, services and company in their language.
+- **People who already live there** and want to pay it forward: add a place they know, recommend a helper, leave a review.
 
-## 📋 Prerequisites
+## How it works
 
-- Node.js 22.13+ or 24 (24 recommended, used in CI) — Vite 8 and ESLint 10 need 20.19+/22.13+, Vitest 5 needs 22.12+/24
-- [landly-server](../landly-server) on `http://localhost:8080` with `FRONTEND_ORIGIN=http://localhost:5173`
-- A Google Maps Platform browser key (Maps JavaScript API + Places API (New))
+**A corridor is the heart of Landly.** You pick where you come from and where you live now — say *Russia → Germany* — and the whole app speaks about that pair of countries: the map opens on the destination, the places are the ones that serve that community. Guests can browse everything; an account is needed to add, save and review.
 
-## 🚀 Quick start
+### The map
+
+Embassies and consulates, businesses, helpers, communities and volunteers on one map. Search and filter by type, spoken language, "open now", rating, verified places and who added them. Pick a place and a panel opens beside the map; open its full page for everything else.
+
+### A place
+
+What a place page tells you:
+
+- who it is, its type, address, and whether it is open right now (in the place's own time zone);
+- directions, phone, email, website and messengers;
+- languages spoken, services, photos, opening hours;
+- for an embassy or consulate, the network of related offices;
+- what the community says — recent check-ins with tips, and reviews with a rating breakdown;
+- who added the place and when.
+
+### Adding and editing places
+
+Anyone with an account can add a place: pick it on Google Maps or drop a pin, describe it, set the hours and add photos. A new place appears on the map at once, marked *pending review*, and becomes a regular one when a moderator approves it. The person who added a place can edit it later; editing a place that is already live sends it back to review, so approved information never changes unchecked. Moderators can ask for changes, and the note shows up in the author's account.
+
+### Your account
+
+Your profile and counters, the languages you speak, your places and recommendations with where each one stands in moderation, and your corridors.
+
+### Languages
+
+English, Russian and Ukrainian.
+
+## What is built, what is next
+
+| | |
+|---|---|
+| ✅ Done | Sign in and sign up (email or Google), the map with filters and corridors, the place panel and page, adding and editing places with photos, the account and profile editing — each on phone, tablet and desktop |
+| 🔜 Next | People (recommended helpers), countries, saved places, writing reviews and reporting a problem, a full photo gallery |
+
+Landly Client is the web app. It talks to [landly-server](../landly-server), which owns the data, the moderation rules and the accounts.
+
+## Run it locally
+
+You need Node.js 22.13+ (24 recommended), a running [landly-server](../landly-server) and a Google Maps Platform browser key.
 
 ```bash
 npm install
-cp .env.example .env   # then fill in the values
+cp .env.example .env   # fill in the values, see below
 npm run dev            # http://localhost:5173
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_API_URL` | no | Backend origin without `/api`, e.g. `http://localhost:8080`. Empty = same origin (the Vite proxy forwards `/api/*`) |
-| `VITE_GOOGLE_MAPS_API_KEY` | yes | Browser key, restricted by HTTP referrer. Never the server's `GOOGLE_PLACES_API_KEY` |
-| `VITE_GOOGLE_MAPS_MAP_ID` | no | Map ID for Advanced Markers / cloud styling (Google Cloud Console → Map Management; the style is chosen there); used by the map screen and the landing/sign-in backdrop; `DEMO_MAP_ID` when unset (dev only) |
+| Variable | What it is |
+|---|---|
+| `VITE_API_URL` | Where landly-server lives, e.g. `http://localhost:8080` |
+| `VITE_GOOGLE_MAPS_API_KEY` | Google Maps browser key (Maps JavaScript API + Places API), restricted by HTTP referrer |
+| `VITE_GOOGLE_MAPS_MAP_ID` | Optional Google map style ID |
 
-Shared with the server: `VITE_API_URL` must point to the server, and the server's `FRONTEND_ORIGIN` must be this client's origin (CORS + the Google sign-in redirect).
+The server's `FRONTEND_ORIGIN` must be this app's address (`http://localhost:5173`).
 
-## 📁 Structure
+## For contributors
 
-```text
-src/
-├── types/api/      # landly-server contracts, one file per server feature
-├── services/       # one API object per server feature (all endpoints)
-├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
-├── components/ui/  # design system: tokens, components, constants, `ui` i18n namespace
-├── components/     # auth/, corridor/, layout/, place/, account/ — domain blocks composed from DS components
-├── pages/          # one file per route (landing, sign in/up, Google callback, map, a place, add a place, edit a place, account, edit profile)
-├── lib/
-│   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
-│   ├── queryClient.ts  # the app's React Query client
-│   ├── session.ts      # startSession / endSession (also clear the query cache)
-│   ├── queryKeys.ts
-│   ├── invalidation.ts # refresh country/corridor place counts
-│   ├── maps.ts         # Google Maps config + bbox/marker/place helpers
-│   ├── errors.ts       # landly-server error bodies
-│   ├── dates.ts        # server timestamps (UTC without a zone)
-│   ├── routes.ts       # ROUTES (landing, sign in/up, map)
-│   ├── locales.ts      # native language names + select options
-│   ├── navigation.ts   # redirectTo — top-level navigation (Google sign-in)
-│   └── query.ts
-├── stores/         # authStore (JWT session), corridorStore (guest corridor)
-├── i18n/
-├── test/           # test helpers (MSW server, factories, render helpers, setup)
-├── App.tsx         # routes (sign in & sign up done; the rest comes with the other design sections)
-└── main.tsx        # providers: React Query, Google Maps APIProvider, Router
-```
-
-## 🔌 API
-
-Contracts follow the server's OpenAPI spec (`http://localhost:8080/api-docs/openapi.json`, UI at `/scalar`): request bodies and query strings are `snake_case`, responses `camelCase`; list endpoints answer `{ items, total }`, where `total` is the size of this page.
-
-## 🗺️ Google Maps
-
-The server stores only a place's `google_place_id` and a refreshable copy of its point. Hours, photos and the Google rating are fetched live in the browser (`usePlaceDetails`) and must be shown on a Google map with Google's attribution — never send them to the server.
-
-## 🧪 Tests
-
-[Vitest](https://vitest.dev/) in jsdom, no backend needed: requests go through the real axios client and are answered by [MSW](https://mswjs.io/) handlers; hooks are rendered with Testing Library's `renderHook`.
-
-```bash
-npm test               # run once
-npm run test:watch     # watch mode
-npm run coverage       # + v8 coverage → coverage/ (lcov, html, summary)
-node .claude/skills/test-after-change/changed-coverage.mjs   # after coverage: files changed since origin/master must be at 100%
-```
-
-New or changed code is tested right after it is written — the workflow (what to test per layer, regression check, the gate) is the `test-after-change` skill in `.claude/skills/`.
-
-- Tests live in a `__test__/` folder next to the code they cover (`src/<area>/__test__/*.test.ts(x)`); shared helpers are in `src/test/` — `server.ts` (MSW server, `capture()` records a request and answers it), `factories.ts` (typed server payloads), `render.tsx` (`renderQueryHook`, `runMutation`, `seed`, `isInvalidated`, `renderApp` for components and screens).
-- An unhandled request fails the test; session, `localStorage` and the query cache are reset after every test (`src/test/setup.ts`).
-- `src/types/api/__test__/contract.test.ts` pins the enum values and limits shared with the server — update both sides together.
-
-CI (`.github/workflows/ci.yml`, Node 24) runs lint, type-check + build, and the tests with coverage uploaded to [Codecov](https://app.codecov.io/gh/Mazot/landly-client) (`codecov.yml`, same settings as landly-server).
-
-## 🎯 Scripts
-
-```bash
-npm run dev          # dev server
-npm run typecheck    # tsc --noEmit
-npm run build        # tsc + production build
-npm run lint         # ESLint
-npm test             # Vitest
-npm run coverage     # Vitest + coverage
-npm run storybook    # design-system catalogue on http://localhost:6006
-npm run build-storybook  # static Storybook → storybook-static/ (also in CI)
-npm run preview      # preview the build
-```
+`npm test` runs the tests, `npm run lint` and `npm run build` check the code, `npm run storybook` opens the design-system catalogue. How the code is organised and the rules for working in it are in [AGENTS.md](AGENTS.md); the design system has its own [README](src/components/ui/README.md).

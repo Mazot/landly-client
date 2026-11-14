@@ -1,3 +1,4 @@
+import { compact as compactList } from 'es-toolkit'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Badge, Button, PageHeader, Section, Stat, Tag, TextLink } from '@/components/ui'
 import { ROUTES } from '@/lib/routes'
@@ -18,8 +19,8 @@ export interface ProfileSummaryProps {
 export function ProfileSummary({ profile, homeCountry, languages, compact, onSignOut }: ProfileSummaryProps) {
   const { t } = useTranslation()
   const name = profile.name || profile.username
-  const from = homeCountry && t('account.from', { country: [homeCountry.flag, homeCountry.name].filter(Boolean).join(' ') })
-  const facts = [`@${profile.username}`, profile.city, from].filter(Boolean).join(' · ')
+  const from = homeCountry && t('account.from', { country: compactList([homeCountry.flag, homeCountry.name]).join(' ') })
+  const facts = compactList([`@${profile.username}`, profile.city, from]).join(' · ')
   const stats = [
     [profile.stats.placesAdded, t('account.stats.placesAdded', { count: profile.stats.placesAdded })],
     [profile.stats.peopleRecommended, t('account.stats.peopleRecommended', { count: profile.stats.peopleRecommended })],
