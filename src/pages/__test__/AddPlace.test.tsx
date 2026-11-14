@@ -76,6 +76,23 @@ describe('AddPlacePage', () => {
     expect(created[0].body).toMatchObject({ location_country_id: serbia.id, founder_country_id: russia.id })
   })
 
+  it('uploads the photos picked on the form and says on the "sent" page how many went up', async () => {
+    capture('get', '/api/corridor/list', list([corridor({ fromCountryId: russia.id, toCountryId: serbia.id, isDefault: true })]))
+    capture('post', '/api/organisation/create', organisation({ id: 'new-place', name: 'Corner shop', status: 'pending', createdBy: ME }))
+    capture('get', '/api/organisation/fetch/new-place', organisation({ id: 'new-place', name: 'Corner shop', status: 'pending', createdBy: ME }))
+    const uploads = capture('post', '/api/images/upload/new-place', image())
+    open('/add')
+    await waitFor(() => expect(screen.getByRole('combobox', { name: 'Located in' })).toHaveValue(serbia.id))
+    await userEvent.click(screen.getAllByRole('button', { name: 'tap the map' })[0])
+    await userEvent.type(screen.getByRole('textbox', { name: 'Name' }), 'Corner shop')
+    await userEvent.click(await screen.findByRole('button', { name: 'Business' }))
+    await userEvent.upload(screen.getByTestId('dropzone-input'), [new File(['x'], 'front.png', { type: 'image/png' })])
+    await userEvent.click(screen.getByRole('button', { name: 'Submit for review' }))
+
+    expect(await screen.findByText('1 photo added')).toBeInTheDocument()
+    expect(uploads).toHaveLength(1)
+  })
+
   it('says it is loading while the corridor is unknown', async () => {
     server.use(http.get(`${API}/api/corridor/list`, () => new Promise(() => {})))
     open('/add')

@@ -163,6 +163,8 @@ describe('Meta / CorridorFlags / ImageFrame', () => {
     rerender(<ImageFrame alt="" />)
     expect(container.querySelector('img')).toBeNull()
     expect(container.firstChild).toHaveClass('aspect-4/3', 'rounded-r3')
+    rerender(<ImageFrame alt="" ratio="portrait" />)
+    expect(container.firstChild).toHaveClass('aspect-4/5')
   })
 })
 

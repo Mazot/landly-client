@@ -1,6 +1,6 @@
 // The add-a-place form ↔ `POST /api/organisation/create`: the form's values, the request built
 // from them and the helpers around the opening hours.
-import { WEEKDAYS, type CreateOrganisationRequest, type OpeningHours, type OpeningInterval, type Uuid, type Weekday } from '@/types/api'
+import { WEEKDAYS, type CreateOrganisationRequest, type OpeningHours, type OpeningInterval, type Organisation, type UpdateOrganisationRequest, type Uuid, type Weekday } from '@/types/api'
 
 /** One day of the hours editor: `null` = closed. */
 export type DayHours = OpeningInterval | null
@@ -32,6 +32,54 @@ export interface PlaceLocation {
 }
 
 export const emptyHours = (): Record<Weekday, DayHours> => Object.fromEntries(WEEKDAYS.map((day) => [day, null])) as Record<Weekday, DayHours>
+
+/** Midnight as the server writes a closing time, and as a day that runs on into the next one starts. */
+const MIDNIGHT = '00:00'
+const END_OF_DAY = '24:00'
+
+/**
+ * The editor's days from the stored hours — the inverse of `toOpeningHours`: a night that was split
+ * at midnight (Monday …–24:00 + Tuesday 00:00–…) is one overnight interval of its first day again.
+ * A day with several intervals shows its first one.
+ */
+export function fromOpeningHours(stored: OpeningHours | null): Record<Weekday, DayHours> {
+  const intervals = Object.fromEntries(WEEKDAYS.map((day) => [day, [...(stored?.[day] ?? [])]])) as Record<Weekday, OpeningInterval[]>
+  const hours = emptyHours()
+  // Night pass: the first interval to reach midnight takes the next day's opening interval, which is its rest.
+  const nights: Partial<Record<Weekday, string>> = {}
+  // Sunday first, so its night is cut off Monday's list before Monday looks at its own.
+  for (const day of [WEEKDAYS[WEEKDAYS.length - 1], ...WEEKDAYS.slice(0, -1)]) {
+    const nextDay = WEEKDAYS[(WEEKDAYS.indexOf(day) + 1) % WEEKDAYS.length]
+    const [first] = intervals[day]
+    const [rest] = intervals[nextDay]
+    if (first?.[1] !== END_OF_DAY || rest?.[0] !== MIDNIGHT || rest[1] === END_OF_DAY) continue
+    nights[day] = rest[1]
+    intervals[nextDay].shift()
+  }
+  for (const day of WEEKDAYS) {
+    const [first] = intervals[day]
+    if (first) hours[day] = [first[0], nights[day] ?? (first[1] === END_OF_DAY ? MIDNIGHT : first[1])]
+  }
+  return hours
+}
+
+/** The form's values for an existing place (the edit form's starting point). */
+export function toFormValues(place: Organisation): PlaceFormValues {
+  return {
+    name: place.name,
+    typeId: place.organisationTypeId ?? '',
+    address: place.address ?? '',
+    tel: place.tel ?? '',
+    email: place.email ?? '',
+    website: place.website ?? '',
+    description: place.description ?? '',
+    services: place.services,
+    languages: place.languages,
+    hours: fromOpeningHours(place.openingHours),
+    fromId: place.founderCountryId ?? '',
+    toId: place.locationCountryId ?? '',
+  }
+}
 
 /** Monday of a week (1 Jan 2024 was a Monday): the dates `weekdayLabels` formats. */
 const A_MONDAY_UTC = Date.UTC(2024, 0, 1)
@@ -116,5 +164,32 @@ export function searchTextFromMapsLink(input: string): string {
     return decodeURIComponent(match[1].replace(/\+/g, ' '))
   } catch {
     return input
+  }
+}
+
+/**
+ * The update request (`PUT /organisation/update/{id}`, omitted fields keep their value): every field
+ * the form shows is sent — a cleared one as `""`, no open day as `{}` — so a deletion is saved too
+ * (the hours only when they were edited).
+ * The point goes only when it was moved, so an untouched place keeps its Google-sourced coordinates.
+ */
+export function toUpdateRequest(values: PlaceFormValues, location: PlaceLocation, place: Organisation): UpdateOrganisationRequest {
+  const moved = location.lat !== place.latitude || location.lng !== place.longitude
+  const hoursChanged = JSON.stringify(values.hours) !== JSON.stringify(fromOpeningHours(place.openingHours))
+  return {
+    name: values.name.trim(),
+    organisation_type_id: values.typeId || undefined,
+    address: values.address.trim(),
+    tel: values.tel.trim(),
+    email: values.email.trim(),
+    website: values.website.trim(),
+    description: values.description.trim(),
+    services: values.services,
+    languages: values.languages,
+    // Hours the user did not touch stay as stored: the editor shows one interval a day, the server may hold more.
+    ...(hoursChanged && { opening_hours: toOpeningHours(values.hours) ?? {} }),
+    location_country_id: values.toId || undefined,
+    founder_country_id: values.fromId || undefined,
+    ...(moved && { latitude: location.lat, longitude: location.lng }),
   }
 }

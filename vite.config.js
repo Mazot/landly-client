@@ -6,6 +6,9 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // https://vitejs.dev/config/
+/** Dev server port; also the local client origin the API's CORS expects. */
+const port = 5173
+
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const apiUrl = env.VITE_API_URL || 'http://localhost:8080';
@@ -17,11 +20,19 @@ export default defineConfig(({ mode }) => {
             },
         },
         server: {
-            port: 5173,
+            port,
+            // Dev tunnels (`ngrok http 5173`) reach the dev server under their own host name.
+            allowedHosts: ['.ngrok.app', '.ngrok-free.app'],
             proxy: {
                 '/api': {
                     target: apiUrl,
                     changeOrigin: true,
+                    // The server's CORS allows only the local client origin; a tunnel (ngrok) sends its own.
+                    configure: (proxy) => {
+                        proxy.on('proxyReq', (proxyReq) => {
+                            if (proxyReq.getHeader('origin')) proxyReq.setHeader('origin', `http://localhost:${port}`)
+                        })
+                    },
                 },
             },
         },

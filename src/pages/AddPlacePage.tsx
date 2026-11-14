@@ -34,7 +34,7 @@ function AddPlaceScreen() {
           {isPending ? (
             <InlineStatus>{t('addPlace.loading')}</InlineStatus>
           ) : (
-            <AddPlaceForm size={size} corridor={{ fromId: from?.id, toId: to?.id }} onCreated={(place) => navigate(`${ROUTES.addSent}/${place.id}`, { replace: true })} />
+            <AddPlaceForm size={size} corridor={{ fromId: from?.id, toId: to?.id }} onCreated={(place, photos) => navigate(`${ROUTES.addSent}/${place.id}`, { replace: true, state: { photos } })} />
           )}
         </div>
       </div>

@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { FormTextField } from '@/components/auth/FormTextField'
 import { firstErrorKey } from '@/components/auth/schemas'
 import { PlaceListItem } from '@/components/map/PlaceListItem'
-import { Button, Callout, Card, ChipGroup, CorridorFields, Field, FormNote, isKnownOrgType, ListItem, Select, TextArea, type ChipOption } from '@/components/ui'
+import { Button, Callout, Card, ChipGroup, CorridorFields, Field, isKnownOrgType, ListItem, Select, TextArea, type ChipOption } from '@/components/ui'
 import { useAllCountries, useCountry, useOrganisationTypes, useTimeZone } from '@/hooks/useCommon'
-import { useCreateOrganisation } from '@/hooks/useOrganisations'
+import { useUploadImages } from '@/hooks/useImages'
+import { useCreateOrganisation, useUpdateOrganisation } from '@/hooks/useOrganisations'
 import { usePlaceDetails } from '@/hooks/usePlaceDetails'
 import { apiErrorBodyText, apiErrorConstraint, apiErrorStatus } from '@/lib/errors'
 import { geometryBounds } from '@/lib/maps'
-import { emptyHours, isValidInterval, toCreateRequest, type PlaceFormValues, type PlaceLocation } from '@/lib/placeDraft'
+import { emptyHours, isValidInterval, toCreateRequest, toFormValues, toUpdateRequest, type PlaceFormValues, type PlaceLocation } from '@/lib/placeDraft'
 import type { Breakpoint } from '@/lib/useBreakpoint'
 import { ADDRESS_MAX_CHARS, DESCRIPTION_MAX_CHARS, EMAIL_MAX_CHARS, ORG_NAME_MAX_CHARS, PHONE_MAX_CHARS, URL_MAX_CHARS, WEEKDAYS, type Organisation, type Uuid } from '@/types/api'
 import { DuplicateHint } from './DuplicateHint'
@@ -18,6 +19,7 @@ import { GooglePlaceSearch } from './GooglePlaceSearch'
 import { HoursEditor } from './HoursEditor'
 import { LanguagesField } from './LanguagesField'
 import { LocationPicker } from './LocationPicker'
+import { PlacePhotosEditor, QueuedPhotos } from './PhotosField'
 import { TagsField } from './TagsField'
 import { placeSchema } from './schema'
 
@@ -29,26 +31,36 @@ const GOOGLE_PLACE_TAKEN = 'organisations_google_place_id_key'
 export interface AddPlaceFormProps {
   size: Breakpoint
   /** The corridor the user is browsing: the place's countries until changed. */
-  corridor: { fromId: Uuid | undefined; toId: Uuid | undefined }
-  onCreated: (place: Organisation) => void
+  corridor?: { fromId: Uuid | undefined; toId: Uuid | undefined }
+  /** The place was created; `photos` is how many of the picked photos were sent and how many were refused. */
+  onCreated?: (place: Organisation, photos: { uploaded: number; failed: number }) => void
+  /** Edit mode: the place being changed (`PUT /organisation/update/{id}`); its values fill the form. */
+  place?: Organisation
+  onSaved?: (place: Organisation) => void
 }
 
 /**
  * "Add a place" (`POST /organisation/create` → `pending`). The point comes from a Google Maps pick
  * (its id is linked, nothing else of Google's is sent) or a pin set on the map; the countries are the
  * corridor's. Desktop keeps the map, a preview and the submit button in a sticky side card.
+ * With `place` it edits that place instead: no Google search (the link stays as it is), the pin can
+ * still be moved, and saving sends the changes (a live place goes back to review on the server).
  */
-export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
+export function AddPlaceForm({ size, corridor, onCreated, place, onSaved }: AddPlaceFormProps) {
   const { t } = useTranslation()
   const create = useCreateOrganisation()
+  const update = useUpdateOrganisation()
+  const uploadImages = useUploadImages()
+  const saving = place ? update : create
+  const [photos, setPhotos] = useState<File[]>([])
   const types = useOrganisationTypes().data ?? []
   const countries = useAllCountries().data ?? []
-  const [location, setLocation] = useState<PlaceLocation | null>(null)
+  const [location, setLocation] = useState<PlaceLocation | null>(place && place.latitude !== null && place.longitude !== null ? { lat: place.latitude, lng: place.longitude } : null)
   const [locationError, setLocationError] = useState(false)
   const [committedName, setCommittedName] = useState('')
 
   const form = useForm({
-    defaultValues: {
+    defaultValues: (place ? toFormValues(place) : {
       name: '',
       typeId: '',
       address: '',
@@ -59,13 +71,19 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
       services: [],
       languages: [],
       hours: emptyHours(),
-      fromId: corridor.fromId ?? '',
-      toId: corridor.toId ?? '',
-    } as PlaceFormValues,
+      fromId: corridor?.fromId ?? '',
+      toId: corridor?.toId ?? '',
+    }) as PlaceFormValues,
     validators: { onSubmit: placeSchema },
     onSubmit: ({ value }) => {
+      // Enter in a field can submit again while the place or its photos are on their way.
+      if (saving.isPending || uploadImages.isPending) return
       if (!location) return setLocationError(true)
-      create.mutate(toCreateRequest(value, location), { onSuccess: (place) => onCreated(place) })
+      if (place) return update.mutate({ id: place.id, body: toUpdateRequest(value, location, place) }, { onSuccess: (saved) => onSaved?.(saved) })
+      create.mutate(toCreateRequest(value, location), {
+        // The photos need the new place's id: they go up right after it exists, the first as the cover.
+        onSuccess: async (created) => onCreated?.(created, photos.length ? await uploadImages.mutateAsync({ organisationId: created.id, files: photos }) : { uploaded: 0, failed: 0 }),
+      })
     },
   })
   const values = useStore(form.store, (state) => state.values)
@@ -87,7 +105,7 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
   const typeOptions: ChipOption[] = types.map((candidate) => ({ value: candidate.id, label: candidate.title ?? candidate.type, ...(candidate.slug && isKnownOrgType(candidate.slug) && { orgType: candidate.slug }) }))
   const countryOptions = countries.map((country) => ({ value: country.id, label: [country.flag, country.name].filter(Boolean).join('  ') }))
 
-  const failure = create.error && submitFailure(create.error, t)
+  const failure = saving.error && submitFailure(saving.error, t)
   const desktop = size === 'desktop'
 
   const map = (
@@ -98,8 +116,8 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
   const submit = (
     <div className="flex flex-col gap-2.5">
       {failure && <Callout tone="danger" title={failure} />}
-      <Button type="submit" variant="accent" size="lg" className="w-full" loading={create.isPending}>
-        {t('addPlace.submit')}
+      <Button type="submit" variant="accent" size="lg" className="w-full" loading={saving.isPending || uploadImages.isPending}>
+        {place ? t('editPlace.submit') : t('addPlace.submit')}
       </Button>
     </div>
   )
@@ -116,29 +134,32 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
       className="flex flex-col gap-12 lg:flex-row lg:items-start"
     >
       <div className="flex min-w-0 flex-1 flex-col gap-5">
-        <Card padding="md">
-          <Field label={t('addPlace.google.title')} hint={t('addPlace.google.hint')}>
-            <GooglePlaceSearch bias={start} onPick={(pick) => setPoint({ lat: pick.lat, lng: pick.lng, googlePlaceId: pick.placeId })} />
-          </Field>
-          {location?.googlePlaceId && (
-            <ListItem
-              className="mt-3"
-              size="sm"
-              title={linked.data?.displayName ?? t('addPlace.google.linked')}
-              subtitle={linked.data?.formattedAddress ?? undefined}
-              trailing={
-                <Button variant="ghost" size="sm" onClick={() => setPoint({ lat: location.lat, lng: location.lng })}>
-                  {t('addPlace.google.unlink')}
-                </Button>
-              }
-            />
-          )}
-        </Card>
+        {place?.status === 'live' && <Callout tone="warning" title={t('editPlace.reviewAgain')} />}
+        {!place && (
+          <Card padding="md">
+            <Field label={t('addPlace.google.title')} hint={t('addPlace.google.hint')}>
+              <GooglePlaceSearch bias={start} onPick={(pick) => setPoint({ lat: pick.lat, lng: pick.lng, googlePlaceId: pick.placeId })} />
+            </Field>
+            {location?.googlePlaceId && (
+              <ListItem
+                className="mt-3"
+                size="sm"
+                title={linked.data?.displayName ?? t('addPlace.google.linked')}
+                subtitle={linked.data?.formattedAddress ?? undefined}
+                trailing={
+                  <Button variant="ghost" size="sm" onClick={() => setPoint({ lat: location.lat, lng: location.lng })}>
+                    {t('addPlace.google.unlink')}
+                  </Button>
+                }
+              />
+            )}
+          </Card>
+        )}
 
         <form.Field name="name" listeners={{ onBlur: ({ value }) => setCommittedName(value) }}>
           {(field) => <FormTextField field={field} label={t('addPlace.fields.name')} placeholder={t('addPlace.placeholders.name')} maxLength={ORG_NAME_MAX_CHARS} autoComplete="off" />}
         </form.Field>
-        <DuplicateHint name={committedName} point={point} />
+        {!place && <DuplicateHint name={committedName} point={point} />}
 
         <form.Field name="typeId">
           {(field) => (
@@ -226,6 +247,10 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
           )}
         </form.Field>
 
+        <Group label={t('addPlace.fields.photos')} hint={place ? t('photosField.savedAtOnce') : t('photosField.hint')}>
+          {place ? <PlacePhotosEditor organisationId={place.id} /> : <QueuedPhotos files={photos} onChange={setPhotos} />}
+        </Group>
+
         {!desktop && submit}
       </div>
 
@@ -235,7 +260,7 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
             {map}
             <div className="p-4.5">
               <PlaceListItem
-                place={{ name: values.name.trim() || t('addPlace.preview.untitled'), status: 'pending', verified: false, ratingAvg: null, reviewsCount: 0, city: null, openingHours: null, timezone: null, openNow: null }}
+                place={{ name: values.name.trim() || t('addPlace.preview.untitled'), status: place?.status ?? 'pending', verified: false, ratingAvg: null, reviewsCount: 0, city: null, openingHours: null, timezone: null, openNow: null }}
                 type={type}
                 active={false}
                 compact={false}
@@ -243,7 +268,6 @@ export function AddPlaceForm({ size, corridor, onCreated }: AddPlaceFormProps) {
             </div>
           </Card>
           {submit}
-          <FormNote>{t('addPlace.photosLater')}</FormNote>
         </aside>
       )}
     </form>

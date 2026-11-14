@@ -20,6 +20,9 @@ export const ROUTES = {
 /** The full page of an organisation. */
 export const placePath = (organisationId: string) => `${ROUTES.place}/${organisationId}`
 
+/** The edit form of an organisation (its submitter only). */
+export const editPlacePath = (organisationId: string) => `${placePath(organisationId)}/edit`
+
 /** `location.state` of a screen a guest was sent away from to sign in (`RequireAuth`). */
 export interface ReturnState {
   from?: { pathname: string; search?: string }

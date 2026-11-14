@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { emptyHours, hoursToCopy, isOvernight, isValidInterval, searchTextFromMapsLink, toCreateRequest, toOpeningHours, weekdayLabels, type PlaceFormValues } from '../placeDraft'
+import { organisation } from '@/test/factories'
+import { emptyHours, fromOpeningHours, hoursToCopy, isOvernight, isValidInterval, searchTextFromMapsLink, toCreateRequest, toFormValues, toOpeningHours, toUpdateRequest, weekdayLabels, type PlaceFormValues } from '../placeDraft'
 
 const values = (over: Partial<PlaceFormValues> = {}): PlaceFormValues => ({
   name: '  Kyiv Coffee ',
@@ -112,5 +113,66 @@ describe('searchTextFromMapsLink', () => {
     expect(searchTextFromMapsLink('Kalemegdan')).toBe('Kalemegdan')
     expect(searchTextFromMapsLink('https://maps.app.goo.gl/abc')).toBe('https://maps.app.goo.gl/abc')
     expect(searchTextFromMapsLink('https://google.com/maps/place/%E0%A4%A')).toBe('https://google.com/maps/place/%E0%A4%A')
+  })
+})
+
+describe('editing a stored place', () => {
+  it('shows stored hours as the editor does: a night split at midnight is one interval again', () => {
+    const hours = { ...emptyHours(), mon: ['18:00', '02:00'], tue: ['12:00', '15:00'], wed: ['00:00', '00:00'], sun: ['22:00', '04:00'] } as ReturnType<typeof emptyHours>
+    // What toOpeningHours stores and fromOpeningHours reads back (a closed day stays closed).
+    expect(fromOpeningHours(toOpeningHours({ ...hours, wed: ['09:00', '10:00'] }) ?? null)).toEqual({ ...hours, wed: ['09:00', '10:00'] })
+    expect(fromOpeningHours(null)).toEqual(emptyHours())
+  })
+
+  it('reads midnight closings and round-the-clock days', () => {
+    expect(fromOpeningHours({ mon: [['09:00', '24:00']], tue: [['00:00', '24:00']] })).toEqual({ ...emptyHours(), mon: ['09:00', '00:00'], tue: ['00:00', '00:00'] })
+  })
+
+  it('fills the form from the place, empty where the place has nothing', () => {
+    expect(toFormValues(organisation({ name: 'Kyiv Coffee', organisationTypeId: 'type-1', tel: '+381', founderCountryId: 'ru', locationCountryId: 'rs', services: ['Breakfast'], languages: ['Russian'] }))).toEqual({
+      name: 'Kyiv Coffee',
+      typeId: 'type-1',
+      address: '',
+      tel: '+381',
+      email: '',
+      website: '',
+      description: '',
+      services: ['Breakfast'],
+      languages: ['Russian'],
+      hours: emptyHours(),
+      fromId: 'ru',
+      toId: 'rs',
+    })
+    expect(toFormValues(organisation({ organisationTypeId: null, founderCountryId: null, locationCountryId: null }))).toMatchObject({ typeId: '', fromId: '', toId: '' })
+  })
+
+  it('sends every field — a cleared one as "" and no open day as {} — and the point only when it moved', () => {
+    const place = organisation({ latitude: 44.8, longitude: 20.46 })
+    const request = toUpdateRequest(values({ typeId: '', fromId: '', toId: '' }), { lat: 44.8, lng: 20.46 }, place)
+    expect(request).toEqual({
+      name: 'Kyiv Coffee',
+      organisation_type_id: undefined,
+      address: '',
+      tel: '+381 11 123',
+      email: '',
+      website: '',
+      description: 'Café',
+      services: ['Breakfast'],
+      languages: ['Russian'],
+      location_country_id: undefined,
+      founder_country_id: undefined,
+    })
+    expect(request).not.toHaveProperty('opening_hours')
+    expect(toUpdateRequest(values(), { lat: 1, lng: 2 }, place)).toMatchObject({ latitude: 1, longitude: 2, location_country_id: 'rs' })
+  })
+
+  it('leaves stored hours alone unless they were edited — a split shift the editor cannot show survives', () => {
+    const place = organisation({ openingHours: { mon: [['09:00', '13:00'], ['14:00', '18:00']] } })
+    const shown = toFormValues(place)
+    expect(toUpdateRequest(shown, { lat: place.latitude!, lng: place.longitude! }, place)).not.toHaveProperty('opening_hours')
+    const edited = { ...shown, hours: { ...shown.hours, tue: ['10:00', '12:00'] as [string, string] } }
+    expect(toUpdateRequest(edited, { lat: place.latitude!, lng: place.longitude! }, place).opening_hours).toEqual({ mon: [['09:00', '13:00']], tue: [['10:00', '12:00']] })
+    // Closing every day is an edit too: it sends an empty week.
+    expect(toUpdateRequest({ ...shown, hours: emptyHours() }, { lat: place.latitude!, lng: place.longitude! }, place).opening_hours).toEqual({})
   })
 })

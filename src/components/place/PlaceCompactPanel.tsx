@@ -24,10 +24,12 @@ export function PlaceCompactPanel({ place, type, showPhoto, onClose }: PlaceComp
   return (
     <section aria-label={place.name} className="flex flex-col gap-4">
       {/* Stays at the top of the scrolling panel; takes no room of its own. */}
-      <div className="sticky top-0 z-10 -mb-15 flex justify-end">
-        <IconButton icon="close" label={t('place.close')} variant="floating" size="sm" onClick={onClose} />
+      <div className="sticky top-0 z-10 -mb-4 flex h-0 justify-end">
+        <span className="mt-3 mr-3">
+          <IconButton icon="close" label={t('place.close')} variant="floating" size="sm" onClick={onClose} />
+        </span>
       </div>
-      {showPhoto && primary && <ImageFrame src={primary.url} alt={t('place.photos.primary', { name: place.name })} ratio="banner" />}
+      {showPhoto && primary && <ImageFrame src={primary.url} alt={t('place.photos.primary', { name: place.name })} ratio="square" />}
       <PlaceHead place={place} type={type} compact as="h2" />
       <PlaceActions place={place} />
       {place.description && <p className="m-0 text-sm font-medium text-pretty text-ink-2">{place.description}</p>}

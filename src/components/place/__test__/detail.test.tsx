@@ -115,6 +115,15 @@ describe('PlaceActions', () => {
     expect(screen.getByTestId('path')).toHaveTextContent('/signin|{"from":{"pathname":"/place/o1","search":"?x=1"}}')
   })
 
+  it('offers "Edit" to whoever added the place, and to nobody else', () => {
+    useAuthStore.getState().setAuth(authUser({ id: 'me' }))
+    const mine = show(<PlaceActions place={organisation({ id: 'o1', createdBy: 'me' })} />)
+    expect(screen.getByRole('link', { name: 'Edit place' })).toHaveAttribute('href', '/place/o1/edit')
+    mine.unmount()
+    show(<PlaceActions place={organisation({ id: 'o2', createdBy: 'someone-else' })} />)
+    expect(screen.queryByRole('link', { name: 'Edit place' })).not.toBeInTheDocument()
+  })
+
   it('saves and unsaves for a signed-in user', async () => {
     useAuthStore.getState().setAuth(authUser())
     const place = organisation({ id: 'o1' })

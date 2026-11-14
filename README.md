@@ -5,7 +5,7 @@
 
 React client for Landly — a map of businesses, helpers, communities and official representatives for people who moved to another country.
 
-> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) **the map** (`/map` with its filters sheet and corridor picker), **a place** (its panel on the map and its full page `/place/{id}`), **add a place** (`/add`, `/add/sent/{id}`) and **the account** (`/account` — profile, counters, languages, your places and recommendations with their moderation status, your corridors — and `/account/edit`), each on desktop / tablet / phone; people, countries and saved are next. In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
+> **Status:** the old screens were removed together with the old design and are rebuilt section by section on the new design. Done: **Sign in & Sign up** (landing, `/signin`, two-step `/signup`, Google callback) **the map** (`/map` with its filters sheet and corridor picker), **a place** (its panel on the map and its full page `/place/{id}`), **add and edit a place** (with photos) (`/add`, `/add/sent/{id}`, `/place/{id}/edit` for whoever added it) and **the account** (`/account` — profile, counters, languages, your places and recommendations with their moderation status, your corridors — and `/account/edit`), each on desktop / tablet / phone; people, countries and saved are next. In place underneath: the data layer — typed contracts of every landly-server endpoint, API services, React Query hooks, stores — the Google Maps setup, and the design system in `src/components/ui`.
 
 ## 🛠️ Stack
 
@@ -49,7 +49,7 @@ src/
 ├── hooks/          # React Query hooks over the services + usePlaceDetails (Google)
 ├── components/ui/  # design system: tokens, components, constants, `ui` i18n namespace
 ├── components/     # auth/, corridor/, layout/, place/, account/ — domain blocks composed from DS components
-├── pages/          # one file per route (landing, sign in/up, Google callback, map, a place, add a place, account, edit profile)
+├── pages/          # one file per route (landing, sign in/up, Google callback, map, a place, add a place, edit a place, account, edit profile)
 ├── lib/
 │   ├── axios.ts        # client: base URL, Bearer token, comma-separated query arrays
 │   ├── queryClient.ts  # the app's React Query client
