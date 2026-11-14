@@ -1,7 +1,8 @@
 // Organisations (places on the map) — server feature `organisation`.
 import type { PaginationParams, ServerDateTime, Uuid } from './shared'
+import type { PublicUser } from './user'
 
-/** Moderation status. Only `live` rows appear in list/search. */
+/** Moderation status. `list` shows `live` rows; the map (`search`) shows `live` and `pending` ones. */
 export const ORGANISATION_STATUSES = ['pending', 'live', 'rejected'] as const
 export type OrganisationStatus = (typeof ORGANISATION_STATUSES)[number]
 
@@ -35,7 +36,15 @@ export interface CommunitySignals {
   stillActivePct: number | null
   lastCheckinAt: ServerDateTime | null
   /** Up to 5 latest tips, newest first. */
-  tips: string[]
+  tips: CheckinTip[]
+}
+
+/** `CheckinTipContent` — a check-in tip with who left it and when. */
+export interface CheckinTip {
+  text: string
+  createdAt: ServerDateTime
+  /** Null when the author's account is gone. */
+  author: PublicUser | null
 }
 
 /** `OrganisationContent` — list, search, fetch, create, update and check-in payload. */
@@ -88,6 +97,8 @@ export interface Organisation {
   distanceKm?: number
   /** Present only on the detail payload. */
   community?: CommunitySignals
+  /** Detail payload only: who added the place; absent when unknown or the account is gone. */
+  creator?: PublicUser
 }
 
 /**

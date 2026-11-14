@@ -781,5 +781,91 @@
     },
     "changesRequested": "Запрошены правки · {{ago}}",
     "showMore": "Показать ещё"
+  },
+  "place": {
+    "title": "Место",
+    "loading": "Загрузка…",
+    "loadFailed": "Не удалось загрузить место",
+    "retry": "Повторить",
+    "notFound": "Такого места нет или оно удалено",
+    "backToMap": "Вернуться к карте",
+    "close": "Закрыть",
+    "verified": "Проверено",
+    "visits_one": "{{formatted}} просмотр",
+    "visits_few": "{{formatted}} просмотра",
+    "visits_many": "{{formatted}} просмотров",
+    "visits_other": "{{formatted}} просмотра",
+    "directions": "Маршрут",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "copyLink": "Скопировать ссылку на место",
+    "linkCopied": "Ссылка скопирована",
+    "openFullPage": "Открыть страницу места",
+    "about": "О месте",
+    "services": "Услуги",
+    "hours": "Часы работы",
+    "closed": "Закрыто",
+    "localTime": "Местное время · {{zone}}",
+    "languages": "Языки",
+    "map": "Карта",
+    "breadcrumbs": "Навигация",
+    "contacts": {
+      "title": "Контакты",
+      "phone": "Телефон",
+      "email": "Email",
+      "website": "Сайт",
+      "telegram": "Telegram",
+      "whatsapp": "WhatsApp"
+    },
+    "photos": {
+      "title_one": "Фото · {{count}}",
+      "title_few": "Фото · {{count}}",
+      "title_many": "Фото · {{count}}",
+      "title_other": "Фото · {{count}}",
+      "primary": "Фото: {{name}}",
+      "alt": "{{name}}, фото {{index}}"
+    },
+    "network": {
+      "title": "Консульская сеть",
+      "subtitle": "Посольства и консульства, связанные с этим местом",
+      "consulate": "Консульство · {{place}}",
+      "embassy": "Посольство · {{place}}"
+    },
+    "community": {
+      "title": "Отметки посетителей",
+      "subtitle": "Посетители подтверждают, что место работает, и оставляют советы",
+      "empty": "Отметок пока нет.",
+      "stillActive": "говорят, что работает",
+      "checkins_one": "отметка",
+      "checkins_few": "отметки",
+      "checkins_many": "отметок",
+      "checkins_other": "отметки",
+      "lastCheckin": "последняя отметка",
+      "tips": "Советы посетителей",
+      "tip": "«{{text}}»",
+      "tipBy": "— {{name}}, {{ago}}",
+      "someone": "посетитель"
+    },
+    "reviews": {
+      "title": "Отзывы",
+      "loadFailed": "Не удалось загрузить отзывы",
+      "empty": "Отзывов пока нет.",
+      "count_one": "{{count}} отзыв",
+      "count_few": "{{count}} отзыва",
+      "count_many": "{{count}} отзывов",
+      "count_other": "{{count}} отзыва",
+      "latest": "Последние отзывы",
+      "deletedAuthor": "Бывший участник",
+      "bar_one": "Оценка {{rating}}: {{count}} отзыв",
+      "bar_few": "Оценка {{rating}}: {{count}} отзыва",
+      "bar_many": "Оценка {{rating}}: {{count}} отзывов",
+      "bar_other": "Оценка {{rating}}: {{count}} отзыва",
+      "breakdown": "Отзывы по оценкам"
+    },
+    "addedBy": {
+      "title": "Добавил",
+      "who": "@{{username}} · добавил это место",
+      "fromGoogle": "Точка из Google Карт"
+    }
   }
 }

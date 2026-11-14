@@ -140,6 +140,7 @@ export const review = (over: Partial<Review> = {}): Review => ({
   text: null,
   topic: null,
   createdAt: NOW,
+  author: { username: 'pavel', name: 'Pavel K.', avatarColor: null },
   ...over,
 })
 

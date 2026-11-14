@@ -51,3 +51,6 @@ export const Block: Story = { args: { block: true, variant: 'accent', children: 
 export const IconOnly: Story = { args: { children: undefined, icon: 'sliders', 'aria-label': 'Filters', variant: 'secondary' } }
 
 export const AsLink: Story = { args: { to: '/signup', variant: 'accent', children: 'Sign up' } }
+
+/** `href` — another site, in a new tab (directions, a place's website). */
+export const ExternalLink: Story = { args: { href: 'https://www.google.com/maps', icon: 'pin', children: 'Directions' } }

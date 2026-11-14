@@ -10,7 +10,8 @@ export type ModerationAction = (typeof MODERATION_ACTIONS)[number]
 /**
  * Submit-time auto-checks written by the server into the `submitted` event.
  * Which keys are set depends on the event: org submission, person submission,
- * or `editedAfterApproval` when a creator edited a live place.
+ * `editedAfterApproval` when a creator edited a live place, or `resubmittedAfterChanges` when
+ * the creator edited a place a moderator sent back with a note.
  */
 export interface ModerationFlags {
   // organisation submission
@@ -28,6 +29,8 @@ export interface ModerationFlags {
   trustedRecommender?: boolean
   // creator edit of a live organisation
   editedAfterApproval?: boolean
+  // creator edit answering a moderator's "request changes" note
+  resubmittedAfterChanges?: boolean
   [key: string]: unknown
 }
 

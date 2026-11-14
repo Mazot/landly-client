@@ -39,10 +39,12 @@ export interface ButtonProps extends ComponentProps<'button'> {
   loading?: boolean
   /** Renders a router link looking like the button (navigation, not an action); `disabled` / `loading` do not apply. */
   to?: To
+  /** Renders a link to another site looking like the button, opened in a new tab (directions, a website). */
+  href?: string
 }
 
 /** Every button in the product. No children → square icon button (give it `aria-label`). */
-export function Button({ variant = 'primary', size = 'md', icon, iconRight, block, loading, disabled, type = 'button', to, className, children, ...rest }: ButtonProps) {
+export function Button({ variant = 'primary', size = 'md', icon, iconRight, block, loading, disabled, type = 'button', to, href, className, children, ...rest }: ButtonProps) {
   const iconSize = ICON_SIZE[size]
   const classes = clsx(
     'inline-flex shrink-0 touch-manipulation items-center justify-center rounded-r2 border leading-none font-semibold whitespace-nowrap transition-colors active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0',
@@ -65,6 +67,13 @@ export function Button({ variant = 'primary', size = 'md', icon, iconRight, bloc
       <Link to={to} aria-label={rest['aria-label']} className={classes}>
         {content}
       </Link>
+    )
+  }
+  if (href !== undefined) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" aria-label={rest['aria-label']} className={classes}>
+        {content}
+      </a>
     )
   }
   return (

@@ -1,6 +1,7 @@
-import type { OpeningHours, OpeningInterval, Weekday } from '@/types/api'
+import { WEEKDAYS, type OpeningHours, type OpeningInterval, type Weekday } from '@/types/api'
 
-const WEEKDAYS: Record<string, Weekday> = { Mon: 'mon', Tue: 'tue', Wed: 'wed', Thu: 'thu', Fri: 'fri', Sat: 'sat', Sun: 'sun' }
+/** `Intl` short weekday (en-US) → API weekday key. */
+const FROM_SHORT_NAME: Record<string, Weekday> = { Mon: 'mon', Tue: 'tue', Wed: 'wed', Thu: 'thu', Fri: 'fri', Sat: 'sat', Sun: 'sun' }
 
 const formatters = new Map<string, Intl.DateTimeFormat>()
 /** One formatter per time zone: building one is slow and a list asks for every row. Throws on an unknown zone. */
@@ -17,7 +18,7 @@ function formatterFor(timeZone: string) {
 function localTime(now: Date, timeZone: string): { weekday: Weekday; time: string } {
   const parts = formatterFor(timeZone).formatToParts(now)
   const part = (type: string) => parts.find((p) => p.type === type)!.value
-  return { weekday: WEEKDAYS[part('weekday')], time: `${part('hour')}:${part('minute')}` }
+  return { weekday: FROM_SHORT_NAME[part('weekday')], time: `${part('hour')}:${part('minute')}` }
 }
 
 /**
@@ -41,3 +42,13 @@ export function hoursToday(openingHours: OpeningHours | null, timezone: string |
 
 /** `["09:00", "13:00"]` → `09:00–13:00`. */
 export const formatInterval = ([open, close]: OpeningInterval) => `${open}–${close}`
+
+/** A Monday (UTC) to name the weekdays from. */
+const A_MONDAY = Date.UTC(2024, 0, 1)
+const DAY_MS = 24 * 60 * 60 * 1000
+
+/** Short weekday name in the reader's language: `mon` → "Mon" / "пн". */
+export function weekdayLabel(weekday: Weekday, locale: string): string {
+  const index = WEEKDAYS.indexOf(weekday)
+  return new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(A_MONDAY + index * DAY_MS))
+}

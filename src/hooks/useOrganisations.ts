@@ -120,6 +120,27 @@ export const useCheckin = () => {
 }
 
 /** Call once per detail-page view. */
+/**
+ * Counts one visit of a place's page while it is open (`POST /organisation/visit/{id}`) and puts the
+ * new count on the cached detail. A query rather than an effect: mounts at the same time (StrictMode)
+ * share one request, and `gcTime: 0` forgets it on leaving, so the next opening counts again.
+ */
+export const useCountVisit = (id: Uuid | undefined) => {
+  const queryClient = useQueryClient()
+  return useQuery({
+    queryKey: queryKeys.organisations.visit(id ?? ''),
+    queryFn: async () => {
+      const { visitsCount } = await organisationApi.visit(id!)
+      queryClient.setQueryData<Organisation>(queryKeys.organisations.detail(id!), (cached) => (cached ? { ...cached, visitsCount } : cached))
+      return visitsCount
+    },
+    enabled: !!id,
+    staleTime: Infinity,
+    gcTime: 0,
+    retry: false,
+  })
+}
+
 export const useRecordVisit = () => {
   const queryClient = useQueryClient()
   return useMutation({

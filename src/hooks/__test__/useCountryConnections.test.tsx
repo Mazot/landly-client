@@ -20,6 +20,8 @@ const connection: CountryConnection = {
   consulateOrgId: null,
   embassyOrgId: 'o1',
   locationCountryId: 'c1',
+  embassy: { id: 'o1', name: 'Embassy of Russia', city: 'Berlin' },
+  consulate: null,
 }
 
 describe('country connection queries', () => {

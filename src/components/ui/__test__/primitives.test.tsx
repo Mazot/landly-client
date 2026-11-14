@@ -62,6 +62,14 @@ describe('Button', () => {
     expect(screen.getByRole('link', { name: 'Map' })).toHaveAttribute('href', '/map')
   })
 
+  it('opens another site in a new tab when given `href`', () => {
+    render(<Button href="https://www.google.com/maps" icon="pin">Directions</Button>)
+    const link = screen.getByRole('link', { name: 'Directions' })
+    expect(link).toHaveAttribute('href', 'https://www.google.com/maps')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
   it('is busy and disabled while loading', async () => {
     const onClick = vi.fn()
     render(<Button size="lg" loading iconRight="arrowRight" onClick={onClick}>Save</Button>)

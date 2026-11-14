@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { OpeningHours } from '@/types/api'
 import { formatInterval, hoursToday } from '../openingHours'
+import { weekdayLabel } from '../openingHours'
 
 const office: OpeningHours = { mon: [['14:00', '18:00'], ['09:00', '13:00']], tue: [['00:00', '24:00']], sun: [] }
 const berlin = 'Europe/Berlin'
@@ -48,5 +49,13 @@ describe('hoursToday', () => {
 describe('formatInterval', () => {
   it('joins the times with an en dash', () => {
     expect(formatInterval(['09:00', '13:00'])).toBe('09:00–13:00')
+  })
+})
+
+describe('weekdayLabel', () => {
+  it('names the weekday in the reader language, Monday first', () => {
+    expect(weekdayLabel('mon', 'en')).toBe('Mon')
+    expect(weekdayLabel('sun', 'en')).toBe('Sun')
+    expect(weekdayLabel('mon', 'ru')).toBe('пн')
   })
 })

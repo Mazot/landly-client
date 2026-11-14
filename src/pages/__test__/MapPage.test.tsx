@@ -87,6 +87,7 @@ function arrange({ places = [embassy, noPoint, untyped], details = {} as Record<
   const byId = { [germany.id]: detail(germany), [serbia.id]: detail(serbia, { geoJson: null, totalPlaces: 7 }), ...details }
   capture('get', '/api/common/countries', [russia, germany, serbia])
   capture('get', '/api/common/org_types', [embassyType, businessType])
+  capture('get', '/api/images/list/:id', list([]))
   server.use(
     http.get(`${API}/api/common/countries/:id`, ({ params }) => HttpResponse.json(byId[params.id as string])),
     http.get(`${API}/api/organisation/search`, ({ request }) => {
@@ -134,7 +135,7 @@ async function ready(searches = arrange()) {
 }
 
 describe('MapPage', () => {
-  const map = { panTo: vi.fn(), setZoom: vi.fn(), getZoom: vi.fn(() => 6) }
+  const map = { panTo: vi.fn(), panBy: vi.fn(), setZoom: vi.fn(), getZoom: vi.fn(() => 6), getDiv: () => ({ getBoundingClientRect: () => ({ right: 1000 }) }) }
   beforeEach(() => {
     vi.clearAllMocks()
     map.getZoom.mockReturnValue(6)
@@ -467,6 +468,33 @@ describe('MapPage', () => {
       expect(within(panel()).getByRole('button', { name: /Russian Embassy/ })).toHaveAttribute('aria-pressed', 'false')
     })
 
+    it('opens the place panel over the map, keeps the place beside it, and moves the map controls left of it', async () => {
+      await ready()
+      await userEvent.click(within(panel()).getByRole('button', { name: /Russian Embassy/ }))
+      const place = screen.getByRole('region', { name: 'Russian Embassy' })
+      expect(within(place).getByRole('heading', { name: 'Russian Embassy' })).toBeInTheDocument()
+      // jsdom lays nothing out: the panel starts at 0, so it "covers" the whole 1000 px map.
+      await waitFor(() => expect(map.panBy).toHaveBeenCalledWith(500, 0))
+      // The corridor summary gives way to the panel; "Search this area" and the zoom sit beside it.
+      expect(screen.queryByRole('button', { name: /73 places/ })).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Zoom in' }).closest('.absolute')).toHaveClass('right-105.5')
+      await rest('Hamburg')
+      expect(screen.getByRole('button', { name: 'Search this area' }).closest('.absolute')).toHaveClass('right-105.5')
+      await userEvent.click(within(place).getByRole('button', { name: 'Close' }))
+      expect(screen.queryByRole('region', { name: 'Russian Embassy' })).not.toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /73 places/ })).toBeInTheDocument()
+    })
+
+    it('does not shift the map when the panel covers none of it', async () => {
+      map.getDiv = () => ({ getBoundingClientRect: () => ({ right: 0 }) })
+      await ready()
+      await userEvent.click(within(panel()).getByRole('button', { name: /Russian Embassy/ }))
+      expect(await screen.findByRole('region', { name: 'Russian Embassy' })).toBeInTheDocument()
+      expect(map.panTo).toHaveBeenCalled()
+      expect(map.panBy).not.toHaveBeenCalled()
+      map.getDiv = () => ({ getBoundingClientRect: () => ({ right: 1000 }) })
+    })
+
     it('selects from a pin too, without moving the map', async () => {
       await ready()
       await userEvent.click(screen.getByTitle('Pop-up fair'))
@@ -566,7 +594,7 @@ describe('MapPage', () => {
       expect(screen.getByRole('button', { name: 'Filters' })).toBeInTheDocument()
     })
 
-    it('phone: floating search and corridor pill, the results in a sheet that opens, selection closes it', async () => {
+    it('phone: floating search and corridor pill, the results in a sheet that opens, a selection shows the place in it', async () => {
       setViewportWidth(375)
       arrange()
       open()
@@ -581,8 +609,15 @@ describe('MapPage', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Show the list' }))
       expect(screen.getByRole('button', { name: 'Hide the list' })).toHaveAttribute('aria-expanded', 'true')
       await userEvent.click(within(screen.getByRole('region', { name: 'Places on the map' })).getByRole('button', { name: /Russian Embassy/ }))
-      expect(screen.getByRole('button', { name: 'Show the list' })).toHaveAttribute('aria-expanded', 'false')
+      // The sheet stays open and holds the place instead of the list; no photo there, and the map is not shifted for a panel.
+      expect(screen.getByRole('button', { name: 'Hide the list' })).toHaveAttribute('aria-expanded', 'true')
+      const place = screen.getByRole('region', { name: 'Russian Embassy' })
+      expect(within(place).getByRole('heading', { name: 'Russian Embassy' })).toBeInTheDocument()
+      expect(screen.queryByText('3 nearby')).not.toBeInTheDocument()
       expect(map.panTo).toHaveBeenCalled()
+      expect(map.panBy).not.toHaveBeenCalled()
+      await userEvent.click(within(place).getByRole('button', { name: 'Close' }))
+      expect(await screen.findByText('3 nearby')).toBeInTheDocument()
     })
 
     it('phone: says the list is loading in the sheet header', async () => {

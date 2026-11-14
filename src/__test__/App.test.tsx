@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
-import { authUser, userProfile } from '@/test/factories'
+import { authUser, organisation, userProfile } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
 import App from '../App'
@@ -83,6 +83,19 @@ describe('App routes', () => {
     account.unmount()
     renderApp(<App />, { route: '/account/edit' })
     expect(await screen.findByRole('heading', { name: 'Edit profile' })).toBeInTheDocument()
+  })
+
+  it('/place/{id} is public: a guest opens a place\'s full page', async () => {
+    capture('get', '/api/organisation/fetch/p1', { ...organisation({ id: 'p1', name: 'Public place', latitude: null, longitude: null }) })
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    capture('get', '/api/images/list/p1', { items: [], total: 0 })
+    capture('get', '/api/country-connection/list', { items: [], total: 0 })
+    capture('get', '/api/review/summary', { count: 0, ratingAvg: null, byRating: [] })
+    capture('get', '/api/review/list', { items: [], total: 0 })
+    capture('post', '/api/organisation/visit/p1', { visitsCount: 1 })
+    renderApp(<App />, { route: '/place/p1' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Public place' })).toBeInTheDocument()
   })
 
   it('renders nothing for routes that are not built yet (claim links, unknown paths)', () => {

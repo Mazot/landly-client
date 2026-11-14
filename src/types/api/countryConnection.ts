@@ -11,6 +11,17 @@ export interface CountryConnection {
   embassyOrgId: Uuid | null
   /** Country the embassy/consulate is located in. */
   locationCountryId: Uuid | null
+  /** The linked embassy; null without one, or while it is not on the map. */
+  embassy: ConnectedOrganisation | null
+  /** The linked consulate; null without one, or while it is not on the map. */
+  consulate: ConnectedOrganisation | null
+}
+
+/** `ConnectedOrganisationContent` — a linked embassy or consulate (opens its page). */
+export interface ConnectedOrganisation {
+  id: Uuid
+  name: string
+  city: string | null
 }
 
 /** `POST /api/country-connection/create`. */

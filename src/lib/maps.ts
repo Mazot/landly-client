@@ -88,3 +88,19 @@ export function placeToOrganisationLocation(
     address: place.formattedAddress ?? undefined,
   }
 }
+
+/** Google Maps URLs (free; no Maps API call): directions to a place. */
+export const GOOGLE_MAPS_DIRECTIONS_URL = 'https://www.google.com/maps/dir/'
+
+/**
+ * Directions to an organisation in Google Maps: to its Google place when it has one, else to its
+ * point, else to its address; `undefined` when there is nothing to route to.
+ */
+export function directionsUrl(organisation: Pick<Organisation, 'latitude' | 'longitude' | 'address' | 'city' | 'googlePlaceId'>): string | undefined {
+  const position = organisationPosition(organisation)
+  const destination = position ? `${position.lat},${position.lng}` : [organisation.address, organisation.city].filter(Boolean).join(', ')
+  if (!destination) return undefined
+  const params = new URLSearchParams({ api: '1', destination })
+  if (organisation.googlePlaceId) params.set('destination_place_id', organisation.googlePlaceId)
+  return `${GOOGLE_MAPS_DIRECTIONS_URL}?${params}`
+}

@@ -9,6 +9,7 @@ import {
   organisationPosition,
   placeToOrganisationLocation,
 } from '../maps'
+import { directionsUrl } from '../maps'
 
 describe('config', () => {
   it('falls back to Google’s development map id', async () => {
@@ -140,5 +141,21 @@ describe('geometryBounds', () => {
     expect(geometryBounds(null)).toBeNull()
     expect(geometryBounds(undefined)).toBeNull()
     expect(geometryBounds({ type: 'Polygon', coordinates: [] })).toBeNull()
+  })
+})
+
+describe('directionsUrl', () => {
+  const at = { latitude: 44.8, longitude: 20.46, address: 'Deligradska 32', city: 'Belgrade', googlePlaceId: null }
+  const params = (url: string | undefined) => Object.fromEntries(new URL(url!).searchParams)
+
+  it('routes to the point, and to the Google place when there is one', () => {
+    expect(directionsUrl(at)).toMatch(/^https:\/\/www\.google\.com\/maps\/dir\/\?/)
+    expect(params(directionsUrl(at))).toEqual({ api: '1', destination: '44.8,20.46' })
+    expect(params(directionsUrl({ ...at, googlePlaceId: 'ChIJ1' }))).toEqual({ api: '1', destination: '44.8,20.46', destination_place_id: 'ChIJ1' })
+  })
+
+  it('falls back to the address, and gives nothing without anywhere to go', () => {
+    expect(params(directionsUrl({ ...at, latitude: null, longitude: null })).destination).toBe('Deligradska 32, Belgrade')
+    expect(directionsUrl({ latitude: null, longitude: null, address: null, city: null, googlePlaceId: null })).toBeUndefined()
   })
 })

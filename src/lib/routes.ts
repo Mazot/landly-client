@@ -13,7 +13,12 @@ export const ROUTES = {
   add: '/add',
   /** `/add/sent/{organisationId}` — the place was submitted. */
   addSent: '/add/sent',
+  /** `/place/{organisationId}` — an organisation's full page (`placePath`). */
+  place: '/place',
 } as const
+
+/** The full page of an organisation. */
+export const placePath = (organisationId: string) => `${ROUTES.place}/${organisationId}`
 
 /** `location.state` of a screen a guest was sent away from to sign in (`RequireAuth`). */
 export interface ReturnState {

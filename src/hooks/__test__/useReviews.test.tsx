@@ -5,7 +5,7 @@ import { queryKeys } from '@/lib/queryKeys'
 import { list, review } from '@/test/factories'
 import { createTestQueryClient, isInvalidated, renderQueryHook, runMutation, seed } from '@/test/render'
 import { capture } from '@/test/server'
-import { useCreateReview, useDeleteReview, useReviews } from '../useReviews'
+import { useCreateReview, useDeleteReview, useReviewSummary, useReviews } from '../useReviews'
 
 describe('useReviews', () => {
   it('stays idle without a target', () => {
@@ -17,6 +17,20 @@ describe('useReviews', () => {
     const requests = capture('get', '/api/review/list', list([r]))
     const { result } = renderQueryHook(() => useReviews({ organisation_id: 'o1' }))
     await waitFor(() => expect(result.current.data?.items).toEqual([r]))
+    expect(requests[0].query.get('organisation_id')).toBe('o1')
+  })
+})
+
+describe('useReviewSummary', () => {
+  it('stays idle without a target', () => {
+    expect(renderQueryHook(() => useReviewSummary(undefined)).result.current.fetchStatus).toBe('idle')
+  })
+
+  it("loads one target's count, average and breakdown", async () => {
+    const summary = { count: 2, ratingAvg: 3.5, byRating: [5, 4, 3, 2, 1].map((rating) => ({ rating, count: rating === 5 || rating === 2 ? 1 : 0 })) }
+    const requests = capture('get', '/api/review/summary', summary)
+    const { result } = renderQueryHook(() => useReviewSummary({ organisation_id: 'o1' }))
+    await waitFor(() => expect(result.current.data).toEqual(summary))
     expect(requests[0].query.get('organisation_id')).toBe('o1')
   })
 })
