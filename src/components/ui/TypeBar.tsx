@@ -1,3 +1,4 @@
+import { sumBy } from 'es-toolkit'
 import clsx from 'clsx'
 import { isKnownOrgType, ORG_TYPE_CLASSES } from './constants/orgTypes'
 
@@ -17,7 +18,7 @@ export interface TypeBarProps {
 
 /** Stacked share-of-places bar by org type with a legend — corridor and country summaries. */
 export function TypeBar({ segments, label, className }: TypeBarProps) {
-  const total = segments.reduce((sum, s) => sum + s.count, 0)
+  const total = sumBy(segments, (s) => s.count)
   return (
     <div className={clsx('min-w-0', className)}>
       <div aria-hidden className="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-border-1">

@@ -6,6 +6,7 @@
 // Google's terms: the server stores only `google_place_id` (+ a refreshable
 // copy of the point). Hours, photos and the Google rating are fetched live
 // (`usePlaceDetails`) and must be shown on a Google map with Google's attribution.
+import { clamp, compact, maxBy, minBy } from 'es-toolkit'
 import type { CountryGeometry, CreateOrganisationRequest, GeoJsonPosition, Organisation, SearchOrganisationsQuery } from '@/types/api'
 
 /** Browser key (Maps JavaScript API + Places), restricted by HTTP referrer. */
@@ -41,12 +42,12 @@ export function geometryBounds(geometry: CountryGeometry | null | undefined): go
   const rings: GeoJsonPosition[][] = geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat()
   const positions = rings.flat()
   if (positions.length === 0) return null
-  const lngs = positions.map(([lng]) => lng)
-  const lats = positions.map(([, lat]) => lat)
-  return { west: Math.min(...lngs), east: Math.max(...lngs), south: Math.min(...lats), north: Math.max(...lats) }
+  const lng = ([x]: GeoJsonPosition) => x
+  const lat = ([, y]: GeoJsonPosition) => y
+  // Not Math.min(...array): a country's border has more points than a call may take as arguments.
+  return { west: lng(minBy(positions, lng)!), east: lng(maxBy(positions, lng)!), south: lat(minBy(positions, lat)!), north: lat(maxBy(positions, lat)!) }
 }
 
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
 /**
  * Map viewport → bbox of `GET /api/organisation/search`.
@@ -98,7 +99,7 @@ export const GOOGLE_MAPS_DIRECTIONS_URL = 'https://www.google.com/maps/dir/'
  */
 export function directionsUrl(organisation: Pick<Organisation, 'latitude' | 'longitude' | 'address' | 'city' | 'googlePlaceId'>): string | undefined {
   const position = organisationPosition(organisation)
-  const destination = position ? `${position.lat},${position.lng}` : [organisation.address, organisation.city].filter(Boolean).join(', ')
+  const destination = position ? `${position.lat},${position.lng}` : compact([organisation.address, organisation.city]).join(', ')
   if (!destination) return undefined
   const params = new URLSearchParams({ api: '1', destination })
   if (organisation.googlePlaceId) params.set('destination_place_id', organisation.googlePlaceId)

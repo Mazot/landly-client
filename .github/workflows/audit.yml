@@ -1,0 +1,35 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  schedule:
+    - cron: '0 3 * * 1'  # Weekly on Mondays
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # `npm audit` against the lockfile: what ships to users must have no high/critical advisory;
+  # the dev tooling is reported in full but does not fail the run.
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+    - name: Audit production dependencies (fails on high / critical)
+      run: npm audit --omit=dev --audit-level=high
+    - name: Audit all dependencies, dev tooling included (report only)
+      run: npm audit
+      continue-on-error: true

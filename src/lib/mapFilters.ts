@@ -1,6 +1,7 @@
 // Map filters: one value object shared by the filter bar, the type rail, the filters sheet and the
 // results list. It lives in the URL (`/map?types=embassy&open=1`), so a reload or a shared link
 // keeps the view, and it maps 1:1 onto the query of `GET /api/organisation/search`.
+import { compact } from 'es-toolkit'
 import type { AddedBy, SearchOrganisationsQuery, SearchSort } from '@/types/api'
 import { ADDED_BY, SEARCH_SORTS } from '@/types/api'
 
@@ -29,7 +30,7 @@ export const DEFAULT_FILTERS: MapFilters = {
   sort: 'nearest',
 }
 
-const list = (value: string | null) => (value ? value.split(',').filter(Boolean) : [])
+const list = (value: string | null) => (value ? compact(value.split(',')) : [])
 const oneOf = <T extends string>(allowed: readonly T[], value: string | null): T | null => allowed.find((candidate) => candidate === value) ?? null
 
 /** Filters from the URL; unknown or malformed values fall back to the defaults. */
@@ -61,7 +62,7 @@ export function serializeFilters(filters: MapFilters): URLSearchParams {
 
 /** Filter groups that are switched on — the number on "More filters · 4". The sort order is not a filter. */
 export function countActiveFilters(filters: MapFilters): number {
-  return [filters.types.length > 0, filters.languages.length > 0, filters.openNow, filters.verified, filters.minRating !== null, filters.addedBy !== null].filter(Boolean).length
+  return compact([filters.types.length > 0, filters.languages.length > 0, filters.openNow, filters.verified, filters.minRating !== null, filters.addedBy !== null]).length
 }
 
 /** The filters part of a search request; empty groups are left out. */

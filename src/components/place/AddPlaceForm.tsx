@@ -1,3 +1,4 @@
+import { compact } from 'es-toolkit'
 import { useForm, useStore } from '@tanstack/react-form'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -103,7 +104,7 @@ export function AddPlaceForm({ size, corridor, onCreated, place, onSaved }: AddP
   }
   const type = types.find((candidate) => candidate.id === values.typeId)
   const typeOptions: ChipOption[] = types.map((candidate) => ({ value: candidate.id, label: candidate.title ?? candidate.type, ...(candidate.slug && isKnownOrgType(candidate.slug) && { orgType: candidate.slug }) }))
-  const countryOptions = countries.map((country) => ({ value: country.id, label: [country.flag, country.name].filter(Boolean).join('  ') }))
+  const countryOptions = countries.map((country) => ({ value: country.id, label: compact([country.flag, country.name]).join('  ') }))
 
   const failure = saving.error && submitFailure(saving.error, t)
   const desktop = size === 'desktop'
@@ -231,7 +232,7 @@ export function AddPlaceForm({ size, corridor, onCreated, place, onSaved }: AddP
         <form.Field name="languages">
           {(field) => (
             <Group label={t('addPlace.fields.languages')} error={errorOf(field.state.meta.errors, t)}>
-              <LanguagesField label={t('addPlace.fields.languages')} value={field.state.value} onChange={(languages) => field.handleChange(languages)} countryIds={[values.fromId, values.toId].filter(Boolean)} />
+              <LanguagesField label={t('addPlace.fields.languages')} value={field.state.value} onChange={(languages) => field.handleChange(languages)} countryIds={compact([values.fromId, values.toId])} />
             </Group>
           )}
         </form.Field>

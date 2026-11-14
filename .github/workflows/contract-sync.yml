@@ -1,0 +1,34 @@
+name: Contract Sync
+
+# Is src/types/api (and the services) still in sync with landly-server's `master`? Runs only on the
+# client's `master` — on pushes, and weekly, because the drift appears when the SERVER changes.
+on:
+  push:
+    branches: [ "master" ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Mondays
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-sync:
+    # Scheduled runs happen on the default branch; a manual run elsewhere would compare the wrong stamp.
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7
+      with:
+        repository: Mazot/landly-server
+        ref: master
+        path: landly-server
+        fetch-depth: 0  # the check diffs the stamped commit against master
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+    # Exit 1 = the server changed its contract (or a route no longer matches): update src/types/api,
+    # src/services and src/hooks, then `node .claude/skills/contract-sync/check.mjs --stamp`.
+    - name: Check the contracts against landly-server master
+      run: node .claude/skills/contract-sync/check.mjs --server landly-server --no-fetch

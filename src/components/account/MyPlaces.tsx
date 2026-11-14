@@ -1,3 +1,4 @@
+import { compact } from 'es-toolkit'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Callout, EmptyState, InlineStatus, List, ListItem, Section, StatusBadge, TextLink } from '@/components/ui'
 import { useUiLocale } from '@/hooks/useUiLocale'
@@ -52,7 +53,7 @@ export function MyPlaces({ places, error, orgTypes, more }: MyPlacesProps) {
                 variant="card"
                 leading={<Avatar name={place.name} color={orgTypeColor(type)} />}
                 title={place.name}
-                subtitle={[type && (type.title ?? type.type), standing(place, locale, t)].filter(Boolean).join(' · ')}
+                subtitle={compact([type && (type.title ?? type.type), standing(place, locale, t)]).join(' · ')}
                 trailing={<StatusBadge status={place.status} />}
                 footer={
                   <>

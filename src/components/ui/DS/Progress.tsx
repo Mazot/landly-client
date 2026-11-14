@@ -1,3 +1,4 @@
+import { clamp } from 'es-toolkit'
 import clsx from 'clsx'
 
 export interface ProgressProps {
@@ -11,7 +12,7 @@ export interface ProgressProps {
 
 /** Thin progress bar with label and percentage (photo upload). */
 export function Progress({ value, label, showValue = true, className }: ProgressProps) {
-  const pct = Math.round(Math.max(0, Math.min(100, value)))
+  const pct = Math.round(clamp(value, 0, 100))
   return (
     <div className={clsx('min-w-0', className)}>
       <div className="mb-1.5 flex justify-between gap-2 text-xs leading-none font-semibold text-ink-3">

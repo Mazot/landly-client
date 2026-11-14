@@ -1,3 +1,4 @@
+import { range } from 'es-toolkit'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,7 +18,7 @@ export interface StarInputProps {
   size?: 'md' | 'lg'
 }
 
-const STEPS = Array.from({ length: MAX_RATING - MIN_RATING + 1 }, (_, i) => MIN_RATING + i)
+const STEPS = range(MIN_RATING, MAX_RATING + 1)
 
 /** Rating picker for `POST /review/create`, with hover preview. 44 / 48 px. */
 export function StarInput({ value, defaultValue = 0, onChange, label, size = 'lg' }: StarInputProps) {

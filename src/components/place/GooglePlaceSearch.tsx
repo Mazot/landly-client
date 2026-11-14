@@ -1,5 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useMapsLibrary } from '@vis.gl/react-google-maps'
+import { compact } from 'es-toolkit'
 import { useDeferredValue, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Callout, List, ListItem, SearchField } from '@/components/ui'
@@ -42,7 +43,7 @@ export function GooglePlaceSearch({ bias, onPick }: GooglePlaceSearchProps) {
         sessionToken: (session.current ??= new places!.AutocompleteSessionToken()),
         ...(bias && { locationBias: bias }),
       })
-      return suggestions.flatMap((suggestion) => (suggestion.placePrediction ? [suggestion.placePrediction] : []))
+      return compact(suggestions.map((suggestion) => suggestion.placePrediction))
     },
     enabled: !!places && query.length >= MIN_QUERY_CHARS,
     placeholderData: keepPreviousData,

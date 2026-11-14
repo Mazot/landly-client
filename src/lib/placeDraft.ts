@@ -1,5 +1,6 @@
 // The add-a-place form ↔ `POST /api/organisation/create`: the form's values, the request built
 // from them and the helpers around the opening hours.
+import { isEqual, sortBy } from 'es-toolkit'
 import { WEEKDAYS, type CreateOrganisationRequest, type OpeningHours, type OpeningInterval, type Organisation, type UpdateOrganisationRequest, type Uuid, type Weekday } from '@/types/api'
 
 /** One day of the hours editor: `null` = closed. */
@@ -126,7 +127,7 @@ export function toOpeningHours(hours: Record<Weekday, DayHours>): OpeningHours |
     add(day, [open, '24:00'])
     add(WEEKDAYS[(index + 1) % WEEKDAYS.length], ['00:00', close])
   })
-  const open = WEEKDAYS.flatMap((day) => (days[day] ? [[day, days[day].sort((a, b) => a[0].localeCompare(b[0]))] as const] : []))
+  const open = WEEKDAYS.flatMap((day) => (days[day] ? [[day, sortBy(days[day], [(interval) => interval[0]])] as const] : []))
   return open.length ? Object.fromEntries(open) : undefined
 }
 
@@ -175,7 +176,7 @@ export function searchTextFromMapsLink(input: string): string {
  */
 export function toUpdateRequest(values: PlaceFormValues, location: PlaceLocation, place: Organisation): UpdateOrganisationRequest {
   const moved = location.lat !== place.latitude || location.lng !== place.longitude
-  const hoursChanged = JSON.stringify(values.hours) !== JSON.stringify(fromOpeningHours(place.openingHours))
+  const hoursChanged = !isEqual(values.hours, fromOpeningHours(place.openingHours))
   return {
     name: values.name.trim(),
     organisation_type_id: values.typeId || undefined,

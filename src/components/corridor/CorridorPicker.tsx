@@ -1,3 +1,4 @@
+import { compact } from 'es-toolkit'
 import { useTranslation } from 'react-i18next'
 import { CorridorFields, Field, Select } from '@/components/ui'
 import type { useGuestCorridor } from '@/hooks/useGuestCorridor'
@@ -13,7 +14,7 @@ export interface CorridorPickerProps {
 /** "From → To" country selects over the guest corridor (`useGuestCorridor`). */
 export function CorridorPicker({ corridor, fromLabel, toLabel, stackOnPhone }: CorridorPickerProps) {
   const { t } = useTranslation()
-  const options = corridor.countries.map((c) => ({ value: c.id, label: [c.flag, c.name].filter(Boolean).join('  ') }))
+  const options = corridor.countries.map((c) => ({ value: c.id, label: compact([c.flag, c.name]).join('  ') }))
   const placeholder = corridor.isPending ? t('corridor.loading') : t('corridor.choose')
   return (
     <CorridorFields

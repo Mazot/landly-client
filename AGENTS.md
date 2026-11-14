@@ -63,7 +63,7 @@ Files and what usually affects them:
 | File | Update when you change |
 |---|---|
 | `AGENTS.md` | architecture, directory layout, conventions, auth/session flow, env vars, commands, stack |
-| `README.md` | setup, env vars, scripts, structure, features, how to run |
+| `README.md` | what Landly is for (product), what is built, how to run it — no technical detail; that lives here |
 | `.claude/skills/library-first/SKILL.md` | dependencies (added/removed/bumped packages, APIs now used), project helpers in `src/lib` |
 | `.claude/skills/design-system/SKILL.md` and `src/components/ui/README.md` | tokens (`src/components/ui/tokens/`), DS components / `src/components/ui`, breakpoints, layout patterns, verification steps |
 | `.claude/skills/test-after-change/SKILL.md` | test helpers in `src/test/`, test layout per layer, test/coverage commands, `vite.config.ts` → `test.coverage` excludes (mirrored in `changed-coverage.mjs`) |
@@ -112,10 +112,11 @@ TypeScript is pinned to `~6.0` (typescript-eslint supports only `<6.1`). TS 6 lo
 
 ### Stack
 
-- **Routing** — `react-router-dom` v7
+- **Routing** — `react-router-dom` v7; every page in `App.tsx` is `React.lazy` (its own chunk, one `Suspense` with a loading status around `<Routes>`) — a new page is added the same way, as a default export
 - **Server state** — `@tanstack/react-query` v5 (keys in `src/lib/queryKeys.ts`)
 - **Client state** — `zustand`: `authStore` (JWT + user, persisted in `localStorage`), `corridorStore` (guest corridor; signed-in users use server corridors)
 - **HTTP client** — `axios` instance in `src/lib/axios.ts`
+- **Utilities** — `es-toolkit` for collection / object / number helpers (`compact`, `uniqBy`, `orderBy`, `sortBy`, `sumBy`, `range`, `clamp`, `isEqual`, `isNil`, …) — never a hand-written copy of one of them. Two spots stay native on purpose: locale-aware sorts (`localeCompare`, whose order es-toolkit's `<` comparison does not match) and `charCount` (counts code points, as the server does). A component with a `compact` prop destructures it as `compact: dense`, so `compact` stays the es-toolkit function everywhere.
 - **Map** — Google Maps Platform via `@vis.gl/react-google-maps`; `<APIProvider>` is mounted in `main.tsx` (and in the Storybook decorator), config and helpers in `src/lib/maps.ts`. `MapBackdrop` (landing, sign-in) is a non-interactive, still world map (`BACKDROP_VIEW`); it mounts the `<Map>` only while on screen (IntersectionObserver), so a copy hidden by CSS costs no Google map load — each mounted map counts against the daily *Map loads* quota
 - **Styling** — Tailwind CSS v4 via `@tailwindcss/vite` (no PostCSS config); design tokens live in `src/components/ui/tokens/tokens.ts` (single source; `tailwind.config.ts` builds the theme from it and is loaded with `@config` from `src/index.css`) and are mirrored as CSS variables in `src/components/ui/tokens/tokens.css` (`tokens.test.ts` checks the two match). Class names are joined with `clsx`. v4 defaults differ from v3: `border` is `currentColor`, `hover:` applies only on hover-capable devices
 - **Forms** — `@tanstack/react-form` with `zod` schemas as the Standard Schema validator (`validators.onSubmit`); schemas live next to the form (`components/auth/schemas.ts`) and carry i18n keys as messages; `FormTextField` binds a field to the DS and translates them

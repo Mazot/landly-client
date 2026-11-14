@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, ChipGroup, isKnownOrgType, Section, Sheet, type ChipOption } from '@/components/ui'
+import { Button, ChipGroup, Section, Sheet, type ChipOption } from '@/components/ui'
 import { useSearchOrganisations } from '@/hooks/useOrganisations'
 import { DEFAULT_FILTERS, filtersToQuery, RATING_FILTERS, type MapFilters } from '@/lib/mapFilters'
 import type { SearchBox } from '@/lib/maps'
 import { ADDED_BY, SEARCH_SORTS, type AddedBy, type OrganisationType, type SearchSort } from '@/types/api'
+import { typeChipOptions } from './typeOptions'
 
 /** The most places one search answers with; the count on the button stops there. */
 const COUNT_LIMIT = 200
@@ -47,7 +48,7 @@ export function FiltersSheet({ onClose, filters, onApply, orgTypes, area }: Filt
   const offered = [...spoken].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, LANGUAGE_CHOICES).map(([name]) => name)
   const languageNames = [...offered, ...draft.languages.filter((name) => !offered.includes(name))]
 
-  const typeOptions: ChipOption[] = orgTypes.flatMap((type) => (type.slug ? [{ value: type.slug, label: type.title ?? type.type, ...(isKnownOrgType(type.slug) && { orgType: type.slug }) }] : []))
+  const typeOptions = typeChipOptions(orgTypes)
   const languageOptions: ChipOption[] = languageNames.map((name) => ({ value: name, label: name }))
   const ratingOptions: ChipOption[] = [{ value: ANY, label: t('filters.any') }, ...RATING_FILTERS.map((value) => ({ value: String(value), label: `${value.toFixed(1)}+`, icon: 'star' as const }))]
   const addedByOptions: ChipOption[] = [{ value: ANY, label: t('filters.anyone') }, ...ADDED_BY.map((value) => ({ value, label: t(`addedBy.${value}`) }))]

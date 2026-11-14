@@ -8,8 +8,20 @@ import App from '../App'
 
 // The real map needs Google's script; routing is all these tests are about.
 vi.mock('@vis.gl/react-google-maps', async () => {
-  const { createElement } = await import('react')
-  return { useMap: () => null, Map: () => createElement('div', { 'data-testid': 'map' }), AdvancedMarker: () => null }
+  const { createContext, createElement, useContext } = await import('react')
+  // Like the real library: a <Map> outside an <APIProvider> throws — so a route that shows a map but
+  // sits outside the provider fails here, not only in the browser.
+  const InProvider = createContext(false)
+  return {
+    APIProvider: ({ children }: { children?: React.ReactNode }) => createElement(InProvider.Provider, { value: true }, children),
+    useMap: () => null,
+    useMapsLibrary: () => null,
+    Map: () => {
+      if (!useContext(InProvider)) throw new Error('<Map> can only be used inside an <ApiProvider> component.')
+      return createElement('div', { 'data-testid': 'map' })
+    },
+    AdvancedMarker: () => null,
+  }
 })
 
 describe('App routes', () => {
@@ -65,6 +77,32 @@ describe('App routes', () => {
     capture('get', '/api/corridor/list', { items: [], total: 0 })
     renderApp(<App />, { route: '/add' })
     expect(await screen.findByRole('heading', { name: 'Add a place' })).toBeInTheDocument()
+  })
+
+  it('/add/sent/{id} is the "sent for review" screen for the submitter', async () => {
+    const me = authUser()
+    useAuthStore.getState().setAuth(me)
+    capture('get', '/api/organisation/fetch/p1', organisation({ id: 'p1', name: 'My place', createdBy: me.id }))
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/user/me', userProfile({ id: me.id }))
+    capture('get', '/api/corridor/list', { items: [], total: 0 })
+    renderApp(<App />, { route: '/add/sent/p1' })
+    expect(await screen.findByRole('heading', { name: 'Sent for review' })).toBeInTheDocument()
+  })
+
+  it('/place/{id}/edit is the edit form for the submitter', async () => {
+    const me = authUser()
+    useAuthStore.getState().setAuth(me)
+    capture('get', '/api/organisation/fetch/p1', organisation({ id: 'p1', name: 'My place', createdBy: me.id }))
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/common/org_types', [])
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/user/me', userProfile({ id: me.id }))
+    capture('get', '/api/corridor/list', { items: [], total: 0 })
+    renderApp(<App />, { route: '/place/p1/edit' })
+    expect(await screen.findByRole('textbox', { name: 'Name' })).toHaveValue('My place')
   })
 
   it('/account and /account/edit are the account screens for a signed-in user', async () => {

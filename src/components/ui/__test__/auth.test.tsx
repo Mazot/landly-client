@@ -59,6 +59,11 @@ describe('RatingBreakdown', () => {
     const { container } = render(<RatingBreakdown label="Ratings" rowLabel={(row) => String(row.rating)} rows={[{ rating: 5, count: 0 }]} />)
     expect(container.querySelector<HTMLElement>('.bg-star')!.style.width).toBe('0%')
   })
+
+  it('renders an empty list for no rows', () => {
+    render(<RatingBreakdown label="Ratings" rowLabel={(row) => String(row.rating)} rows={[]} />)
+    expect(screen.getByRole('list', { name: 'Ratings' })).toBeEmptyDOMElement()
+  })
 })
 
 describe('TypeBar', () => {

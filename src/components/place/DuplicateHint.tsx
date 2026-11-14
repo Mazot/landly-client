@@ -1,3 +1,4 @@
+import { compact } from 'es-toolkit'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Callout, Meta } from '@/components/ui'
@@ -36,7 +37,7 @@ export function DuplicateHint({ name, point }: DuplicateHintProps) {
       <ul className="m-0 flex list-none flex-col gap-1 p-0">
         {found.map((place) => (
           <li key={place.id}>
-            <Meta strong>{[place.name, place.address].filter(Boolean).join(' · ')}</Meta>
+            <Meta strong>{compact([place.name, place.address]).join(' · ')}</Meta>
           </li>
         ))}
       </ul>
