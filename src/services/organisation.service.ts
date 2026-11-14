@@ -4,6 +4,8 @@ import type {
   CreateOrganisationRequest,
   FindDuplicatesQuery,
   ListResponse,
+  MyOrganisation,
+  MyOrganisationsQuery,
   Organisation,
   OrganisationsListQuery,
   OrganisationVisits,
@@ -16,6 +18,10 @@ export const organisationApi = {
   /** Live organisations, filtered by substrings / ids. */
   list: async (query?: OrganisationsListQuery): Promise<ListResponse<Organisation>> =>
     (await apiClient.get('/api/organisation/list', { params: query })).data,
+
+  /** Auth; the caller's own places in every moderation status, with the moderator's note. */
+  mine: async (query?: MyOrganisationsQuery): Promise<ListResponse<MyOrganisation>> =>
+    (await apiClient.get('/api/organisation/mine', { params: query })).data,
 
   /** Map search by bbox or origin. */
   search: async (query: SearchOrganisationsQuery): Promise<ListResponse<Organisation>> =>

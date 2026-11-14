@@ -67,3 +67,34 @@ export const useDeleteLanguage = () => {
     },
   })
 }
+
+/** What the edit-profile form saves: the profile fields plus the languages to add and to drop. */
+export interface SaveProfileInput {
+  profile: UpdateProfileRequest
+  addLanguageIds: Uuid[]
+  removeLanguageIds: Uuid[]
+}
+
+/**
+ * Saves the edit-profile form in one go: the profile first (the part the server may refuse, so a
+ * refusal changes nothing), then the dropped and the added languages. The saved profile is stored
+ * as soon as it is back, and the language list is refetched whatever happens, so a half-applied
+ * save still shows what the server holds.
+ */
+export const useSaveProfile = () => {
+  const queryClient = useQueryClient()
+  const setMe = useSetMe()
+  const userId = useAuthStore((state) => state.user?.id)
+  return useMutation({
+    mutationFn: async ({ profile, addLanguageIds, removeLanguageIds }: SaveProfileInput) => {
+      const saved = await userApi.updateMe(profile)
+      setMe(saved)
+      await Promise.all(removeLanguageIds.map((language_id) => userApi.deleteLanguage({ language_id })))
+      if (addLanguageIds.length > 0) await userApi.addLanguages({ languages_ids: addLanguageIds })
+      return saved
+    },
+    onSettled: () => {
+      if (userId) void queryClient.invalidateQueries({ queryKey: queryKeys.userLanguages(userId) })
+    },
+  })
+}

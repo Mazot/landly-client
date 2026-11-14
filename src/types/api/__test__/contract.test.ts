@@ -30,6 +30,11 @@ describe('values fixed in server code', () => {
     expect(api.ORGANISATION_TYPE_SLUGS).toEqual(['embassy', 'business', 'helper', 'community', 'volunteer'])
   })
 
+  it('largest page of GET /organisation/mine and GET /person/mine (controller clamp)', () => {
+    expect(api.MINE_MAX_LIMIT).toBe(100)
+    expect(api.MINE_DEFAULT_LIMIT).toBe(20)
+  })
+
   it('search sorts accepted by GET /organisation/search', () => {
     expect(api.SEARCH_SORTS).toEqual(['nearest', 'recent', 'verified'])
   })

@@ -4,6 +4,8 @@ import type {
   ClaimPreview,
   CreatePersonRequest,
   ListResponse,
+  MyPeopleQuery,
+  MyPerson,
   PeopleListQuery,
   Person,
   PersonCreated,
@@ -17,6 +19,10 @@ export const personApi = {
   /** Public (confirmed/claimed) people only. */
   list: async (query?: PeopleListQuery): Promise<ListResponse<Person>> =>
     (await apiClient.get('/api/person/list', { params: query })).data,
+
+  /** Auth; the people the caller recommended, in every status, with the moderator's note. */
+  mine: async (query?: MyPeopleQuery): Promise<ListResponse<MyPerson>> =>
+    (await apiClient.get('/api/person/mine', { params: query })).data,
 
   fetch: async (id: Uuid): Promise<Person> => (await apiClient.get(`/api/person/fetch/${id}`)).data,
 

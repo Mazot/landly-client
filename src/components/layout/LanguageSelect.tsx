@@ -8,6 +8,7 @@ export function LanguageSelect({ className }: { className?: string }) {
   const { t, i18n } = useTranslation()
   return (
     <Select
+      name="locale"
       size="sm"
       icon="languages"
       aria-label={t('language')}

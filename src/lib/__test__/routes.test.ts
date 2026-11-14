@@ -3,7 +3,7 @@ import { afterSignIn, ROUTES } from '../routes'
 
 describe('ROUTES', () => {
   it('keeps the paths other places depend on', () => {
-    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', add: '/add', addSent: '/add/sent' })
+    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', accountEdit: '/account/edit', add: '/add', addSent: '/add/sent' })
   })
 })
 

@@ -9,6 +9,7 @@ import {
   useAddLanguages,
   useDeleteLanguage,
   useMe,
+  useSaveProfile,
   useUpdateMe,
   useUpdateNotifications,
   useUserLanguages,
@@ -88,6 +89,63 @@ describe('user languages', () => {
     seed(client, queryKeys.userLanguages('u1'))
 
     await act(() => result.current.mutateAsync({ language_id: 'l1' }))
+
+    expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(false)
+  })
+
+  it('useSaveProfile saves the profile, then drops and adds languages', async () => {
+    useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
+    const saved = userProfile({ id: 'u1', city: 'Berlin' })
+    const removed = capture('delete', '/api/user/languages', 'OK')
+    const added = capture('post', '/api/user/languages', { userId: 'u1', languageIds: ['l2'] })
+    const updated = capture('put', '/api/user/me', saved)
+    const { result, client } = renderQueryHook(() => useSaveProfile())
+    seed(client, queryKeys.userLanguages('u1'))
+
+    await act(() => result.current.mutateAsync({ profile: { city: 'Berlin' }, addLanguageIds: ['l2'], removeLanguageIds: ['l1', 'l3'] }))
+
+    expect(removed.map((request) => request.body)).toEqual([{ language_id: 'l1' }, { language_id: 'l3' }])
+    expect(added[0].body).toEqual({ languages_ids: ['l2'] })
+    expect(updated[0].body).toEqual({ city: 'Berlin' })
+    expect(client.getQueryData(queryKeys.me)).toEqual(saved)
+    expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(true)
+  })
+
+  it('useSaveProfile keeps the profile saved when a language change fails afterwards', async () => {
+    useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
+    const saved = userProfile({ id: 'u1', city: 'Berlin' })
+    capture('put', '/api/user/me', saved)
+    capture('post', '/api/user/languages', { error: 'boom' }, 500)
+    const { result, client } = renderQueryHook(() => useSaveProfile())
+
+    await act(() => result.current.mutateAsync({ profile: { city: 'Berlin' }, addLanguageIds: ['l2'], removeLanguageIds: [] }).catch(() => undefined))
+
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    expect(client.getQueryData(queryKeys.me)).toEqual(saved)
+  })
+
+  it('useSaveProfile changes no language when the profile is refused, and refreshes them anyway', async () => {
+    useAuthStore.getState().setAuth(authUser({ id: 'u1' }))
+    const added = capture('post', '/api/user/languages', null)
+    const removed = capture('delete', '/api/user/languages', 'OK')
+    capture('put', '/api/user/me', { error: 'boom' }, 500)
+    const { result, client } = renderQueryHook(() => useSaveProfile())
+    seed(client, queryKeys.userLanguages('u1'))
+
+    await act(() => result.current.mutateAsync({ profile: {}, addLanguageIds: ['l2'], removeLanguageIds: ['l1'] }).catch(() => undefined))
+
+    expect(added).toHaveLength(0)
+    expect(removed).toHaveLength(0)
+    expect(client.getQueryData(queryKeys.me)).toBeUndefined()
+    expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(true)
+  })
+
+  it('useSaveProfile without a known user has no language list to refresh', async () => {
+    capture('put', '/api/user/me', userProfile())
+    const { result, client } = renderQueryHook(() => useSaveProfile())
+    seed(client, queryKeys.userLanguages('u1'))
+
+    await act(() => result.current.mutateAsync({ profile: {}, addLanguageIds: [], removeLanguageIds: [] }))
 
     expect(isInvalidated(client, queryKeys.userLanguages('u1'))).toBe(false)
   })

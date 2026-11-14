@@ -74,8 +74,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 ) : (
                   <>
                     {tablet ? <Button to={ROUTES.add} variant="secondary" size="sm" icon="plus" aria-label={t('topbar.addOrganization')} /> : <Button to={ROUTES.add} variant="secondary" size="sm" icon="plus">{t('topbar.add')}</Button>}
-                    <Link to={ROUTES.account} aria-label={t('topbar.profile')} className="inline-flex size-11 items-center justify-center rounded-full">
-                      <Avatar name={me.data?.name ?? user.username} color={me.data?.avatarColor} size="sm" />
+                    {/* Named by its content ("Profile" + the avatar's name), not aria-label: the visible initials must not contradict the name (Lighthouse label-content-name-mismatch). */}
+                    <Link to={ROUTES.account} className="inline-flex size-11 items-center justify-center rounded-full">
+                      <span className="sr-only">{t('topbar.profile')}</span>{' '}
+                      <Avatar name={me.data?.name || user.username} color={me.data?.avatarColor} size="sm" />
                     </Link>
                   </>
                 )}
@@ -83,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             }
           />
         )}
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <main className="flex min-h-0 flex-1 flex-col">{children}</main>
         {size === 'phone' && <TabBar items={tabs} label={t('topbar.main')} />}
         {corridorsOpen && <CorridorsSheet onClose={() => setCorridorsOpen(false)} />}
       </div>

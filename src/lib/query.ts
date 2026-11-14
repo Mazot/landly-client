@@ -12,3 +12,12 @@ export function toQueryString(params: object): string {
   }
   return search.toString()
 }
+
+/**
+ * `getNextPageParam` of an offset-paged list whose server answers at most `pageSize` items: a
+ * shorter page is the last one (landly-server's `total` is the page size, not the table's).
+ */
+export const nextOffset =
+  (pageSize: number) =>
+  (lastPage: { items: unknown[] }, _allPages: unknown, lastOffset: number): number | undefined =>
+    lastPage.items.length < pageSize ? undefined : lastOffset + pageSize

@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Avatar, colors, IconButton, ListItem, Meta, OpenStatus, Rating, StatusBadge, TypeTag, VerifiedMark } from '@/components/ui'
+import { Avatar, IconButton, ListItem, Meta, OpenStatus, Rating, StatusBadge, TypeTag, VerifiedMark } from '@/components/ui'
 import { formatInterval, hoursToday } from '@/lib/openingHours'
+import { orgTypeColor } from '@/lib/orgTypes'
 import type { Organisation, OrganisationType } from '@/types/api'
 
 /** What a row shows of a place: a search result, or the draft of the add-a-place preview. */
@@ -37,7 +38,7 @@ export function PlaceListItem<P extends PlaceRow = Organisation>({ place, type, 
   const hoursText = hours === undefined ? undefined : hours ? formatInterval(hours) : t('map.closedToday')
   const near = place.distanceKm !== undefined && place.distanceKm < NEAR_KM
   const where = near ? t('filters.km', { km: place.distanceKm!.toFixed(1) }) : place.city
-  const typeColor = type?.color ?? (type?.slug ? colors.type[type.slug as keyof typeof colors.type]?.DEFAULT : undefined)
+  const typeColor = orgTypeColor(type)
 
   return (
     <div ref={row} className="relative">

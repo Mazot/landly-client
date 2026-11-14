@@ -4,7 +4,8 @@ import { http, HttpResponse, delay } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { queryKeys } from '@/lib/queryKeys'
 import type { SearchOrganisationsQuery } from '@/types/api'
-import { list, organisation } from '@/test/factories'
+import { useAuthStore } from '@/stores/authStore'
+import { authUser, list, organisation } from '@/test/factories'
 import { createTestQueryClient, isInvalidated, renderQueryHook, runMutation, seed } from '@/test/render'
 import { API, capture, server } from '@/test/server'
 import {
@@ -14,6 +15,7 @@ import {
   useOrganisation,
   useOrganisations,
   useRecordVisit,
+  useMyOrganisations,
   useSearchOrganisations,
   useDuplicates,
   useUpdateOrganisation,
@@ -26,6 +28,37 @@ describe('useOrganisations', () => {
     const { result } = renderQueryHook(() => useOrganisations({ name: 'emb' }))
     await waitFor(() => expect(result.current.data?.items).toEqual([org]))
     expect(requests[0].query.get('name')).toBe('emb')
+  })
+})
+
+describe('useMyOrganisations', () => {
+  it('is idle for a guest', () => {
+    const { result } = renderQueryHook(() => useMyOrganisations())
+    expect(result.current.fetchStatus).toBe('idle')
+  })
+
+  it("lists the caller's own places page by page, with the moderator's note, and is never served stale", async () => {
+    useAuthStore.getState().setAuth(authUser())
+    const all = Array.from({ length: 3 }, (_, i) => ({ ...organisation({ status: 'pending', name: `Place ${i}` }), moderationNote: i === 0 ? 'Add a phone number' : null }))
+    const offsets: (string | null)[] = []
+    server.use(
+      http.get(`${API}/api/organisation/mine`, ({ request }) => {
+        const query = new URL(request.url).searchParams
+        offsets.push(query.get('offset'))
+        const offset = Number(query.get('offset'))
+        return HttpResponse.json(list(all.slice(offset, offset + Number(query.get('limit')))))
+      }),
+    )
+    const { result } = renderQueryHook(() => useMyOrganisations(2))
+    await waitFor(() => expect(result.current.data).toEqual(all.slice(0, 2)))
+    // A full page: the server may hold more. Stale at once, so reopening the screen refetches.
+    expect(result.current.hasNextPage).toBe(true)
+    expect(result.current.isStale).toBe(true)
+    await act(() => result.current.fetchNextPage())
+    await waitFor(() => expect(result.current.data).toEqual(all))
+    // A short page is the last one.
+    expect(result.current.hasNextPage).toBe(false)
+    expect(offsets).toEqual(['0', '2'])
   })
 })
 
@@ -83,6 +116,7 @@ describe('useOrganisation', () => {
 describe('organisation writes', () => {
   const affected = [
     queryKeys.organisations.list(),
+    queryKeys.organisations.mine(),
     queryKeys.organisations.detail('o1'),
     queryKeys.me,
     queryKeys.countries.detail('c1'),

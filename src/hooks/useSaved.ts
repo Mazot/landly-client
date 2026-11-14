@@ -24,7 +24,11 @@ export const useSavedCounts = () => {
 
 const useInvalidateSaved = () => {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.saved.all })
+  return () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.saved.all })
+    // The profile counts saved items (`stats.saved`).
+    queryClient.invalidateQueries({ queryKey: queryKeys.me })
+  }
 }
 
 export const useSaveItem = () => {

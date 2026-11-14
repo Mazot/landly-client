@@ -10,15 +10,19 @@ export interface CorridorCardProps {
   to: Country | undefined
   orgTypes: OrganisationType[]
   /** The corridor picked in the list: the footer button switches to it. */
-  selected: boolean
-  onSelect: (corridor: Corridor) => void
-  onSetDefault: (corridor: Corridor) => void
+  selected?: boolean
+  /** Makes the card a button that picks the corridor; without it the card is a plain row. */
+  onSelect?: (corridor: Corridor) => void
+  /** Offers "Set default" on a corridor that is not the default. */
+  onSetDefault?: (corridor: Corridor) => void
   /** A "set default" request for this corridor is running. */
-  settingDefault: boolean
+  settingDefault?: boolean
+  /** Without the split by type (the account screen's short list). */
+  compact?: boolean
 }
 
 /** One saved corridor: flags and names, live places and what is new, the type split, default badge or "Set default". */
-export function CorridorCard({ corridor, from, to, orgTypes, selected, onSelect, onSetDefault, settingDefault }: CorridorCardProps) {
+export function CorridorCard({ corridor, from, to, orgTypes, selected, onSelect, onSetDefault, settingDefault, compact }: CorridorCardProps) {
   const { t } = useTranslation()
   const stats = useCorridorStats(corridor.id).data
   const name = from && to ? t('corridorSwitcher.label', { from: from.name, to: to.name }) : ''
@@ -30,14 +34,14 @@ export function CorridorCard({ corridor, from, to, orgTypes, selected, onSelect,
       <ListItem
         variant="card"
         active={selected}
-        onClick={() => onSelect(corridor)}
+        onClick={onSelect && (() => onSelect(corridor))}
         leading={<CorridorFlags from={from?.flag ?? null} to={to?.flag ?? null} label={name} size="md" />}
         title={name}
         subtitle={stats ? [t('corridors.places', { count: stats.totalPlaces }), t('map.newThisWeek', { count: stats.newThisWeek })].join(' · ') : undefined}
-        trailing={corridor.isDefault ? <Badge tone="accent">{t('corridors.default')}</Badge> : <span aria-hidden="true" className="w-19" />}
-        footer={segments.length > 0 ? <TypeBar segments={segments} label={t('landing.byType')} /> : undefined}
+        trailing={corridor.isDefault ? <Badge tone="accent">{t('corridors.default')}</Badge> : onSetDefault ? <span aria-hidden="true" className="w-19" /> : undefined}
+        footer={!compact && segments.length > 0 ? <TypeBar segments={segments} label={t('landing.byType')} /> : undefined}
       />
-      {!corridor.isDefault && (
+      {!corridor.isDefault && onSetDefault && (
         <div className="absolute top-3 right-3">
           <Button variant="ghost" size="sm" loading={settingDefault} aria-label={t('corridors.makeDefault', { name })} onClick={() => onSetDefault(corridor)}>
             {t('corridors.setDefault')}

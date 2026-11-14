@@ -62,7 +62,7 @@ src/components/ui/
 | | `CorridorPill` / `CorridorBubble` | current corridor as a pill (app bar, dark over the map) · dark summary over the map: `from` / `to` flags, `label`, `title`, `detail`, `onClick` |
 | | `VerifiedMark` | the blue check after a verified place's name |
 | | `TypeBar` | stacked share bar + legend by org type · `segments` (`slug`, `label`, `count`), `label` |
-| Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control |
+| Forms | `Field` | `label`, `optional`, `hint`, `error` — wires id / describedby / invalid into the control · `group` for a control that names itself (ChipGroup, ColorSwatches, Segmented): the label becomes a caption |
 | | `TextField` / `SearchField` | `icon`, `leading`, `trailing`, `addon`, `size`, `variant` default · filled · floating; password toggle |
 | | `FormNote` | centred muted line under a form · `size` md / sm |
 | | `TextArea`, `Select` | `Select`: `options`, `placeholder` (native select) |

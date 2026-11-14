@@ -2,7 +2,8 @@ import { act, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { queryKeys } from '@/lib/queryKeys'
 import type { ClaimPreview } from '@/types/api'
-import { list, person } from '@/test/factories'
+import { useAuthStore } from '@/stores/authStore'
+import { authUser, list, person } from '@/test/factories'
 import { isInvalidated, renderQueryHook, seed } from '@/test/render'
 import { capture } from '@/test/server'
 import {
@@ -10,6 +11,7 @@ import {
   useConfirmClaim,
   useCreatePerson,
   useDeclineClaim,
+  useMyPeople,
   usePeople,
   usePerson,
   useVouchPerson,
@@ -28,6 +30,25 @@ const preview: ClaimPreview = {
   showWhatsapp: false,
   allowReviews: true,
 }
+
+describe('useMyPeople', () => {
+  it('is idle for a guest', () => {
+    const { result } = renderQueryHook(() => useMyPeople())
+    expect(result.current.fetchStatus).toBe('idle')
+  })
+
+  it("lists the caller's recommendations in every status, with paging, never stale", async () => {
+    useAuthStore.getState().setAuth(authUser())
+    const mine = { ...person({ status: 'pending' }), moderationNote: 'Add a city', updatedAt: '2026-11-01T10:00:00', rejectedByModerator: false }
+    const requests = capture('get', '/api/person/mine', list([mine]))
+    const { result } = renderQueryHook(() => useMyPeople())
+    await waitFor(() => expect(result.current.data).toEqual([mine]))
+    expect(requests[0].query.get('limit')).toBe('20')
+    expect(requests[0].query.get('offset')).toBe('0')
+    expect(result.current.hasNextPage).toBe(false)
+    expect(result.current.isStale).toBe(true)
+  })
+})
 
 describe('people queries', () => {
   it('lists public people with comma-separated filters', async () => {
@@ -52,7 +73,7 @@ describe('people writes', () => {
     const created = { person: person({ status: 'pending' }), claimUrl: '/claim/tok', sendVia: 'email' }
     capture('post', '/api/person/create', created)
     const { result, client } = renderQueryHook(() => useCreatePerson())
-    seed(client, queryKeys.people.list())
+    seed(client, queryKeys.people.list(), queryKeys.people.mine(), queryKeys.me)
 
     let answer: unknown
     await act(async () => {
@@ -61,6 +82,9 @@ describe('people writes', () => {
 
     expect(answer).toEqual(created)
     expect(isInvalidated(client, queryKeys.people.list())).toBe(true)
+    // The recommender's own list and profile counter change too.
+    expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
+    expect(isInvalidated(client, queryKeys.me)).toBe(true)
   })
 
   it('vouch stores the fresh person and refreshes lists (they carry `vouches`)', async () => {

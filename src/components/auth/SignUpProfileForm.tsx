@@ -2,6 +2,7 @@ import { useForm } from '@tanstack/react-form'
 import { useTranslation } from 'react-i18next'
 import { AVATAR_COLORS, Button, Callout, ChipGroup, ColorSwatches, Field, PageHeader, Select, StepBar, TextLink } from '@/components/ui'
 import { CorridorPicker } from '@/components/corridor/CorridorPicker'
+import { AVATAR_COLOR_KEYS, type AvatarColor } from '@/components/profile/avatarColors'
 import { useGuestCorridor } from '@/hooks/useGuestCorridor'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { LOCALE_OPTIONS } from '@/lib/locales'
@@ -10,11 +11,6 @@ import { FormTextField } from './FormTextField'
 import { signUpProfileSchema } from './schemas'
 import type { AuthFailure } from './authErrors'
 import type { AccountValues } from './SignUpAccountForm'
-
-type AvatarColor = (typeof AVATAR_COLORS)[number]
-
-/** i18n key (`auth.avatarColors.*`) of each swatch. */
-const AVATAR_COLOR_KEYS: Record<AvatarColor, string> = { '#4A6D8C': 'blue', '#C7613F': 'terracotta', '#4F7F5C': 'green', '#8B5A8C': 'plum', '#B8814A': 'ochre', '#1B1A17': 'ink' }
 
 export interface SignUpProfileFormProps {
   account: AccountValues
@@ -81,7 +77,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
         <form.Field name="name">{(field) => <FormTextField field={field} label={t('auth.fields.name')} placeholder={t('auth.placeholders.name')} optional autoComplete="name" />}</form.Field>
         <form.Field name="hereAs">
           {(field) => (
-            <Field label={t('auth.fields.hereAs')} optional>
+            <Field group label={t('auth.fields.hereAs')} optional>
               <ChipGroup label={t('auth.fields.hereAs')} value={field.state.value} onChange={field.handleChange} options={HERE_AS.map((value) => ({ value, label: t(`auth.hereAs.${value}`) }))} />
             </Field>
           )}
@@ -104,7 +100,7 @@ export function SignUpProfileForm({ account, pending, failure, onBack, onSubmit 
           </form.Field>
           <form.Field name="avatarColor">
             {(field) => (
-              <Field label={t('auth.fields.avatarColor')} optional>
+              <Field group label={t('auth.fields.avatarColor')} optional>
                 <ColorSwatches colors={AVATAR_COLORS} label={t('auth.fields.avatarColor')} value={field.state.value} onChange={field.handleChange} colorLabel={(color) => t(`auth.avatarColors.${AVATAR_COLOR_KEYS[color as AvatarColor]}`)} />
               </Field>
             )}
