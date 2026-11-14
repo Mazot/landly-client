@@ -56,7 +56,7 @@ src/components/ui/
 | | `OpenStatus` | `open` (openNow, null → nothing), `hours` |
 | | `Meta` | icon + short text |
 | | `CorridorFlags` | `from` / `to` flag emoji, `label` |
-| | `ImageFrame` | `src`, `alt`, `ratio`, `badge`, `action` |
+| | `ImageFrame` | `src`, `alt`, `ratio` (`square`/`photo`/`wide`/`banner`/`portrait`), `badge`, `action` |
 | | `MapBackdrop` | decorative, still Google world map behind landing / sign-in, a fixed view (`BACKDROP_VIEW`), in the cloud style of `VITE_GOOGLE_MAPS_MAP_ID`; mounted only while on screen · `variant` plain / hero (dimmed below `lg`, readability fade from `lg`), sized by `className`; needs the root `<APIProvider>` |
 | | `MapPin` | round map marker coloured by org type · `slug`, `label` (place name), `color` (custom types), `selected` (larger, ring, name above) — a child of `<AdvancedMarker>` |
 | | `CorridorPill` / `CorridorBubble` | current corridor as a pill (app bar, dark over the map) · dark summary over the map: `from` / `to` flags, `label`, `title`, `detail`, `onClick` |

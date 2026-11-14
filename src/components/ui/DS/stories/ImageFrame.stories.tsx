@@ -37,6 +37,7 @@ export const Ratios: Story = {
       <ImageFrame {...args} ratio="photo" />
       <ImageFrame {...args} ratio="wide" />
       <ImageFrame {...args} ratio="banner" />
+      <ImageFrame {...args} ratio="portrait" />
     </div>
   ),
 }

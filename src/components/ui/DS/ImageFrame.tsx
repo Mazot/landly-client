@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import type { ReactNode } from 'react'
 import { Icon } from './Icon'
 
-const RATIOS = { square: 'aspect-square', photo: 'aspect-4/3', wide: 'aspect-video', banner: 'aspect-5/2' } as const
+const RATIOS = { square: 'aspect-square', photo: 'aspect-4/3', wide: 'aspect-video', banner: 'aspect-5/2', portrait: 'aspect-4/5' } as const
 
 export interface ImageFrameProps {
   /** `OrganisationImage.url`; without it a neutral placeholder is shown. */

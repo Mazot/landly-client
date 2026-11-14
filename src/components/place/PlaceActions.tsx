@@ -49,7 +49,7 @@ export function PlaceActions({ place }: PlaceActionsProps) {
 
   return (
     // Wraps on the narrowest phones rather than pushing the last button out of the card.
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {directions && (
         <Button href={directions} icon="pin" className="flex-1">
           {t('place.directions')}
