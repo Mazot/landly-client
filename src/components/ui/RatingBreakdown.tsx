@@ -1,3 +1,4 @@
+import { maxBy } from 'es-toolkit'
 import clsx from 'clsx'
 
 export interface RatingBreakdownRow {
@@ -19,7 +20,7 @@ export interface RatingBreakdownProps {
 
 /** How many reviews gave each rating: the rating and a bar scaled to the most common one. */
 export function RatingBreakdown({ rows, label, rowLabel, className }: RatingBreakdownProps) {
-  const most = Math.max(0, ...rows.map((row) => row.count))
+  const most = maxBy(rows, (row) => row.count)?.count ?? 0
   return (
     <ul aria-label={label} className={clsx('m-0 flex min-w-0 list-none flex-col gap-1.25 p-0', className)}>
       {rows.map((row) => (

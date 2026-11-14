@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { BrowserRouter } from 'react-router-dom'
-import { APIProvider } from '@vis.gl/react-google-maps'
 import App from './App'
-import { GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_LIBRARIES } from './lib/maps'
 import { queryClient } from './lib/queryClient'
 import './i18n'
 import './index.css'
@@ -13,11 +11,9 @@ import './index.css'
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={GOOGLE_MAPS_LIBRARIES}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </APIProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   </React.StrictMode>,

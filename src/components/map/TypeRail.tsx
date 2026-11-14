@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { ChipGroup, isKnownOrgType, type ChipOption } from '@/components/ui'
+import { ChipGroup, type ChipOption } from '@/components/ui'
 import type { OrganisationType } from '@/types/api'
+import { typeChipOptions } from './typeOptions'
 
 const ALL = 'all'
 
@@ -17,7 +18,7 @@ export function TypeRail({ orgTypes, value, onChange, size = 'md' }: TypeRailPro
   const { t } = useTranslation()
   const options: ChipOption[] = [
     { value: ALL, label: t('map.all') },
-    ...orgTypes.flatMap((type) => (type.slug ? [{ value: type.slug, label: type.title ?? type.type, ...(isKnownOrgType(type.slug) && { orgType: type.slug }) }] : [])),
+    ...typeChipOptions(orgTypes),
   ]
   return (
     <ChipGroup

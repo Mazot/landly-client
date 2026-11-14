@@ -65,7 +65,7 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 
 ### es-toolkit 1.53 (utilities — use instead of hand-written helpers)
 
-- Arrays: `compact` (instead of `.filter(Boolean)`; in a file with a `compact` prop import it as `compact as compactList`), `uniq` / `uniqBy` (instead of `findIndex` dedupe or `new Set`), `orderBy` / `sortBy` (copy, then sort by keys — not for locale-aware order), `sumBy`, `range`, `chunk`, `groupBy`, `keyBy`, `partition`
+- Arrays: `compact` (instead of `.filter(Boolean)` and `flatMap(x ? [..] : [])`; a component with a `compact` prop destructures it as `compact: dense`), `uniqBy` (instead of a `findIndex` dedupe; `new Set` is fine for primitives), `orderBy` / `sortBy` (copy, then sort by keys — not for locale-aware order), `sumBy`, `minBy` / `maxBy` (instead of `Math.min(...array)`), `range`, `chunk`, `groupBy`, `keyBy`, `partition`
 - Objects: `pick`, `omit`, `mapValues`, `isEqual` (instead of comparing `JSON.stringify`), `cloneDeep`
 - Numbers / checks: `clamp`, `isNil`, `isNotNil`
 - Not replaced on purpose: `localeCompare` sorts (different order), `[...value].length` code-point counts

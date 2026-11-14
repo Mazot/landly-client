@@ -9,7 +9,7 @@ import App from '../App'
 // The real map needs Google's script; routing is all these tests are about.
 vi.mock('@vis.gl/react-google-maps', async () => {
   const { createElement } = await import('react')
-  return { useMap: () => null, useMapsLibrary: () => null, Map: () => createElement('div', { 'data-testid': 'map' }), AdvancedMarker: () => null }
+  return { APIProvider: ({ children }: { children?: unknown }) => children, useMap: () => null, useMapsLibrary: () => null, Map: () => createElement('div', { 'data-testid': 'map' }), AdvancedMarker: () => null }
 })
 
 describe('App routes', () => {

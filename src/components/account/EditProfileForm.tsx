@@ -1,4 +1,4 @@
-import { compact as compactList } from 'es-toolkit'
+import { compact } from 'es-toolkit'
 import { useForm } from '@tanstack/react-form'
 import { useTranslation } from 'react-i18next'
 import { FormTextField } from '@/components/auth/FormTextField'
@@ -29,7 +29,7 @@ export interface EditProfileFormProps {
 }
 
 /** Edit profile: avatar colour, name, city, bio, home country, interface language, role and languages. */
-export function EditProfileForm({ id, profile, spokenLanguageIds, languages, countries, compact, pending, failed, onCancel, onSubmit }: EditProfileFormProps) {
+export function EditProfileForm({ id, profile, spokenLanguageIds, languages, countries, compact: dense, pending, failed, onCancel, onSubmit }: EditProfileFormProps) {
   const { t } = useTranslation()
   // The language the UI is in now — it may have been switched in the top bar since the profile was saved.
   const uiLocale = useUiLocale()
@@ -95,7 +95,7 @@ export function EditProfileForm({ id, profile, spokenLanguageIds, languages, cou
             <Field label={t('account.edit.fields.homeCountry')}>
               <Select
                 placeholder={t('account.edit.chooseCountry')}
-                options={countries.map((country) => ({ value: country.id, label: compactList([country.flag, country.name]).join(' ') }))}
+                options={countries.map((country) => ({ value: country.id, label: compact([country.flag, country.name]).join(' ') }))}
                 value={field.state.value}
                 onChange={(event) => field.handleChange(event.target.value)}
               />
@@ -157,7 +157,7 @@ export function EditProfileForm({ id, profile, spokenLanguageIds, languages, cou
           { label: t('auth.fields.username'), value: `@${profile.username}` },
         ]}
       />
-      {!compact && (
+      {!dense && (
         <div className="flex justify-end gap-2.5">
           <Button type="button" variant="secondary" onClick={onCancel}>
             {t('common.cancel')}

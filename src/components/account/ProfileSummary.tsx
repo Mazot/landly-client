@@ -1,4 +1,4 @@
-import { compact as compactList } from 'es-toolkit'
+import { compact } from 'es-toolkit'
 import { useTranslation } from 'react-i18next'
 import { Avatar, Badge, Button, PageHeader, Section, Stat, Tag, TextLink } from '@/components/ui'
 import { ROUTES } from '@/lib/routes'
@@ -16,11 +16,11 @@ export interface ProfileSummaryProps {
 }
 
 /** Who the account is: avatar, name, where from, why here, bio, the four counters and the languages. */
-export function ProfileSummary({ profile, homeCountry, languages, compact, onSignOut }: ProfileSummaryProps) {
+export function ProfileSummary({ profile, homeCountry, languages, compact: dense, onSignOut }: ProfileSummaryProps) {
   const { t } = useTranslation()
   const name = profile.name || profile.username
-  const from = homeCountry && t('account.from', { country: compactList([homeCountry.flag, homeCountry.name]).join(' ') })
-  const facts = compactList([`@${profile.username}`, profile.city, from]).join(' · ')
+  const from = homeCountry && t('account.from', { country: compact([homeCountry.flag, homeCountry.name]).join(' ') })
+  const facts = compact([`@${profile.username}`, profile.city, from]).join(' · ')
   const stats = [
     [profile.stats.placesAdded, t('account.stats.placesAdded', { count: profile.stats.placesAdded })],
     [profile.stats.peopleRecommended, t('account.stats.peopleRecommended', { count: profile.stats.peopleRecommended })],
@@ -32,7 +32,7 @@ export function ProfileSummary({ profile, homeCountry, languages, compact, onSig
     <div className="flex flex-col gap-5.5">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-3.5 md:gap-4.5">
-          <Avatar name={name} color={profile.avatarColor} size={compact ? 'xl' : '2xl'} />
+          <Avatar name={name} color={profile.avatarColor} size={dense ? 'xl' : '2xl'} />
           <div className="flex min-w-0 flex-col gap-2">
             <PageHeader size="md" title={name} lede={facts} />
             {profile.hereAs && (
@@ -44,10 +44,10 @@ export function ProfileSummary({ profile, homeCountry, languages, compact, onSig
         </div>
         {profile.bio && <p className="m-0 text-sm font-medium text-pretty text-ink-2">{profile.bio}</p>}
         <div className="flex gap-2">
-          <Button to={ROUTES.accountEdit} variant="secondary" size="sm" icon="pencil" block={compact}>
+          <Button to={ROUTES.accountEdit} variant="secondary" size="sm" icon="pencil" block={dense}>
             {t('account.editProfile')}
           </Button>
-          <Button variant="secondary" size="sm" block={compact} onClick={onSignOut}>
+          <Button variant="secondary" size="sm" block={dense} onClick={onSignOut}>
             {t('account.signOut')}
           </Button>
         </div>
