@@ -8,6 +8,7 @@ import AddPlacePage from '@/pages/AddPlacePage'
 import AccountPage from '@/pages/AccountPage'
 import EditProfilePage from '@/pages/EditProfilePage'
 import AddPlaceSentPage from '@/pages/AddPlaceSentPage'
+import EditPlacePage from '@/pages/EditPlacePage'
 import LandingPage from '@/pages/LandingPage'
 import MapPage from '@/pages/MapPage'
 import PlacePage from '@/pages/PlacePage'
@@ -15,7 +16,7 @@ import SignInPage from '@/pages/SignInPage'
 import SignUpPage from '@/pages/SignUpPage'
 
 /**
- * Screens are added one design section at a time (done: sign in & sign up, the map, a place's panel and page, add a place, account).
+ * Screens are added one design section at a time (done: sign in & sign up, the map, a place's panel and page, add a place, edit a place, account).
  * Claim links point to `/claim/{token}`; `ROUTES.map` is public and is where a signed-in user lands.
  */
 function App() {
@@ -30,6 +31,7 @@ function App() {
       <Route path={`${ROUTES.place}/:id`} element={<PlacePage />} />
       <Route element={<RequireAuth />}>
         <Route path={ROUTES.add} element={<AddPlacePage />} />
+        <Route path={`${ROUTES.place}/:id/edit`} element={<EditPlacePage />} />
         <Route path={`${ROUTES.addSent}/:id`} element={<AddPlaceSentPage />} />
         <Route path={ROUTES.account} element={<AccountPage />} />
         <Route path={ROUTES.accountEdit} element={<EditProfilePage />} />

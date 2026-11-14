@@ -37,6 +37,40 @@ export const useUploadImage = (organisationId: Uuid) => {
   })
 }
 
+/** Progress of `useUploadImages`: the file being sent and how many went before it. */
+export interface UploadProgress {
+  name: string
+  done: number
+  total: number
+}
+
+/**
+ * Sends several photos one after another (`POST /images/upload`). The first that arrives is the cover
+ * unless the place already has one; a refused file is counted, not fatal. Answers how many made it.
+ */
+export const useUploadImages = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ organisationId, files, hasPrimary = false, onProgress }: { organisationId: Uuid; files: File[]; hasPrimary?: boolean; onProgress?: (progress: UploadProgress) => void }) => {
+      let covered = hasPrimary
+      let uploaded = 0
+      let failed = 0
+      for (const [index, file] of files.entries()) {
+        onProgress?.({ name: file.name, done: index, total: files.length })
+        try {
+          await imageApi.upload(organisationId, { file, isPrimary: !covered })
+          covered = true
+          uploaded += 1
+        } catch {
+          failed += 1
+        }
+      }
+      return { uploaded, failed }
+    },
+    onSettled: (_result, _error, { organisationId }) => queryClient.invalidateQueries({ queryKey: queryKeys.images.byOrganisation(organisationId) }),
+  })
+}
+
 export const useSetPrimaryImage = (organisationId: Uuid) => {
   const invalidate = useInvalidateImages(organisationId)
   return useMutation({

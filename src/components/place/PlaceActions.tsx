@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Button, IconButton } from '@/components/ui'
 import { useSavedPlaces } from '@/hooks/useSavedPlaces'
 import { directionsUrl } from '@/lib/maps'
-import { placePath, ROUTES, type ReturnState } from '@/lib/routes'
+import { editPlacePath, placePath, ROUTES, type ReturnState } from '@/lib/routes'
 import { useAuthStore } from '@/stores/authStore'
 import type { Organisation } from '@/types/api'
 
@@ -15,12 +15,13 @@ export interface PlaceActionsProps {
   place: Organisation
 }
 
-/** Directions (Google Maps, new tab), save / unsave (a guest is sent to sign in) and copy the page link. */
+/** Directions (Google Maps, new tab), save / unsave (a guest is sent to sign in), copy the page link and, for whoever added the place, edit it. */
 export function PlaceActions({ place }: PlaceActionsProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const isAuthor = useAuthStore((state) => !!state.user && state.user.id === place.createdBy)
   const saved = useSavedPlaces()
   const [copied, setCopied] = useState(false)
   const directions = directionsUrl(place)
@@ -50,6 +51,11 @@ export function PlaceActions({ place }: PlaceActionsProps) {
   return (
     // Wraps on the narrowest phones rather than pushing the last button out of the card.
     <div className="flex flex-wrap items-center gap-2">
+      {isAuthor && (
+        <Button to={editPlacePath(place.id)} variant="secondary" icon="pencil" className="w-full">
+          {t('place.edit')}
+        </Button>
+      )}
       {directions && (
         <Button href={directions} icon="pin" className="flex-1">
           {t('place.directions')}

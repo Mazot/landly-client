@@ -574,13 +574,31 @@
       "generic": "The corridor could not be added. Try again."
     }
   },
+  "photosField": {
+    "list": "Photos",
+    "cover": "Cover",
+    "remove": "Remove {{name}}",
+    "makeCover": "Make {{name}} the cover",
+    "makeCoverShort": "Make cover",
+    "loadFailed": "Couldn't load the photos",
+    "savedAtOnce": "Changes to photos are saved right away.",
+    "hint": "The first photo is the cover. They go up as soon as the place is submitted."
+  },
+  "editPlace": {
+    "title": "Edit place",
+    "lede": "Change what you added. Photos stay as they are.",
+    "loading": "Loading…",
+    "submit": "Save changes",
+    "reviewAgain": "This place is live. After you save it goes back to review and shows as pending on the map until a moderator approves the changes.",
+    "notYours": "You can't edit this place",
+    "notYoursHint": "Only the person who added a place can change it."
+  },
   "addPlace": {
     "eyebrow": "New organization",
     "title": "Add a place",
     "lede": "New places appear on the map right away, marked as pending review until a moderator checks them — usually within a day.",
     "loading": "Loading…",
     "submit": "Submit for review",
-    "photosLater": "You can add photos right after submitting.",
     "add": "Add",
     "fields": {
       "name": "Name",
@@ -594,7 +612,8 @@
       "description": "Description",
       "services": "Services",
       "languages": "Languages spoken",
-      "hours": "Opening hours"
+      "hours": "Opening hours",
+      "photos": "Photos"
     },
     "placeholders": {
       "name": "e.g. Kyiv Coffee Kreuzberg",
@@ -704,6 +723,7 @@
       "title": "My places",
       "subtitle": "Organizations you added",
       "add": "Add a place",
+      "edit": "Edit",
       "empty": "You haven't added a place yet",
       "emptyHint": "Places you add appear here with their moderation status.",
       "loadFailed": "Couldn't load your places",
@@ -753,6 +773,7 @@
     "showMore": "Show more"
   },
   "place": {
+    "edit": "Edit place",
     "title": "Place",
     "loading": "Loading…",
     "loadFailed": "Couldn't load this place",

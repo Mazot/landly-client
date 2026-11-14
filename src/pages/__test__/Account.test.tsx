@@ -125,6 +125,8 @@ describe('AccountPage', () => {
     expect(places.getByText('Add a phone number.')).toBeInTheDocument()
     expect(places.getByText('Submitted 3 hours ago')).toBeInTheDocument()
     expect(places.getByText('Rejected · 5 hours ago')).toBeInTheDocument()
+    // Each place leads to its edit form.
+    expect(places.getAllByRole('link', { name: 'Edit' })).toHaveLength(4)
     expect(places.getByText('Duplicate.')).toBeInTheDocument()
     expect(places.getAllByText('Moderator:')).toHaveLength(2)
   })

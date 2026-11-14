@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button, Callout, Dropzone, EmptyState, FormNote, IconTile, InlineStatus, PageHeader, StepList } from '@/components/ui'
 import { useUploadImage } from '@/hooks/useImages'
@@ -28,8 +28,10 @@ function SentScreen() {
   const upload = useUploadImage(id)
   const [addingPhotos, setAddingPhotos] = useState(false)
   const [uploading, setUploading] = useState<{ name: string; done: number; total: number }>()
-  const [uploaded, setUploaded] = useState(0)
-  const [rejected, setRejected] = useState(0)
+  // Photos picked on the form were sent right after the place was created: say how that went.
+  const sentWithForm = (useLocation().state as { photos?: { uploaded: number; failed: number } } | null)?.photos
+  const [uploaded, setUploaded] = useState(sentWithForm?.uploaded ?? 0)
+  const [rejected, setRejected] = useState(sentWithForm?.failed ?? 0)
 
   const uploadAll = async (files: File[]) => {
     setRejected(0)

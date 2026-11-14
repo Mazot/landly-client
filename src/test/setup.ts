@@ -16,6 +16,10 @@ HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
   this.removeAttribute('open')
 }
 
+// jsdom has no object URLs (photo previews).
+URL.createObjectURL ??= (file) => `blob:${(file as File).name}`
+URL.revokeObjectURL ??= () => {}
+
 // jsdom has no layout, so the map (needs Google's script) is replaced by a stub and the browser
 // API `MapBackdrop` observes the page with reports "on screen". Tests that look at the map
 // itself override these (`vi.mock` per file, `vi.stubGlobal`).

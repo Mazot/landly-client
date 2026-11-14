@@ -1,10 +1,11 @@
 import { act, waitFor } from '@testing-library/react'
+import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { queryKeys } from '@/lib/queryKeys'
 import { image, list } from '@/test/factories'
 import { isInvalidated, renderQueryHook, seed } from '@/test/render'
-import { capture } from '@/test/server'
-import { useDeleteImage, useImage, useOrganisationImages, useSetPrimaryImage, useUploadImage } from '../useImages'
+import { API, capture, server } from '@/test/server'
+import { useDeleteImage, useImage, useOrganisationImages, useSetPrimaryImage, useUploadImage, useUploadImages } from '../useImages'
 
 describe('image queries', () => {
   it('useOrganisationImages stays idle without an organisation and pages with one', async () => {
@@ -42,6 +43,38 @@ describe('image writes', () => {
     expect(isInvalidated(client, ownLists)).toBe(true)
     expect(isInvalidated(client, detail)).toBe(true)
     expect(isInvalidated(client, otherLists)).toBe(false)
+  })
+
+  it('uploads several photos in turn: the first that arrives is the cover, a refused one is counted, progress is reported', async () => {
+    let calls = 0
+    const flags: (string | undefined)[] = []
+    server.use(
+      http.post(`${API}/api/images/upload/o1`, async ({ request }) => {
+        calls += 1
+        flags.push(/name="is_primary"\r\n\r\n(\w+)/.exec(await request.text())?.[1])
+        return calls === 1 ? HttpResponse.json({ error: 'Too large' }, { status: 422 }) : HttpResponse.json(image())
+      }),
+    )
+    const { result, client } = renderQueryHook(() => useUploadImages())
+    seed(client, ownLists, otherLists)
+    const progress: string[] = []
+    const files = ['a.jpg', 'b.jpg', 'c.jpg'].map((name) => new File(['x'], name, { type: 'image/jpeg' }))
+
+    const answer = await act(() => result.current.mutateAsync({ organisationId: 'o1', files, onProgress: ({ name, done, total }) => progress.push(`${name} ${done}/${total}`) }))
+
+    expect(answer).toEqual({ uploaded: 2, failed: 1 })
+    expect(flags).toEqual(['true', 'true', 'false'])
+    expect(progress).toEqual(['a.jpg 0/3', 'b.jpg 1/3', 'c.jpg 2/3'])
+    expect(isInvalidated(client, ownLists)).toBe(true)
+    expect(isInvalidated(client, otherLists)).toBe(false)
+  })
+
+  it('keeps the cover a place already has', async () => {
+    const flags: (string | undefined)[] = []
+    server.use(http.post(`${API}/api/images/upload/o1`, async ({ request }) => (flags.push(/name="is_primary"\r\n\r\n(\w+)/.exec(await request.text())?.[1]), HttpResponse.json(image()))))
+    const { result } = renderQueryHook(() => useUploadImages())
+    await act(() => result.current.mutateAsync({ organisationId: 'o1', files: [new File(['x'], 'a.jpg', { type: 'image/jpeg' })], hasPrimary: true }))
+    expect(flags).toEqual(['false'])
   })
 
   it('set-primary refreshes the lists and every cached detail (the old primary flips too)', async () => {

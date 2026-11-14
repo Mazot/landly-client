@@ -3,7 +3,7 @@ import { Avatar, Callout, EmptyState, InlineStatus, List, ListItem, Section, Sta
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo, formatDay } from '@/lib/dates'
 import { orgTypeColor } from '@/lib/orgTypes'
-import { ROUTES } from '@/lib/routes'
+import { editPlacePath, ROUTES } from '@/lib/routes'
 import { ShowMore, type ShowMoreProps } from './ShowMore'
 import type { MyOrganisation, OrganisationType } from '@/types/api'
 
@@ -55,11 +55,16 @@ export function MyPlaces({ places, error, orgTypes, more }: MyPlacesProps) {
                 subtitle={[type && (type.title ?? type.type), standing(place, locale, t)].filter(Boolean).join(' · ')}
                 trailing={<StatusBadge status={place.status} />}
                 footer={
-                  place.moderationNote ? (
-                    <Callout tone="danger" icon={false}>
-                      <b>{t('account.moderator')}</b> {place.moderationNote}
-                    </Callout>
-                  ) : undefined
+                  <>
+                    {place.moderationNote && (
+                      <Callout tone="danger" icon={false}>
+                        <b>{t('account.moderator')}</b> {place.moderationNote}
+                      </Callout>
+                    )}
+                    <TextLink to={editPlacePath(place.id)} icon="pencil">
+                      {t('account.places.edit')}
+                    </TextLink>
+                  </>
                 }
               />
             )
