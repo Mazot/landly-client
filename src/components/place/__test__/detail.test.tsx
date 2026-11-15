@@ -211,6 +211,16 @@ describe('PlaceCommunity', () => {
 describe('PlaceReviews', () => {
   const summary = { count: 3, ratingAvg: 4, byRating: [5, 4, 3, 2, 1].map((rating) => ({ rating, count: rating >= 3 ? 1 : 0 })) }
 
+  it('reads the reviews of a person when it is given one', async () => {
+    const summaries = capture('get', '/api/review/summary', summary)
+    const listed = capture('get', '/api/review/list', list([review({ text: 'Very patient.', author: null })]))
+    show(<PlaceReviews personId="p1" limit={2} />)
+    expect(await screen.findByText('Very patient.')).toBeInTheDocument()
+    expect(summaries[0].query.get('person_id')).toBe('p1')
+    expect(summaries[0].query.get('organisation_id')).toBeNull()
+    expect(listed[0].query.get('person_id')).toBe('p1')
+  })
+
   it('shows the average, the breakdown and the latest reviews with their authors', async () => {
     capture('get', '/api/review/summary', summary)
     const listed = capture(

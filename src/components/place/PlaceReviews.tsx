@@ -3,21 +3,20 @@ import { Avatar, Callout, InlineStatus, List, ListItem, RatingBreakdown, Stars }
 import { useReviewSummary, useReviews } from '@/hooks/useReviews'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo } from '@/lib/dates'
-import type { Uuid } from '@/types/api'
+import type { ReviewTarget, Uuid } from '@/types/api'
 
-export interface PlaceReviewsProps {
-  organisationId: Uuid
+export type PlaceReviewsProps = {
   /** How many of the latest reviews to show. */
   limit: number
   /** Phones: the average without the per-rating bars. */
   compact?: boolean
-}
+} & ({ organisationId: Uuid } | { personId: Uuid })
 
-/** The rating summary (average, stars, count, per-rating bars) and the latest reviews with their authors. */
-export function PlaceReviews({ organisationId, limit, compact }: PlaceReviewsProps) {
+/** The rating summary (average, stars, count, per-rating bars) and the latest reviews with their authors — of a place, or of a helper. */
+export function PlaceReviews({ limit, compact, ...of }: PlaceReviewsProps) {
   const { t, i18n } = useTranslation()
   const locale = useUiLocale()
-  const target = { organisation_id: organisationId }
+  const target: ReviewTarget = 'personId' in of ? { person_id: of.personId } : { organisation_id: of.organisationId }
   const summary = useReviewSummary(target)
   const reviews = useReviews({ ...target, limit })
 

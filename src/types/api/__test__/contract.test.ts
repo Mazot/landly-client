@@ -11,7 +11,7 @@ describe('enum values (migration CHECK constraints)', () => {
     ['ADDED_BY', 'organisations.added_by', ['official', 'community', 'volunteer']],
     ['LOCATION_SOURCES', 'organisations.location_source', ['google', 'user_pin', 'moderator']],
     ['PERSON_STATUSES', 'people.status', ['pending', 'awaiting', 'confirmed', 'claimed', 'declined']],
-    ['SEND_VIA', 'people.send_via', ['email', 'whatsapp']],
+    ['SEND_VIA', 'people.send_via', ['email', 'whatsapp', 'telegram', 'instagram']],
     ['USER_ROLES', 'users.role', ['user', 'moderator', 'admin']],
     ['HERE_AS', 'users.here_as', ['newcomer', 'helping', 'exploring']],
     ['LOCALES', 'users.locale', ['en', 'ru', 'uk']],

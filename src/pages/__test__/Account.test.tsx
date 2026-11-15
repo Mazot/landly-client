@@ -92,7 +92,7 @@ describe('AccountPage', () => {
     }
     expect(screen.getByRole('link', { name: 'Edit profile' })).toHaveAttribute('href', '/account/edit')
     expect(screen.getByRole('link', { name: 'Add a place' })).toHaveAttribute('href', '/add')
-    expect(screen.getByRole('link', { name: 'Recommend' })).toHaveAttribute('href', '/people')
+    expect(screen.getByRole('link', { name: 'Recommend' })).toHaveAttribute('href', '/people/recommend')
   })
 
   it('falls back to the username and says what is empty', async () => {

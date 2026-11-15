@@ -855,5 +855,133 @@
       "who": "@{{username}} · added this place",
       "fromGoogle": "Location from Google Maps"
     }
+  },
+  "people": {
+    "heading": "People",
+    "subheading": "Confirmed helpers",
+    "eyebrow": "Recommended by the community",
+    "title": "Helpers in {{where}}",
+    "titleAnywhere": "Helpers",
+    "recommend": "Recommend someone",
+    "trust": "Everyone here confirmed their own profile and chose which contacts to show.",
+    "vouches_one": "{{count}} vouch",
+    "vouches_other": "{{count}} vouches",
+    "reviewsOff": "Reviews off",
+    "loading": "Loading helpers…",
+    "loadFailed": "Couldn't load the helpers",
+    "list": "Helpers",
+    "empty": "No helpers here yet",
+    "emptyHint": "Know someone who helps newcomers? Recommend them — they confirm their profile themselves.",
+    "emptyFiltered": "Nobody matches these filters. Try fewer.",
+    "filters": {
+      "title": "Filters",
+      "withCount": "Filters · {{count}}",
+      "city": "City",
+      "skills": "Skills",
+      "speaks": "Speaks",
+      "show": "Show helpers"
+    },
+    "languages": {
+      "other": "Another language"
+    }
+  },
+  "person": {
+    "title": "Helper",
+    "breadcrumbs": "Breadcrumbs",
+    "people": "People",
+    "notFound": "This helper doesn't exist or isn't listed",
+    "loadFailed": "Couldn't load this profile",
+    "retry": "Try again",
+    "backToPeople": "Back to people",
+    "loading": "Loading the profile…",
+    "whatsapp": "WhatsApp · {{number}}",
+    "contactsPrivate": "{{name}} keeps contacts private",
+    "contactPrivate": "{{name}} keeps {{channels}} private",
+    "contactsShared": "These are the contacts {{name}} chose to show",
+    "channel": {
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "instagram": "Instagram",
+      "email": "email"
+    },
+    "vouch": "Vouch for {{name}} · {{count}}",
+    "vouched": "You vouched · {{count}}",
+    "vouchHint": "Vouch if {{name}} helped you. One vouch per person.",
+    "vouchOwn": "You can't vouch for someone you recommended.",
+    "vouchFailed": "Couldn't record your vouch. Try again.",
+    "save": "Save",
+    "saved": "Saved",
+    "howTheyHelp": "How they help",
+    "speaks": "Speaks",
+    "recommendedBy": "Recommended by",
+    "confirmed": "{{name}} confirmed the profile",
+    "confirmedAndClaimed": "{{name}} confirmed and claimed the profile",
+    "telegram": "Telegram · {{handle}}",
+    "instagram": "Instagram · {{handle}}"
+  },
+  "recommend": {
+    "title": "Recommend someone",
+    "eyebrow": "New helper",
+    "loading": "Loading…",
+    "lede": "Their profile stays hidden until they confirm it from a personal link. Contacts are never shown without their permission.",
+    "fields": {
+      "name": "Name",
+      "city": "City",
+      "bio": "How they help",
+      "skills": "Skills",
+      "speaks": "Speaks",
+      "reach": "How can they be reached?",
+      "email": "Email",
+      "sendVia": "I'll send the claim link via",
+      "telegram": "Telegram",
+      "instagram": "Instagram"
+    },
+    "reachHint": "At least one. Hidden until they confirm.",
+    "placeholders": {
+      "phone": "+49 157 4410 2290",
+      "email": "name@example.com",
+      "telegram": "@daria",
+      "instagram": "daria.k"
+    },
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "consent": {
+      "title": "{{name}} agreed to be recommended",
+      "they": "They",
+      "hint": "Required. You confirm you asked before sharing the contacts."
+    },
+    "submit": "Create claim link",
+    "errors": {
+      "nameRequired": "Enter their name",
+      "tooLong": "That's too long",
+      "tooMany": "Too many",
+      "email": "Enter a valid email",
+      "contactRequired": "Add at least one contact: WhatsApp, email, Telegram or Instagram",
+      "sendViaContact": "Add the contact you chose to send the link through",
+      "consentRequired": "Confirm that they agreed",
+      "quota": "You have recommended a lot of people recently. Try again later.",
+      "generic": "Couldn't create the recommendation. Try again."
+    },
+    "claim": {
+      "title": "Send {{name}} their link",
+      "subtitle": "Landly doesn't send it for you. The link is personal — share it only with them.",
+      "message": "Hi {{name}}! I recommended you on Landly, a map for people who live abroad. Confirm your profile and choose what to show here: {{link}}",
+      "subject": "Your Landly profile",
+      "copy": "Copy",
+      "copied": "Copied",
+      "openWhatsapp": "Open WhatsApp",
+      "openEmail": "Open email",
+      "next": "What happens next",
+      "steps": {
+        "review": "Moderators review the recommendation",
+        "confirm": "{{name}} opens the link and confirms or declines",
+        "live": "The profile goes live with the contacts they allow"
+      },
+      "openTelegram": "Open Telegram",
+      "openInstagram": "Open Instagram",
+      "pasteHint": "Telegram and Instagram can’t take the text along: open the chat, then paste the link (Copy)."
+    },
+    "telegram": "Telegram",
+    "instagram": "Instagram"
   }
 }

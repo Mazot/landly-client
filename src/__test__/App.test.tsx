@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
-import { authUser, organisation, userProfile } from '@/test/factories'
+import { authUser, organisation, person, userProfile } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
 import App from '../App'
@@ -63,7 +63,7 @@ describe('App routes', () => {
 
   it('/add, /add/sent/{id}, /account and /account/edit need an account: a guest is sent to sign in', async () => {
     capture('get', '/api/common/countries', [])
-    for (const route of ['/add', '/add/sent/some-id', '/account', '/account/edit']) {
+    for (const route of ['/add', '/add/sent/some-id', '/account', '/account/edit', '/people/recommend']) {
       const { unmount } = renderApp(<App />, { route })
       expect(await screen.findByText('Welcome back')).toBeInTheDocument()
       unmount()
@@ -134,6 +134,32 @@ describe('App routes', () => {
     capture('post', '/api/organisation/visit/p1', { visitsCount: 1 })
     renderApp(<App />, { route: '/place/p1' })
     expect(await screen.findByRole('heading', { level: 1, name: 'Public place' })).toBeInTheDocument()
+  })
+
+  it('/people and /people/{id} are public: a guest browses the helpers', async () => {
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/person/skills', { items: [], total: 0 })
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/person/list', { items: [], total: 0 })
+    capture('get', '/api/person/fetch/p1', person({ id: 'p1', name: 'Public helper' }))
+    capture('get', '/api/review/summary', { count: 0, ratingAvg: null, byRating: [] })
+    capture('get', '/api/review/list', { items: [], total: 0 })
+    const people = renderApp(<App />, { route: '/people' })
+    expect(await screen.findByText('No helpers here yet')).toBeInTheDocument()
+    people.unmount()
+    renderApp(<App />, { route: '/people/p1' })
+    expect(await screen.findByRole('heading', { level: 1, name: 'Public helper' })).toBeInTheDocument()
+  })
+
+  it('/people/recommend is the recommend form for a signed-in user', async () => {
+    useAuthStore.getState().setAuth(authUser())
+    capture('get', '/api/common/countries', [])
+    capture('get', '/api/person/skills', { items: [], total: 0 })
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/user/me', userProfile())
+    capture('get', '/api/corridor/list', { items: [], total: 0 })
+    renderApp(<App />, { route: '/people/recommend' })
+    expect(await screen.findByRole('textbox', { name: 'Name' })).toBeInTheDocument()
   })
 
   it('renders nothing for routes that are not built yet (claim links, unknown paths)', () => {

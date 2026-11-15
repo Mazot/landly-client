@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { authUser, list, savedItem } from '@/test/factories'
 import { renderQueryHook } from '@/test/render'
 import { API, capture, server } from '@/test/server'
-import { useSavedPlaces } from '../useSavedPlaces'
+import { useSavedPeople, useSavedPlaces } from '../useSavedPlaces'
 
 describe('useSavedPlaces', () => {
   it('knows nothing for a guest: the saved list is not requested', () => {
@@ -61,3 +61,40 @@ describe('useSavedPlaces', () => {
     expect(creates).toBe(1)
   })
 })
+
+describe('useSavedTargets', () => {
+  it('does not send a second removal while the first one is on its way', async () => {
+    useAuthStore.getState().setAuth(authUser())
+    capture('get', '/api/saved/list', list([savedItem({ id: 'saved-1', kind: 'person', targetId: 'p1' })]))
+    let removals = 0
+    server.use(
+      http.delete(`${API}/api/saved/delete/saved-1`, async () => {
+        removals += 1
+        await delay(50)
+        return HttpResponse.json(null)
+      }),
+    )
+    const { result } = renderQueryHook(() => useSavedPeople())
+    await waitFor(() => expect(result.current.isSaved('p1')).toBe(true))
+    act(() => result.current.toggle('p1'))
+    await waitFor(() => expect(removals).toBe(1))
+    act(() => result.current.toggle('p1'))
+    await delay(100)
+    expect(removals).toBe(1)
+  })
+})
+
+describe('useSavedPeople', () => {
+  it('works on the saved helpers: asks for the person kind and saves with it', async () => {
+    useAuthStore.getState().setAuth(authUser())
+    const lists = capture('get', '/api/saved/list', list([savedItem({ id: 'saved-1', kind: 'person', targetId: 'p1' })]))
+    const created = capture('post', '/api/saved/create', savedItem())
+    const { result } = renderQueryHook(() => useSavedPeople())
+    await waitFor(() => expect(result.current.isSaved('p1')).toBe(true))
+    expect(lists[0].query.get('kind')).toBe('person')
+    act(() => result.current.toggle('p2'))
+    await waitFor(() => expect(created).toHaveLength(1))
+    expect(created[0].body).toEqual({ kind: 'person', target_id: 'p2' })
+  })
+})
+

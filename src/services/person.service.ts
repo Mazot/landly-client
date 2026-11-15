@@ -9,6 +9,7 @@ import type {
   PeopleListQuery,
   Person,
   PersonCreated,
+  PersonSkill,
   Uuid,
   VouchPersonRequest,
 } from '@/types/api'
@@ -24,6 +25,10 @@ export const personApi = {
   mine: async (query?: MyPeopleQuery): Promise<ListResponse<MyPerson>> =>
     (await apiClient.get('/api/person/mine', { params: query })).data,
 
+  /** Public; the skills a helper can be recommended for, in list order. */
+  skills: async (): Promise<ListResponse<PersonSkill>> => (await apiClient.get('/api/person/skills')).data,
+
+  /** Public; with a Bearer token the answer says whether the caller already vouched (`vouchedByMe`). */
   fetch: async (id: Uuid): Promise<Person> => (await apiClient.get(`/api/person/fetch/${id}`)).data,
 
   /** Auth; recommends someone (status `pending`) and returns the claim link to send. */
