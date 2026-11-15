@@ -18,6 +18,9 @@ const PlacePage = lazy(() => import('@/pages/PlacePage'))
 const AddPlacePage = lazy(() => import('@/pages/AddPlacePage'))
 const AddPlaceSentPage = lazy(() => import('@/pages/AddPlaceSentPage'))
 const EditPlacePage = lazy(() => import('@/pages/EditPlacePage'))
+const PeoplePage = lazy(() => import('@/pages/PeoplePage'))
+const PersonPage = lazy(() => import('@/pages/PersonPage'))
+const RecommendPage = lazy(() => import('@/pages/RecommendPage'))
 const AccountPage = lazy(() => import('@/pages/AccountPage'))
 const EditProfilePage = lazy(() => import('@/pages/EditProfilePage'))
 
@@ -43,7 +46,10 @@ function App() {
             <Route path={`${ROUTES.place}/:id/edit`} element={<EditPlacePage />} />
           </Route>
         </Route>
+        <Route path={ROUTES.people} element={<PeoplePage />} />
+        <Route path={`${ROUTES.people}/:id`} element={<PersonPage />} />
         <Route element={<RequireAuth />}>
+          <Route path={ROUTES.recommend} element={<RecommendPage />} />
           <Route path={`${ROUTES.addSent}/:id`} element={<AddPlaceSentPage />} />
           <Route path={ROUTES.account} element={<AccountPage />} />
           <Route path={ROUTES.accountEdit} element={<EditProfilePage />} />

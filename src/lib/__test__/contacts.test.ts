@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { phoneUrl, telegramUrl, websiteLabel, websiteUrl, whatsappUrl } from '../contacts'
+import { instagramUrl, phoneUrl, telegramUrl, websiteLabel, websiteUrl, whatsappUrl } from '../contacts'
 
 describe('contact links', () => {
   it('opens a website with or without its scheme, and shows it without one', () => {
@@ -13,6 +13,7 @@ describe('contact links', () => {
       expect(websiteUrl(value)).toBe(`https://${value}`)
       expect(telegramUrl(value)).toMatch(/^https:\/\/t\.me\//)
       expect(whatsappUrl(value)).toMatch(/^https:\/\/wa\.me\//)
+      expect(instagramUrl(value)).toMatch(/^https:\/\/instagram\.com\//)
     }
   })
 
@@ -24,6 +25,12 @@ describe('contact links', () => {
     expect(telegramUrl('@landly')).toBe('https://t.me/landly')
     expect(telegramUrl('landly')).toBe('https://t.me/landly')
     expect(telegramUrl('https://t.me/landly')).toBe('https://t.me/landly')
+  })
+
+  it('opens Instagram from a handle or a link', () => {
+    expect(instagramUrl('@daria.k')).toBe('https://instagram.com/daria.k')
+    expect(instagramUrl('daria.k')).toBe('https://instagram.com/daria.k')
+    expect(instagramUrl('https://www.instagram.com/daria.k/')).toBe('https://www.instagram.com/daria.k/')
   })
 
   it('opens WhatsApp from a number or a link', () => {

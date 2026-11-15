@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { nextOffset } from '@/lib/query'
 import { queryKeys } from '@/lib/queryKeys'
 import { personApi } from '@/services/person.service'
@@ -9,6 +9,30 @@ export const usePeople = (query?: PeopleListQuery) =>
   useQuery({
     queryKey: queryKeys.people.list(query),
     queryFn: () => personApi.list(query),
+  })
+
+/** Default page of the people list; the server answers at most 100. */
+export const PEOPLE_PAGE_SIZE = 20
+
+/** The public people list, `pageSize` at a time ("Show more"); a new filter starts again from the first page. `enabled` waits for what the query depends on (the corridor's country). */
+export const useInfinitePeople = (query: PeopleListQuery = {}, pageSize = PEOPLE_PAGE_SIZE, enabled = true) =>
+  useInfiniteQuery({
+    queryKey: queryKeys.people.list({ ...query, limit: pageSize }),
+    queryFn: ({ pageParam }) => personApi.list({ ...query, limit: pageSize, offset: pageParam }),
+    initialPageParam: 0,
+    getNextPageParam: nextOffset(pageSize),
+    select: (data) => data.pages.flatMap((page) => page.items),
+    placeholderData: keepPreviousData,
+    enabled,
+  })
+
+/** The skills a helper can be recommended for (reference data: the filter and the recommend form). */
+export const usePersonSkills = () =>
+  useQuery({
+    queryKey: queryKeys.people.skills,
+    queryFn: personApi.skills,
+    staleTime: Infinity,
+    select: (data) => data.items,
   })
 
 /** The people the caller recommended, in every status, `pageSize` at a time; never served stale (see `useMyOrganisations`). */

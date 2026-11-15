@@ -895,5 +895,135 @@
       "who": "@{{username}} · добавил это место",
       "fromGoogle": "Точка из Google Карт"
     }
+  },
+  "people": {
+    "heading": "Люди",
+    "subheading": "Подтверждённые помощники",
+    "eyebrow": "Рекомендовано сообществом",
+    "title": "Помощники: {{where}}",
+    "titleAnywhere": "Помощники",
+    "recommend": "Рекомендовать человека",
+    "trust": "Каждый здесь сам подтвердил профиль и выбрал, какие контакты показывать.",
+    "vouches_one": "{{count}} поручительство",
+    "vouches_few": "{{count}} поручительства",
+    "vouches_many": "{{count}} поручительств",
+    "vouches_other": "{{count}} поручительства",
+    "reviewsOff": "Отзывы отключены",
+    "loading": "Загружаем помощников…",
+    "loadFailed": "Не удалось загрузить помощников",
+    "list": "Помощники",
+    "empty": "Здесь пока нет помощников",
+    "emptyHint": "Знаете, кто помогает новичкам? Порекомендуйте — профиль человек подтвердит сам.",
+    "emptyFiltered": "Под эти фильтры никто не подходит. Попробуйте меньше.",
+    "filters": {
+      "title": "Фильтры",
+      "withCount": "Фильтры · {{count}}",
+      "city": "Город",
+      "skills": "Чем помогают",
+      "speaks": "Говорят",
+      "show": "Показать помощников"
+    },
+    "languages": {
+      "other": "Другой язык"
+    }
+  },
+  "person": {
+    "title": "Помощник",
+    "breadcrumbs": "Навигация",
+    "people": "Люди",
+    "notFound": "Такого помощника нет или он не опубликован",
+    "loadFailed": "Не удалось загрузить профиль",
+    "retry": "Повторить",
+    "backToPeople": "Назад к людям",
+    "loading": "Загружаем профиль…",
+    "whatsapp": "WhatsApp · {{number}}",
+    "contactsPrivate": "{{name}} скрывает контакты",
+    "contactPrivate": "{{name}} скрывает: {{channels}}",
+    "contactsShared": "Эти контакты {{name}} решил(а) показать",
+    "channel": {
+      "whatsapp": "WhatsApp",
+      "telegram": "Telegram",
+      "instagram": "Instagram",
+      "email": "email"
+    },
+    "vouch": "Поручиться за {{name}} · {{count}}",
+    "vouched": "Вы поручились · {{count}}",
+    "vouchHint": "Поручитесь, если {{name}} вам помог(ла). Одно поручительство от человека.",
+    "vouchOwn": "Нельзя поручиться за того, кого вы рекомендовали.",
+    "vouchFailed": "Не удалось записать поручительство. Повторите.",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "howTheyHelp": "Чем помогает",
+    "speaks": "Говорит",
+    "recommendedBy": "Рекомендует",
+    "confirmed": "{{name}} подтвердил(а) профиль",
+    "confirmedAndClaimed": "{{name}} подтвердил(а) профиль и привязал(а) аккаунт",
+    "telegram": "Telegram · {{handle}}",
+    "instagram": "Instagram · {{handle}}"
+  },
+  "recommend": {
+    "title": "Рекомендовать человека",
+    "eyebrow": "Новый помощник",
+    "loading": "Загрузка…",
+    "lede": "Профиль скрыт, пока человек не подтвердит его по личной ссылке. Контакты не показываются без его разрешения.",
+    "fields": {
+      "name": "Имя",
+      "city": "Город",
+      "bio": "Чем помогает",
+      "skills": "Навыки",
+      "speaks": "Говорит",
+      "reach": "Как с ним связаться?",
+      "email": "Email",
+      "sendVia": "Ссылку отправлю через",
+      "telegram": "Telegram",
+      "instagram": "Instagram"
+    },
+    "reachHint": "Хотя бы один. Скрыты, пока человек не подтвердит.",
+    "placeholders": {
+      "phone": "+49 157 4410 2290",
+      "email": "name@example.com",
+      "telegram": "@daria",
+      "instagram": "daria.k"
+    },
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "consent": {
+      "title": "{{name}} согласен(на), чтобы его рекомендовали",
+      "they": "Человек",
+      "hint": "Обязательно. Вы подтверждаете, что спросили, прежде чем делиться контактами."
+    },
+    "submit": "Создать ссылку",
+    "errors": {
+      "nameRequired": "Введите имя",
+      "tooLong": "Слишком длинно",
+      "tooMany": "Слишком много",
+      "email": "Введите корректный email",
+      "contactRequired": "Добавьте хотя бы один контакт: WhatsApp, email, Telegram или Instagram",
+      "sendViaContact": "Добавьте контакт, через который отправите ссылку",
+      "consentRequired": "Подтвердите согласие человека",
+      "quota": "Вы недавно порекомендовали много людей. Попробуйте позже.",
+      "generic": "Не удалось создать рекомендацию. Повторите."
+    },
+    "claim": {
+      "title": "Отправьте {{name}} ссылку",
+      "subtitle": "Landly сам её не отправляет. Ссылка личная — делитесь ею только с этим человеком.",
+      "message": "Привет, {{name}}! Я порекомендовал(а) тебя в Landly — на карте для тех, кто живёт за границей. Подтверди профиль и выбери, что показывать: {{link}}",
+      "subject": "Ваш профиль в Landly",
+      "copy": "Копировать",
+      "copied": "Скопировано",
+      "openWhatsapp": "Открыть WhatsApp",
+      "openEmail": "Открыть почту",
+      "next": "Что дальше",
+      "steps": {
+        "review": "Модераторы проверяют рекомендацию",
+        "confirm": "{{name}} открывает ссылку и подтверждает или отклоняет",
+        "live": "Профиль появляется с теми контактами, которые разрешил человек"
+      },
+      "openTelegram": "Открыть Telegram",
+      "openInstagram": "Открыть Instagram",
+      "pasteHint": "В Telegram и Instagram текст не подставить: откройте чат и вставьте ссылку (Копировать)."
+    },
+    "telegram": "Telegram",
+    "instagram": "Instagram"
   }
 }

@@ -3,6 +3,7 @@
 /** Telegram and WhatsApp open a chat from these bases. */
 export const TELEGRAM_URL = 'https://t.me/'
 export const WHATSAPP_URL = 'https://wa.me/'
+export const INSTAGRAM_URL = 'https://instagram.com/'
 
 const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:\/\//i
 /**
@@ -20,6 +21,9 @@ export const phoneUrl = (phone: string) => `tel:${phone.replace(/[^\d+]/g, '')}`
 
 /** A Telegram handle ("@landly", "landly") or link → a link that opens the chat. */
 export const telegramUrl = (telegram: string) => (WEB_SCHEME.test(telegram) ? telegram : `${TELEGRAM_URL}${telegram.replace(/^@/, '')}`)
+
+/** An Instagram handle ("@daria.k", "daria.k") or link → a link that opens the profile. */
+export const instagramUrl = (instagram: string) => (WEB_SCHEME.test(instagram) ? instagram : `${INSTAGRAM_URL}${instagram.replace(/^@/, '')}`)
 
 /** A WhatsApp number or link → a link that opens the chat (digits only, as wa.me wants). */
 export const whatsappUrl = (whatsapp: string) => (WEB_SCHEME.test(whatsapp) ? whatsapp : `${WHATSAPP_URL}${whatsapp.replace(/\D/g, '')}`)

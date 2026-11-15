@@ -13,12 +13,17 @@ export const ROUTES = {
   add: '/add',
   /** `/add/sent/{organisationId}` — the place was submitted. */
   addSent: '/add/sent',
+  /** The recommend-someone form (signed in). */
+  recommend: '/people/recommend',
   /** `/place/{organisationId}` — an organisation's full page (`placePath`). */
   place: '/place',
 } as const
 
 /** The full page of an organisation. */
 export const placePath = (organisationId: string) => `${ROUTES.place}/${organisationId}`
+
+/** A helper's profile (`/people/{personId}`). */
+export const personPath = (personId: string) => `${ROUTES.people}/${personId}`
 
 /** The edit form of an organisation (its submitter only). */
 export const editPlacePath = (organisationId: string) => `${placePath(organisationId)}/edit`
