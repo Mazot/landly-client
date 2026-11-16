@@ -21,6 +21,8 @@ import {
 } from '../usePeople'
 
 const preview: ClaimPreview = {
+  id: 'p1',
+  languageIds: [],
   name: 'Daria K.',
   status: 'awaiting',
   bio: null,
@@ -170,22 +172,27 @@ describe('claim flow', () => {
     const confirmed = { ...preview, status: 'confirmed' as const, showEmail: true }
     const requests = capture('post', '/api/person/claim/tok/confirm', confirmed)
     const { result, client } = renderQueryHook(() => useConfirmClaim('tok'))
-    seed(client, queryKeys.people.list())
+    seed(client, queryKeys.people.list(), queryKeys.people.detail('p1'), queryKeys.people.mine())
 
     await act(() => result.current.mutateAsync({ show_email: true }))
 
     expect(requests[0].body).toEqual({ show_email: true })
     expect(client.getQueryData(queryKeys.people.claim('tok'))).toEqual(confirmed)
     expect(isInvalidated(client, queryKeys.people.list())).toBe(true)
+    expect(isInvalidated(client, queryKeys.people.detail('p1'))).toBe(true)
+    expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
+    // The spent token is not asked for again.
+    expect(isInvalidated(client, queryKeys.people.claim('tok'))).toBe(false)
   })
 
-  it('useDeclineClaim refreshes the claim preview', async () => {
+  it('useDeclineClaim forgets the spent claim and refreshes the recommender\'s list', async () => {
     capture('post', '/api/person/claim/tok/decline', 'OK')
     const { result, client } = renderQueryHook(() => useDeclineClaim('tok'))
-    seed(client, queryKeys.people.claim('tok'))
+    seed(client, queryKeys.people.claim('tok'), queryKeys.people.mine())
 
     await act(() => result.current.mutateAsync())
 
-    expect(isInvalidated(client, queryKeys.people.claim('tok'))).toBe(true)
+    expect(client.getQueryData(queryKeys.people.claim('tok'))).toBeUndefined()
+    expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
   })
 })

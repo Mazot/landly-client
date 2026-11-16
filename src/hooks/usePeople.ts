@@ -96,7 +96,10 @@ export const useConfirmClaim = (token: string) => {
     mutationFn: (body?: ClaimConfirmRequest) => personApi.confirmClaim(token, body),
     onSuccess: (preview) => {
       queryClient.setQueryData(queryKeys.people.claim(token), preview)
-      queryClient.invalidateQueries({ queryKey: queryKeys.people.all })
+      // Not the claim itself: the token is spent, asking for it again would only answer 422.
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.lists })
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.detail(preview.id) })
+      queryClient.invalidateQueries({ queryKey: ['people', 'mine'] })
     },
   })
 }
@@ -105,6 +108,10 @@ export const useDeclineClaim = (token: string) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => personApi.declineClaim(token),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.people.claim(token) }),
+    onSuccess: () => {
+      // The token is spent: forget the preview rather than fetch it again (a 422).
+      queryClient.removeQueries({ queryKey: queryKeys.people.claim(token) })
+      queryClient.invalidateQueries({ queryKey: ['people', 'mine'] })
+    },
   })
 }

@@ -4,6 +4,7 @@ import { StrictMode } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { useAuthStore } from '@/stores/authStore'
+import { rememberReturn, takeReturn } from '@/lib/returnTo'
 import { authUser } from '@/test/factories'
 import { renderApp } from '@/test/render'
 import { capture } from '@/test/server'
@@ -31,6 +32,22 @@ describe('GoogleCallbackPage', () => {
     expect(requests).toHaveLength(1)
     expect(requests[0].body).toEqual({ code: 'abc123' })
     expect(useAuthStore.getState().token).toBe('google-jwt')
+  })
+
+  it('goes back to the screen that sent the user to sign in, as the link-my-account button does', async () => {
+    capture('post', '/api/user/oauth/google/exchange', authUser())
+    rememberReturn({ from: { pathname: '/claim/tok' } })
+    renderApp(
+      <Routes>
+        <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
+        <Route path="/claim/:token" element={<p>the claim page</p>} />
+        <Route path="/map" element={<p>the map</p>} />
+      </Routes>,
+      { route: '/auth/google/callback?code=abc' },
+    )
+    expect(await screen.findByText('the claim page')).toBeInTheDocument()
+    // Used once: the next sign-in starts from the map again.
+    expect(takeReturn()).toBeNull()
   })
 
   it('explains a rejected code and offers the way back to sign-in', async () => {

@@ -39,6 +39,10 @@ Anyone with an account can add a place: pick it on Google Maps or drop a pin, de
 
 Helpers the community recommended — someone who knows the paperwork, a patient German teacher, a lawyer who speaks your language. Browse them by city, skills and spoken languages in the country your corridor leads to. A helper appears only after a moderator approved the recommendation **and** they confirmed their own profile from a personal link, choosing which contacts to show; hidden contacts are never shown. You can vouch for someone who helped you, save them, and recommend a helper yourself: you add their details (WhatsApp, email, Telegram or Instagram), get their personal link, and send it to them (Landly sends nothing on its own).
 
+### Confirming a recommendation
+
+The person you recommended gets a personal link. It opens a page that shows what you entered and asks "Is this you?": they choose which contacts and details are public (everything starts hidden), then confirm — optionally signing in so the profile is linked to their account — or decline. Only after that does the profile appear among the helpers. A link works once and for 30 days.
+
 ### Your account
 
 Your profile and counters, the languages you speak, your places and recommendations with where each one stands in moderation, and your corridors.
@@ -51,8 +55,8 @@ English, Russian and Ukrainian.
 
 | | |
 |---|---|
-| ✅ Done | Sign in and sign up (email or Google), the map with filters and corridors, the place panel and page, adding and editing places with photos, helpers (browse, profile, vouch, recommend someone), the account and profile editing — each on phone, tablet and desktop |
-| 🔜 Next | The page a recommended helper opens to confirm their profile, countries, saved places, writing reviews and reporting a problem, a full photo gallery |
+| ✅ Done | Sign in and sign up (email or Google), the map with filters and corridors, the place panel and page, adding and editing places with photos, helpers (browse, profile, vouch, recommend someone, the page a recommended person opens to confirm), the account and profile editing — each on phone, tablet and desktop |
+| 🔜 Next | Countries, saved places, writing reviews and reporting a problem, a full photo gallery |
 
 Landly Client is the web app. It talks to [landly-server](../landly-server), which owns the data, the moderation rules and the accounts.
 

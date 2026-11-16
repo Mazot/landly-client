@@ -4,7 +4,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout, Button, EmptyState, InlineStatus } from '@/components/ui'
 import { AuthHero } from '@/components/auth/AuthHero'
 import { useGoogleExchange } from '@/hooks/useAuth'
-import { ROUTES } from '@/lib/routes'
+import { afterSignIn, ROUTES } from '@/lib/routes'
+import { takeReturn } from '@/lib/returnTo'
 
 /**
  * Where the server sends the browser after Google sign-in (`/auth/google/callback?code=…`).
@@ -22,7 +23,7 @@ export default function GoogleCallbackPage() {
   useEffect(() => {
     if (!code || started.current) return
     started.current = true
-    exchange.mutate({ code }, { onSuccess: () => navigate(ROUTES.map, { replace: true }) })
+    exchange.mutate({ code }, { onSuccess: () => navigate(afterSignIn(takeReturn()), { replace: true }) })
   }, [code, exchange, navigate])
 
   const failed = !code || exchange.isError

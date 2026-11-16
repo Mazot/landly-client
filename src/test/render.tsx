@@ -47,12 +47,14 @@ export async function runMutation<Variables>(
  * Renders a component or screen inside the providers the app has: a fresh QueryClient
  * and a MemoryRouter at `route`. Pass `client` to seed or inspect the cache.
  */
-export function renderApp(ui: ReactNode, { route = '/', client = createTestQueryClient() }: { route?: string; client?: QueryClient } = {}) {
+/** `state` is the router's `location.state` the first screen starts with (where a guest was sent from). */
+export function renderApp(ui: ReactNode, { route = '/', state, client = createTestQueryClient() }: { route?: string; state?: unknown; client?: QueryClient } = {}) {
+  const [pathname, search = ''] = route.split('?')
   return {
     client,
     ...render(
       <QueryClientProvider client={client}>
-        <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+        <MemoryRouter initialEntries={[{ pathname, search: search && `?${search}`, state }]}>{ui}</MemoryRouter>
       </QueryClientProvider>,
     ),
   }
