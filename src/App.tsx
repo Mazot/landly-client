@@ -21,12 +21,13 @@ const EditPlacePage = lazy(() => import('@/pages/EditPlacePage'))
 const PeoplePage = lazy(() => import('@/pages/PeoplePage'))
 const PersonPage = lazy(() => import('@/pages/PersonPage'))
 const RecommendPage = lazy(() => import('@/pages/RecommendPage'))
+const ClaimPage = lazy(() => import('@/pages/ClaimPage'))
 const AccountPage = lazy(() => import('@/pages/AccountPage'))
 const EditProfilePage = lazy(() => import('@/pages/EditProfilePage'))
 
 /**
  * Screens are added one design section at a time (done: sign in & sign up, the map, a place's panel and page, add a place, edit a place, account).
- * Claim links point to `/claim/{token}`; `ROUTES.map` is public and is where a signed-in user lands.
+ * Claim links point to `/claim/{token}` (public); `ROUTES.map` is public and is where a signed-in user lands.
  */
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
             <Route path={`${ROUTES.place}/:id/edit`} element={<EditPlacePage />} />
           </Route>
         </Route>
+        <Route path={`${ROUTES.claim}/:token`} element={<ClaimPage />} />
         <Route path={ROUTES.people} element={<PeoplePage />} />
         <Route path={`${ROUTES.people}/:id`} element={<PersonPage />} />
         <Route element={<RequireAuth />}>

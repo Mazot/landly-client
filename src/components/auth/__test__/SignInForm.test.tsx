@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { HttpResponse, http } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import { redirectTo } from '@/lib/navigation'
+import { takeReturn } from '@/lib/returnTo'
 import { GOOGLE_LOGIN_URL } from '@/services/user.service'
 import { useAuthStore } from '@/stores/authStore'
 import { authUser } from '@/test/factories'
@@ -97,6 +98,13 @@ describe('SignInForm', () => {
     renderApp(<SignInForm onSuccess={vi.fn()} />)
     await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }))
     expect(redirectTo).toHaveBeenCalledWith(GOOGLE_LOGIN_URL)
+  })
+
+  it('remembers the screen that sent the user to sign in before leaving for Google', async () => {
+    sessionStorage.clear()
+    renderApp(<SignInForm onSuccess={vi.fn()} />, { route: '/signin', state: { from: { pathname: '/claim/tok' } } })
+    await userEvent.click(screen.getByRole('button', { name: 'Continue with Google' }))
+    expect(takeReturn()).toEqual({ from: { pathname: '/claim/tok' } })
   })
 
   it('gives every input a placeholder', () => {

@@ -136,11 +136,16 @@ export interface VouchPersonRequest {
  * The claim routes are public: the token is the credential.
  */
 export interface ClaimPreview {
+  /** Where the public profile lives once confirmed. */
+  id: Uuid
   name: string
   status: PersonStatus
   bio: string | null
   city: string | null
   skills: string[]
+  languageIds: Uuid[]
+  /** Who recommended the person (public face); absent when unknown or the account is gone. */
+  recommendedBy?: PublicUser
   email: string | null
   whatsapp: string | null
   telegram: string | null

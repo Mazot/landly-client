@@ -162,8 +162,15 @@ describe('App routes', () => {
     expect(await screen.findByRole('textbox', { name: 'Name' })).toBeInTheDocument()
   })
 
-  it('renders nothing for routes that are not built yet (claim links, unknown paths)', () => {
-    for (const route of ['/claim/token', '/nope']) {
+  it('/claim/{token} is public: whoever holds the link opens it, signed in or not', async () => {
+    capture('get', '/api/common/languages', [])
+    capture('get', '/api/person/claim/tok', { error: 'Unknown claim token' }, 404)
+    renderApp(<App />, { route: '/claim/tok' })
+    expect(await screen.findByText("This link doesn't work")).toBeInTheDocument()
+  })
+
+  it('renders nothing for unknown paths', () => {
+    for (const route of ['/nope', '/people/a/b']) {
       const { container, unmount } = renderApp(<App />, { route })
       expect(container.innerHTML).toBe('')
       unmount()
