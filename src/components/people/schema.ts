@@ -31,5 +31,6 @@ export const recommendSchema = z
   .superRefine((values, context) => {
     const contacts = { whatsapp: values.whatsapp.trim(), email: values.email.trim(), telegram: values.telegram.trim(), instagram: values.instagram.trim() }
     if (!Object.values(contacts).some(Boolean)) context.addIssue({ code: 'custom', path: ['whatsapp'], message: 'recommend.errors.contactRequired' })
-    else if (!contacts[values.sendVia]) context.addIssue({ code: 'custom', path: [values.sendVia], message: 'recommend.errors.sendViaContact' })
+    // Said on the choice itself: under an empty field it would read as "this one is required".
+    else if (!contacts[values.sendVia]) context.addIssue({ code: 'custom', path: ['sendVia'], message: 'recommend.errors.sendViaContact' })
   })

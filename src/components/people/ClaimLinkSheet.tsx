@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, Sheet, StatusBadge, StepList } from '@/components/ui'
-import { instagramUrl, telegramUrl, whatsappUrl } from '@/lib/contacts'
+import { instagramUrl, telegramUrl, whatsappUrl, withText } from '@/lib/contacts'
 import { firstName } from '@/lib/text'
 import type { PersonCreated } from '@/types/api'
 
@@ -42,7 +42,7 @@ export function ClaimLinkSheet({ created, contacts, onClose }: ClaimLinkSheetPro
   }
   // Telegram and Instagram open the person's chat or profile — there is no way to put the text in, so the link is pasted.
   const ways = {
-    whatsapp: { href: `${whatsappUrl(contacts.whatsapp)}?text=${encodeURIComponent(message)}`, icon: 'phone', label: t('recommend.claim.openWhatsapp'), variant: 'whatsapp' },
+    whatsapp: { href: withText(whatsappUrl(contacts.whatsapp), message), icon: 'phone', label: t('recommend.claim.openWhatsapp'), variant: 'whatsapp' },
     email: { href: `mailto:${contacts.email.trim()}?subject=${encodeURIComponent(t('recommend.claim.subject'))}&body=${encodeURIComponent(message)}`, icon: 'mail', label: t('recommend.claim.openEmail'), variant: 'accent' },
     telegram: { href: telegramUrl(contacts.telegram.trim()), icon: 'link', label: t('recommend.claim.openTelegram'), variant: 'accent', paste: true },
     instagram: { href: instagramUrl(contacts.instagram.trim()), icon: 'image', label: t('recommend.claim.openInstagram'), variant: 'accent', paste: true },
