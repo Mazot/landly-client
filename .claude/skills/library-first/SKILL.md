@@ -83,6 +83,10 @@ Versions are what `npm ci` installs from the lockfile (checked 2026-10-18).
 - Built-in behaviours you must not re-implement: retries, dedupe, cache/`staleTime`/`gcTime`, `select` (derive data), `refetchInterval` (polling), `signal` in `queryFn` (pass it to axios for cancellation), optimistic updates via `onMutate`
 - Devtools: `ReactQueryDevtools` (mounted in `main.tsx`), `ReactQueryDevtoolsPanel`
 
+### @tanstack/react-pacer 0.24 (minor pinned: 0.x)
+
+- `useDebouncedValue(value, { wait })` → `[debounced, debouncer]` — e.g. the people city filter (`CITY_TYPING_PAUSE_MS`); also `useDebouncedCallback`, `useThrottledValue` / `useThrottledCallback`, `useRateLimitedCallback`, `useQueuer`. Use these instead of `setTimeout` debounce helpers; `useDeferredValue` only defers rendering, it does not wait for typing to pause.
+
 ### @tanstack/react-form 1.33 + zod 4.6
 
 Used by the sign-in / sign-up forms (`components/auth/`). Re-checked against the installed versions:
@@ -176,7 +180,7 @@ Used by the sign-in / sign-up forms (`components/auth/`). Re-checked against the
 | `isSubmitting` flags threaded through props | `useFormStatus` / `useActionState`, or the mutation's `isPending` |
 | `forwardRef` wrappers in new components | `ref` as a regular prop (React 19) |
 | A document-head library (helmet) | render `<title>` / `<meta>` directly (React 19 hoists them) |
-| `setTimeout` debounce/throttle helpers | `useDeferredValue`; for real debounce/throttle/rate-limit install `@tanstack/react-pacer` |
+| `setTimeout` debounce/throttle helpers | `useDeferredValue` (defers rendering only); real debounce/throttle/rate-limit: `@tanstack/react-pacer` (installed) |
 | Hand-made form state + validation | `@tanstack/react-form` + `zod` (installed — see above) |
 | Hand-made table sorting/filtering/pagination | install `@tanstack/react-table` |
 | Rendering hundreds of rows/markers in a list | install `@tanstack/react-virtual` |

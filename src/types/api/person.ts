@@ -1,5 +1,6 @@
 // Recommended helpers ("people") and the claim flow — server feature `person`.
 import type { PaginationParams, ServerDateTime, Uuid } from './shared'
+import type { PublicUser } from './user'
 
 /**
  * `pending` (moderation) → `awaiting` (approved, waiting for the person) →
@@ -10,7 +11,7 @@ export const PERSON_STATUSES = ['pending', 'awaiting', 'confirmed', 'claimed', '
 export type PersonStatus = (typeof PERSON_STATUSES)[number]
 
 /** How the recommender sends the claim link. */
-export const SEND_VIA = ['email', 'whatsapp'] as const
+export const SEND_VIA = ['email', 'whatsapp', 'telegram', 'instagram'] as const
 export type SendVia = (typeof SEND_VIA)[number]
 
 /** `PersonContent` — hidden contacts are present only once public and allowed by the person. */
@@ -36,6 +37,21 @@ export interface Person {
   email?: string
   /** Present only when confirmed/claimed and `show_whatsapp` is on. */
   whatsapp?: string
+  /** Present only when confirmed/claimed and `show_telegram` is on: a handle ("@daria") or a link, as entered. */
+  telegram?: string
+  /** Present only when confirmed/claimed and `show_instagram` is on: a handle ("daria.k") or a link, as entered. */
+  instagram?: string
+  /** Detail payload only: who recommended the person (public face); absent when unknown or the account is gone. */
+  recommendedBy?: PublicUser
+  /** Detail payload only: true once the signed-in viewer vouched; false for guests. */
+  vouchedByMe?: boolean
+}
+
+/** `GET /api/person/skills` item: one choice of what a helper can help with. */
+export interface PersonSkill {
+  id: Uuid
+  /** What `Person.skills` holds and the list filter takes. */
+  name: string
 }
 
 /**
@@ -54,7 +70,7 @@ export interface MyPerson extends Person {
 /** `GET /api/person/mine` — newest first (limit default 20, max 100). */
 export type MyPeopleQuery = PaginationParams
 
-/** `POST /api/person/create` (auth). Email or WhatsApp is required. */
+/** `POST /api/person/create` (auth). At least one of email, WhatsApp, Telegram, Instagram is required. */
 export interface CreatePersonRequest {
   name: string
   /** Must be true: the person agreed to be recommended. */
@@ -68,6 +84,10 @@ export interface CreatePersonRequest {
   email?: string
   /** Hidden contact — used for the claim link, gated afterwards. */
   whatsapp?: string
+  /** Hidden contact — used for the claim link, gated afterwards. */
+  telegram?: string
+  /** Hidden contact — used for the claim link, gated afterwards. */
+  instagram?: string
   send_via?: SendVia
   /** Default true. */
   show_city?: boolean
@@ -75,6 +95,10 @@ export interface CreatePersonRequest {
   show_email?: boolean
   /** Default false. */
   show_whatsapp?: boolean
+  /** Default false. */
+  show_telegram?: boolean
+  /** Default false. */
+  show_instagram?: boolean
   /** Default true. */
   allow_reviews?: boolean
 }
@@ -96,6 +120,8 @@ export interface PeopleListQuery extends PaginationParams {
   city?: string
   /** Language ids, sent comma-separated. */
   language_ids?: Uuid[]
+  /** Only people living in this country (the corridor's destination). */
+  location_country_id?: Uuid
 }
 
 /** `POST /api/person/vouch/{id}` (auth). */
@@ -117,9 +143,13 @@ export interface ClaimPreview {
   skills: string[]
   email: string | null
   whatsapp: string | null
+  telegram: string | null
+  instagram: string | null
   showCity: boolean
   showEmail: boolean
   showWhatsapp: boolean
+  showTelegram: boolean
+  showInstagram: boolean
   allowReviews: boolean
 }
 
@@ -131,5 +161,7 @@ export interface ClaimConfirmRequest {
   show_city?: boolean
   show_email?: boolean
   show_whatsapp?: boolean
+  show_telegram?: boolean
+  show_instagram?: boolean
   allow_reviews?: boolean
 }

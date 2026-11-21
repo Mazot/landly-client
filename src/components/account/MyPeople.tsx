@@ -27,7 +27,7 @@ export function MyPeople({ people, error, more }: MyPeopleProps) {
   const locale = useUiLocale()
 
   return (
-    <Section as="h2" title={t('account.people.title')} action={<TextLink to={ROUTES.people}>{t('account.people.recommend')}</TextLink>}>
+    <Section as="h2" title={t('account.people.title')} action={<TextLink to={ROUTES.recommend}>{t('account.people.recommend')}</TextLink>}>
       {error ? (
         <Callout tone="danger">{t('account.people.loadFailed')}</Callout>
       ) : !people ? (

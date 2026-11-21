@@ -93,8 +93,9 @@ const cases: Case[] = [
   { name: 'user.deleteLanguage (JSON body on DELETE)', call: () => userApi.deleteLanguage({ language_id: ID }), method: 'delete', path: '/api/user/languages', body: { language_id: ID }, response: 'OK', void: true },
 
   // person
-  { name: 'person.list', call: () => personApi.list({ skills: ['Housing', 'Language'], language_ids: [ID], city: 'Ber' }), method: 'get', path: '/api/person/list', query: { skills: 'Housing,Language', language_ids: ID, city: 'Ber' }, response: { items: [], total: 0 } },
+  { name: 'person.list', call: () => personApi.list({ skills: ['Housing', 'Language'], language_ids: [ID], city: 'Ber', location_country_id: ID }), method: 'get', path: '/api/person/list', query: { skills: 'Housing,Language', language_ids: ID, city: 'Ber', location_country_id: ID }, response: { items: [], total: 0 } },
   { name: 'person.mine', call: () => personApi.mine({ limit: 50 }), method: 'get', path: '/api/person/mine', query: { limit: '50' }, response: { items: [], total: 0 } },
+  { name: 'person.skills', call: () => personApi.skills(), method: 'get', path: '/api/person/skills', response: { items: [], total: 0 } },
   { name: 'person.fetch', call: () => personApi.fetch(ID), method: 'get', path: `/api/person/fetch/${ID}`, response: OK },
   { name: 'person.create', call: () => personApi.create({ name: 'Daria K.', consent_given: true, email: 'd@x.io' }), method: 'post', path: '/api/person/create', body: { name: 'Daria K.', consent_given: true, email: 'd@x.io' }, response: OK },
   { name: 'person.vouch', call: () => personApi.vouch(ID, { note: 'Helped me' }), method: 'post', path: `/api/person/vouch/${ID}`, body: { note: 'Helped me' }, response: OK },

@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { afterSignIn, placePath, ROUTES } from '../routes'
+import { afterSignIn, editPlacePath, personPath, placePath, ROUTES } from '../routes'
 
 describe('ROUTES', () => {
   it('keeps the paths other places depend on', () => {
-    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', accountEdit: '/account/edit', add: '/add', addSent: '/add/sent', place: '/place' })
+    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', accountEdit: '/account/edit', add: '/add', addSent: '/add/sent', recommend: '/people/recommend', place: '/place' })
   })
 
   it('builds the full page of a place', () => {
     expect(placePath('o1')).toBe('/place/o1')
+    expect(editPlacePath('o1')).toBe('/place/o1/edit')
+  })
+
+  it('builds the profile of a helper', () => {
+    expect(personPath('p1')).toBe('/people/p1')
   })
 })
 

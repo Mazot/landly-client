@@ -75,6 +75,8 @@ export const queryKeys = {
     list: (query?: PeopleListQuery) => ['people', 'list', query ?? {}] as const,
     /** The people the caller recommended (any status). */
     mine: (query?: PaginationParams) => ['people', 'mine', query ?? {}] as const,
+    /** The skills reference list. */
+    skills: ['people', 'skills'] as const,
     detail: (id: Uuid) => ['people', 'detail', id] as const,
     claim: (token: string) => ['people', 'claim', token] as const,
   },

@@ -1,18 +1,21 @@
 import { act, waitFor } from '@testing-library/react'
+import { HttpResponse, http } from 'msw'
 import { describe, expect, it } from 'vitest'
 import { queryKeys } from '@/lib/queryKeys'
 import type { ClaimPreview } from '@/types/api'
 import { useAuthStore } from '@/stores/authStore'
 import { authUser, list, person } from '@/test/factories'
 import { isInvalidated, renderQueryHook, seed } from '@/test/render'
-import { capture } from '@/test/server'
+import { API, capture, server } from '@/test/server'
 import {
   useClaim,
   useConfirmClaim,
   useCreatePerson,
   useDeclineClaim,
   useMyPeople,
+  useInfinitePeople,
   usePeople,
+  usePersonSkills,
   usePerson,
   useVouchPerson,
 } from '../usePeople'
@@ -25,9 +28,13 @@ const preview: ClaimPreview = {
   skills: ['Housing'],
   email: 'd@x.io',
   whatsapp: null,
+  telegram: null,
+  instagram: null,
   showCity: true,
   showEmail: false,
   showWhatsapp: false,
+  showTelegram: false,
+  showInstagram: false,
   allowReviews: true,
 }
 
@@ -65,6 +72,45 @@ describe('people queries', () => {
     capture('get', '/api/person/fetch/p1', p)
     const { result } = renderQueryHook(() => usePerson('p1'))
     await waitFor(() => expect(result.current.data).toEqual(p))
+  })
+})
+
+describe('the people list by pages', () => {
+  it('asks for pages of the filtered list and says when there are more', async () => {
+    const page = (n: number) => list(Array.from({ length: 2 }, () => person({ name: `Helper ${n}` })))
+    let calls = 0
+    const queries: string[] = []
+    server.use(
+      http.get(`${API}/api/person/list`, ({ request }) => {
+        queries.push(new URL(request.url).search)
+        return HttpResponse.json(page(++calls))
+      }),
+    )
+    const { result } = renderQueryHook(() => useInfinitePeople({ skills: ['Housing'] }, 2))
+    await waitFor(() => expect(result.current.data).toHaveLength(2))
+    expect(result.current.hasNextPage).toBe(true)
+    act(() => void result.current.fetchNextPage())
+    await waitFor(() => expect(result.current.data).toHaveLength(4))
+    expect(queries[0]).toContain('limit=2')
+    expect(queries[0]).toContain('skills=Housing')
+    expect(queries[1]).toContain('offset=2')
+  })
+
+  it('stops after a short page', async () => {
+    capture('get', '/api/person/list', list([person()]))
+    const { result } = renderQueryHook(() => useInfinitePeople({}, 5))
+    await waitFor(() => expect(result.current.data).toHaveLength(1))
+    expect(result.current.hasNextPage).toBe(false)
+  })
+})
+
+describe('the skills reference', () => {
+  it('lists the skills and keeps them (reference data)', async () => {
+    const skills = [{ id: 's1', name: 'Housing' }]
+    const requests = capture('get', '/api/person/skills', list(skills))
+    const { result } = renderQueryHook(() => usePersonSkills())
+    await waitFor(() => expect(result.current.data).toEqual(skills))
+    expect(requests).toHaveLength(1)
   })
 })
 
