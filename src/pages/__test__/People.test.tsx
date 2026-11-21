@@ -79,6 +79,8 @@ describe('PeoplePage', () => {
     await userEvent.type(screen.getByRole('textbox', { name: 'City' }), 'Ber')
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Helpers in Ber' })).toBeInTheDocument())
     await waitFor(() => expect(requests.some((request) => request.query.get('city') === 'Ber')).toBe(true))
+    // One request once the typing paused — not one per letter.
+    expect(requests.filter((request) => ['B', 'Be'].includes(request.query.get('city') ?? ''))).toHaveLength(0)
   })
 
   it('shows more helpers a page at a time', async () => {

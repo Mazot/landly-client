@@ -1,4 +1,5 @@
-import { useDeferredValue, useState } from 'react'
+import { useDebouncedValue } from '@tanstack/react-pacer'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { ShowMore } from '@/components/account/ShowMore'
@@ -12,6 +13,9 @@ import { countActivePeopleFilters, parsePeopleFilters, serializePeopleFilters, t
 import { ROUTES } from '@/lib/routes'
 import { useBreakpoint } from '@/lib/useBreakpoint'
 import { compact } from 'es-toolkit'
+
+/** How long the city filter waits for the typing to pause before it asks the server. */
+export const CITY_TYPING_PAUSE_MS = 300
 
 /**
  * People (public): the helpers the community recommended and who confirmed their own profile, in the
@@ -35,7 +39,7 @@ function PeopleScreen() {
   const filters = parsePeopleFilters(params)
   const setFilters = (next: Filters) => setParams(serializePeopleFilters(next), { replace: true })
   // Typing a city asks the server once the typing pauses, and the list keeps its rows meanwhile.
-  const city = useDeferredValue(filters.city)
+  const [city] = useDebouncedValue(filters.city, { wait: CITY_TYPING_PAUSE_MS })
   // Asked once the corridor is known: the list is the destination country's, not everyone's first.
   const people = useInfinitePeople(toPeopleQuery({ ...filters, city }, to?.id), undefined, !corridorPending)
   const rows = people.data ?? []

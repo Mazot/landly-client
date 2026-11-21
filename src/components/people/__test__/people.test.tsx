@@ -220,6 +220,7 @@ describe('ClaimLinkSheet', () => {
     expect(screen.getByRole('heading', { name: 'Send Daria their link' })).toBeInTheDocument()
     const whatsapp = screen.getByRole('link', { name: 'Open WhatsApp' })
     expect(whatsapp.getAttribute('href')).toContain('https://wa.me/4915744102290?text=')
+    expect(whatsapp.getAttribute('href')).not.toContain('+')
     expect(decodeURIComponent(whatsapp.getAttribute('href')!)).toContain(link)
     expect(screen.getByText('Moderators review the recommendation')).toBeInTheDocument()
 
