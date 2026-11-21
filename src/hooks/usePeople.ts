@@ -3,7 +3,7 @@ import { nextOffset } from '@/lib/query'
 import { queryKeys } from '@/lib/queryKeys'
 import { personApi } from '@/services/person.service'
 import { useAuthStore } from '@/stores/authStore'
-import { MINE_DEFAULT_LIMIT, type ClaimConfirmRequest, type CreatePersonRequest, type PeopleListQuery, type Uuid, type VouchPersonRequest } from '@/types/api'
+import { MINE_DEFAULT_LIMIT, type ClaimConfirmRequest, type ClaimPreview, type CreatePersonRequest, type PeopleListQuery, type Uuid, type VouchPersonRequest } from '@/types/api'
 
 export const usePeople = (query?: PeopleListQuery) =>
   useQuery({
@@ -109,8 +109,9 @@ export const useDeclineClaim = (token: string) => {
   return useMutation({
     mutationFn: () => personApi.declineClaim(token),
     onSuccess: () => {
-      // The token is spent: forget the preview rather than fetch it again (a 422).
-      queryClient.removeQueries({ queryKey: queryKeys.people.claim(token) })
+      // The token is spent: mark the preview declined instead of removing it — the page still watches
+      // that query, so a removed one would be fetched again at once (a 422 for the spent token).
+      queryClient.setQueryData<ClaimPreview>(queryKeys.people.claim(token), (preview) => preview && { ...preview, status: 'declined' })
       queryClient.invalidateQueries({ queryKey: ['people', 'mine'] })
     },
   })

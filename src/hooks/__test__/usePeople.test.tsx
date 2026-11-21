@@ -185,14 +185,18 @@ describe('claim flow', () => {
     expect(isInvalidated(client, queryKeys.people.claim('tok'))).toBe(false)
   })
 
-  it('useDeclineClaim forgets the spent claim and refreshes the recommender\'s list', async () => {
+  it('useDeclineClaim marks the spent claim declined without asking for it again, and refreshes the recommender\'s list', async () => {
     capture('post', '/api/person/claim/tok/decline', 'OK')
-    const { result, client } = renderQueryHook(() => useDeclineClaim('tok'))
-    seed(client, queryKeys.people.claim('tok'), queryKeys.people.mine())
+    const asked = capture('get', '/api/person/claim/tok', preview)
+    const { result, client } = renderQueryHook(() => ({ decline: useDeclineClaim('tok'), claim: useClaim('tok') }))
+    seed(client, queryKeys.people.mine())
+    await waitFor(() => expect(result.current.claim.data?.status).toBe('awaiting'))
 
-    await act(() => result.current.mutateAsync())
+    await act(() => result.current.decline.mutateAsync())
 
-    expect(client.getQueryData(queryKeys.people.claim('tok'))).toBeUndefined()
+    expect(client.getQueryData<ClaimPreview>(queryKeys.people.claim('tok'))?.status).toBe('declined')
+    // The page still watches the claim: it is not fetched again (the spent token would answer 422).
+    expect(asked).toHaveLength(1)
     expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
   })
 })

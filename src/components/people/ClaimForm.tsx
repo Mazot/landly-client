@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Avatar, Button, Callout, Card, Section, Tag, TextLink, ToggleRow } from '@/components/ui'
+import { Avatar, Button, Callout, Card, Section, Tag, ToggleRow } from '@/components/ui'
 import { useLanguages } from '@/hooks/useCommon'
-import { useConfirmClaim, useDeclineClaim } from '@/hooks/usePeople'
+import { useConfirmClaim } from '@/hooks/usePeople'
 import { apiErrorStatus } from '@/lib/errors'
 import { claimPath, ROUTES, type ReturnState } from '@/lib/routes'
 import { firstName } from '@/lib/text'
 import { useAuthStore } from '@/stores/authStore'
 import type { ClaimPreview } from '@/types/api'
+import { ClaimDecline } from './ClaimDecline'
 
 /** What the server answers to the recommender confirming their own recommendation. */
 const HTTP_FORBIDDEN = 403
@@ -40,7 +41,6 @@ export function ClaimForm({ token, preview, onConfirmed, onDeclined }: ClaimForm
   const username = useAuthStore((state) => state.user?.username)
   const languages = useLanguages().data ?? []
   const confirm = useConfirmClaim(token)
-  const decline = useDeclineClaim(token)
   const [choices, setChoices] = useState({
     showWhatsapp: preview.showWhatsapp,
     showTelegram: preview.showTelegram,
@@ -49,13 +49,12 @@ export function ClaimForm({ token, preview, onConfirmed, onDeclined }: ClaimForm
     showCity: preview.showCity,
     allowReviews: preview.allowReviews,
   })
-  const [declining, setDeclining] = useState(false)
   const set = (key: keyof typeof choices) => (checked: boolean) => setChoices((current) => ({ ...current, [key]: checked }))
 
   const name = firstName(preview.name)
   const spoken = preview.languageIds.flatMap((languageId) => languages.find((language) => language.id === languageId)?.name ?? [])
   const tags = [...preview.skills, ...(preview.city ? [preview.city] : []), ...spoken]
-  const failure = confirm.error ?? decline.error
+  const failure = confirm.error
 
   const submit = () =>
     confirm.mutate(
@@ -130,24 +129,8 @@ export function ClaimForm({ token, preview, onConfirmed, onDeclined }: ClaimForm
           {t('claim.signIn')}
         </Button>
       )}
-      <div className="mt-4.5 text-center">
-        {declining ? (
-          <div className="flex flex-col items-center gap-2.5">
-            <p className="m-0 text-label font-medium text-ink-2">{t('claim.decline.ask')}</p>
-            <div className="flex gap-2.5">
-              <Button variant="danger" size="sm" loading={decline.isPending} onClick={() => decline.mutate(undefined, { onSuccess: onDeclined })}>
-                {t('claim.decline.yes')}
-              </Button>
-              <Button variant="secondary" size="sm" onClick={() => setDeclining(false)}>
-                {t('claim.decline.no')}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <TextLink tone="danger" onClick={() => setDeclining(true)}>
-            {t('claim.decline.link')}
-          </TextLink>
-        )}
+      <div className="mt-4.5">
+        <ClaimDecline token={token} onDeclined={onDeclined} />
       </div>
     </div>
   )

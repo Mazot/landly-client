@@ -175,6 +175,16 @@ describe('ClaimPage', () => {
     expect(screen.queryByRole('button', { name: 'Confirm my profile' })).not.toBeInTheDocument()
   })
 
+  it('lets the person decline while the recommendation is still in moderation', async () => {
+    capture('get', '/api/person/claim/tok', preview({ status: 'pending' }))
+    const declined = capture('post', '/api/person/claim/tok/decline', 'OK')
+    open()
+    await userEvent.click(await screen.findByRole('button', { name: "This isn't me / decline" }))
+    await userEvent.click(screen.getByRole('button', { name: 'Yes, decline' }))
+    expect(await screen.findByText('Got it — nothing was published')).toBeInTheDocument()
+    expect(declined).toHaveLength(1)
+  })
+
   it('says an unknown link does not work, and a used or expired one was spent', async () => {
     capture('get', '/api/person/claim/tok', { error: 'Unknown claim token' }, 404)
     const { unmount } = open()

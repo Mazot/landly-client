@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
+import { ClaimDecline } from '@/components/people/ClaimDecline'
 import { ClaimForm } from '@/components/people/ClaimForm'
 import { Button, EmptyState, IconTile, InlineStatus, Logo } from '@/components/ui'
 import { useClaim } from '@/hooks/usePeople'
@@ -59,7 +60,14 @@ export default function ClaimPage() {
     }
     if (!claim.data) return <InlineStatus>{t('claim.loading')}</InlineStatus>
     // Not moderated yet: the link already works for reading, but confirming is refused until a moderator approves.
-    if (claim.data.status === 'pending') return <EmptyState icon="flag" title={t('claim.pending.title')} description={t('claim.pending.hint', { name: claim.data.name })} />
+    // Declining needs no moderator: the person can say no right away.
+    if (claim.data.status === 'pending')
+      return (
+        <div className="flex flex-col gap-4.5">
+          <EmptyState icon="flag" title={t('claim.pending.title')} description={t('claim.pending.hint', { name: claim.data.name })} />
+          <ClaimDecline token={token} onDeclined={() => setOutcome({ kind: 'declined' })} />
+        </div>
+      )
     return <ClaimForm token={token} preview={claim.data} onConfirmed={(preview) => setOutcome({ kind: 'confirmed', preview })} onDeclined={() => setOutcome({ kind: 'declined' })} />
   }
 }
