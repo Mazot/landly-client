@@ -21,6 +21,8 @@ import {
 } from '../usePeople'
 
 const preview: ClaimPreview = {
+  id: 'p1',
+  languageIds: [],
   name: 'Daria K.',
   status: 'awaiting',
   bio: null,
@@ -170,22 +172,31 @@ describe('claim flow', () => {
     const confirmed = { ...preview, status: 'confirmed' as const, showEmail: true }
     const requests = capture('post', '/api/person/claim/tok/confirm', confirmed)
     const { result, client } = renderQueryHook(() => useConfirmClaim('tok'))
-    seed(client, queryKeys.people.list())
+    seed(client, queryKeys.people.list(), queryKeys.people.detail('p1'), queryKeys.people.mine())
 
     await act(() => result.current.mutateAsync({ show_email: true }))
 
     expect(requests[0].body).toEqual({ show_email: true })
     expect(client.getQueryData(queryKeys.people.claim('tok'))).toEqual(confirmed)
     expect(isInvalidated(client, queryKeys.people.list())).toBe(true)
+    expect(isInvalidated(client, queryKeys.people.detail('p1'))).toBe(true)
+    expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
+    // The spent token is not asked for again.
+    expect(isInvalidated(client, queryKeys.people.claim('tok'))).toBe(false)
   })
 
-  it('useDeclineClaim refreshes the claim preview', async () => {
+  it('useDeclineClaim marks the spent claim declined without asking for it again, and refreshes the recommender\'s list', async () => {
     capture('post', '/api/person/claim/tok/decline', 'OK')
-    const { result, client } = renderQueryHook(() => useDeclineClaim('tok'))
-    seed(client, queryKeys.people.claim('tok'))
+    const asked = capture('get', '/api/person/claim/tok', preview)
+    const { result, client } = renderQueryHook(() => ({ decline: useDeclineClaim('tok'), claim: useClaim('tok') }))
+    seed(client, queryKeys.people.mine())
+    await waitFor(() => expect(result.current.claim.data?.status).toBe('awaiting'))
 
-    await act(() => result.current.mutateAsync())
+    await act(() => result.current.decline.mutateAsync())
 
-    expect(isInvalidated(client, queryKeys.people.claim('tok'))).toBe(true)
+    expect(client.getQueryData<ClaimPreview>(queryKeys.people.claim('tok'))?.status).toBe('declined')
+    // The page still watches the claim: it is not fetched again (the spent token would answer 422).
+    expect(asked).toHaveLength(1)
+    expect(isInvalidated(client, queryKeys.people.mine())).toBe(true)
   })
 })

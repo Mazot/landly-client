@@ -13,6 +13,8 @@ export const ROUTES = {
   add: '/add',
   /** `/add/sent/{organisationId}` — the place was submitted. */
   addSent: '/add/sent',
+  /** `/claim/{token}` — where a recommended person confirms or declines (`claimPath`); public. */
+  claim: '/claim',
   /** The recommend-someone form (signed in). */
   recommend: '/people/recommend',
   /** `/place/{organisationId}` — an organisation's full page (`placePath`). */
@@ -21,6 +23,9 @@ export const ROUTES = {
 
 /** The full page of an organisation. */
 export const placePath = (organisationId: string) => `${ROUTES.place}/${organisationId}`
+
+/** The page a recommended person opens from their personal link. */
+export const claimPath = (token: string) => `${ROUTES.claim}/${encodeURIComponent(token)}`
 
 /** A helper's profile (`/people/{personId}`). */
 export const personPath = (personId: string) => `${ROUTES.people}/${personId}`

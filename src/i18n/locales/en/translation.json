@@ -983,5 +983,65 @@
     },
     "telegram": "Telegram",
     "instagram": "Instagram"
+  },
+  "claim": {
+    "recommendedYou": "<b>{{name}}</b> recommended you as a helper",
+    "title": "Is this you, {{name}}?",
+    "lede": "Check the details, choose what people can see, then confirm. Nothing is public until you do.",
+    "fields": {
+      "name": "Name",
+      "help": "How you help",
+      "tags": "Skills, city and languages"
+    },
+    "privacy": {
+      "title": "Privacy",
+      "whatsapp": "Show my WhatsApp",
+      "telegram": "Show my Telegram",
+      "instagram": "Show my Instagram",
+      "email": "Show my email",
+      "city": "Show my city",
+      "notProvided": "Not provided",
+      "reviews": "Allow reviews",
+      "reviewsHint": "People you helped can rate you"
+    },
+    "confirm": "Confirm my profile",
+    "signIn": "Sign in and link to my account",
+    "signedInAs": "You're signed in as @{{username}}: confirming links this profile to your account.",
+    "decline": {
+      "link": "This isn't me / decline",
+      "ask": "Decline this recommendation? Nothing will be published.",
+      "yes": "Yes, decline",
+      "no": "Cancel"
+    },
+    "errors": {
+      "own": "You recommended this profile, so the person has to confirm it themselves.",
+      "generic": "Couldn't save your answer. The link may have been used or expired — try again."
+    },
+    "loading": "Opening your link…",
+    "loadFailed": "Couldn't open this link",
+    "loadFailedHint": "Check your connection and try again.",
+    "retry": "Try again",
+    "invalid": {
+      "title": "This link doesn't work",
+      "hint": "Check that you opened the whole link, or ask the person who recommended you for a new one."
+    },
+    "used": {
+      "title": "This link was already used or has expired",
+      "hint": "A claim link works once and for 30 days. Ask the person who recommended you for a new one."
+    },
+    "pending": {
+      "title": "Not ready yet",
+      "hint": "A moderator is still reviewing the recommendation of {{name}}. Open this link again soon."
+    },
+    "done": {
+      "title": "Your profile is live",
+      "confirmed": "People can find you under Helpers now, with the contacts you chose.",
+      "claimed": "People can find you under Helpers now, with the contacts you chose — and it is linked to your account.",
+      "view": "View my profile"
+    },
+    "declined": {
+      "title": "Got it — nothing was published",
+      "hint": "Thanks for letting us know. Your details won't be shown anywhere."
+    }
   }
 }

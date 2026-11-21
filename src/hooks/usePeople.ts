@@ -3,7 +3,7 @@ import { nextOffset } from '@/lib/query'
 import { queryKeys } from '@/lib/queryKeys'
 import { personApi } from '@/services/person.service'
 import { useAuthStore } from '@/stores/authStore'
-import { MINE_DEFAULT_LIMIT, type ClaimConfirmRequest, type CreatePersonRequest, type PeopleListQuery, type Uuid, type VouchPersonRequest } from '@/types/api'
+import { MINE_DEFAULT_LIMIT, type ClaimConfirmRequest, type ClaimPreview, type CreatePersonRequest, type PeopleListQuery, type Uuid, type VouchPersonRequest } from '@/types/api'
 
 export const usePeople = (query?: PeopleListQuery) =>
   useQuery({
@@ -96,7 +96,10 @@ export const useConfirmClaim = (token: string) => {
     mutationFn: (body?: ClaimConfirmRequest) => personApi.confirmClaim(token, body),
     onSuccess: (preview) => {
       queryClient.setQueryData(queryKeys.people.claim(token), preview)
-      queryClient.invalidateQueries({ queryKey: queryKeys.people.all })
+      // Not the claim itself: the token is spent, asking for it again would only answer 422.
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.lists })
+      queryClient.invalidateQueries({ queryKey: queryKeys.people.detail(preview.id) })
+      queryClient.invalidateQueries({ queryKey: ['people', 'mine'] })
     },
   })
 }
@@ -105,6 +108,11 @@ export const useDeclineClaim = (token: string) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: () => personApi.declineClaim(token),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.people.claim(token) }),
+    onSuccess: () => {
+      // The token is spent: mark the preview declined instead of removing it — the page still watches
+      // that query, so a removed one would be fetched again at once (a 422 for the spent token).
+      queryClient.setQueryData<ClaimPreview>(queryKeys.people.claim(token), (preview) => preview && { ...preview, status: 'declined' })
+      queryClient.invalidateQueries({ queryKey: ['people', 'mine'] })
+    },
   })
 }

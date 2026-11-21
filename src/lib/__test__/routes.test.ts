@@ -1,14 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { afterSignIn, editPlacePath, personPath, placePath, ROUTES } from '../routes'
+import { afterSignIn, claimPath, editPlacePath, personPath, placePath, ROUTES } from '../routes'
 
 describe('ROUTES', () => {
   it('keeps the paths other places depend on', () => {
-    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', accountEdit: '/account/edit', add: '/add', addSent: '/add/sent', recommend: '/people/recommend', place: '/place' })
+    expect(ROUTES).toEqual({ landing: '/', signIn: '/signin', signUp: '/signup', map: '/map', people: '/people', countries: '/countries', saved: '/saved', account: '/account', accountEdit: '/account/edit', add: '/add', addSent: '/add/sent', claim: '/claim', recommend: '/people/recommend', place: '/place' })
   })
 
   it('builds the full page of a place', () => {
     expect(placePath('o1')).toBe('/place/o1')
     expect(editPlacePath('o1')).toBe('/place/o1/edit')
+  })
+
+  it('builds the page of a claim link, safe for any token', () => {
+    expect(claimPath('abc123')).toBe('/claim/abc123')
+    expect(claimPath('a/b?c')).toBe('/claim/a%2Fb%3Fc')
   })
 
   it('builds the profile of a helper', () => {
