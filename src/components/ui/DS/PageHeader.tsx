@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
+import { Eyebrow } from './Eyebrow'
 
 export type PageHeaderSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero'
 
@@ -38,7 +39,11 @@ export function PageHeader({ eyebrow, title, lede, actions, back, size = 'lg', a
     <header className={clsx('flex flex-wrap items-end justify-between gap-x-6 gap-y-4', className)}>
       <div className="min-w-0 grow basis-80">
         {back && <div className="mb-3">{back}</div>}
-        {eyebrow && <div className="mb-2 text-label leading-none font-medium tracking-wider text-ink-3 uppercase">{eyebrow}</div>}
+        {eyebrow && (
+          <Eyebrow as="div" className="mb-2">
+            {eyebrow}
+          </Eyebrow>
+        )}
         <Heading className={clsx('m-0 font-display font-normal text-balance text-ink-1', SIZES[size])}>{title}</Heading>
         {lede && <p className="m-0 mt-2.5 max-w-prose text-sm font-medium text-pretty text-ink-3">{lede}</p>}
       </div>

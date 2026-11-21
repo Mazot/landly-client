@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
 import { CorridorsSheet } from '@/components/corridor/CorridorsSheet'
 import { Avatar, Button, CorridorPill, Logo, NavTabs, TabBar, TopBar, type NavTabsItem, type TabBarItem } from '@/components/ui'
 import { useCurrentCorridor } from '@/hooks/useCurrentCorridor'
@@ -49,7 +48,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const tablet = size === 'tablet'
   return (
     <AppShellContext.Provider value={{ openCorridors: () => setCorridorsOpen(true) }}>
-      <div className="flex h-dvh flex-col bg-bg">
+      <div className="flex h-dvh flex-col">
         {size !== 'phone' && (
           <TopBar
             brand={
@@ -75,10 +74,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <>
                     {tablet ? <Button to={ROUTES.add} variant="secondary" size="sm" icon="plus" aria-label={t('topbar.addOrganization')} /> : <Button to={ROUTES.add} variant="secondary" size="sm" icon="plus">{t('topbar.add')}</Button>}
                     {/* Named by its content ("Profile" + the avatar's name), not aria-label: the visible initials must not contradict the name (Lighthouse label-content-name-mismatch). */}
-                    <Link to={ROUTES.account} className="inline-flex size-11 items-center justify-center rounded-full">
-                      <span className="sr-only">{t('topbar.profile')}</span>{' '}
-                      <Avatar name={me.data?.name || user.username} color={me.data?.avatarColor} size="sm" />
-                    </Link>
+                    <Avatar to={ROUTES.account} linkLabel={t('topbar.profile')} name={me.data?.name || user.username} color={me.data?.avatarColor} size="sm" />
                   </>
                 )}
               </>

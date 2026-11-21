@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Avatar, Callout, InlineStatus, List, ListItem, RatingBreakdown, Stars } from '@/components/ui'
+import { Avatar, Callout, Heading, InlineStatus, List, ListItem, RatingBreakdown, Stars, Text } from '@/components/ui'
 import { useReviewSummary, useReviews } from '@/hooks/useReviews'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo } from '@/lib/dates'
@@ -23,7 +23,7 @@ export function PlaceReviews({ organisationId, limit, compact }: PlaceReviewsPro
 
   if (summary.isError || reviews.isError) return <Callout tone="danger">{t('place.reviews.loadFailed')}</Callout>
   if (!summary.data || !reviews.data) return <InlineStatus>{t('place.loading')}</InlineStatus>
-  if (summary.data.count === 0) return <p className="m-0 text-sm font-medium text-ink-3">{t('place.reviews.empty')}</p>
+  if (summary.data.count === 0) return <Text tone="muted">{t('place.reviews.empty')}</Text>
 
   const { count, byRating } = summary.data
   // With reviews the server always sends an average.
@@ -32,9 +32,11 @@ export function PlaceReviews({ organisationId, limit, compact }: PlaceReviewsPro
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-6">
         <div className="flex flex-col items-center gap-1.5 text-center">
-          <span className="font-display text-display-lg text-ink-1">{ratingAvg.toLocaleString(i18n.resolvedLanguage, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</span>
+          <Heading as="span" size="display">{ratingAvg.toLocaleString(i18n.resolvedLanguage, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</Heading>
           <Stars value={ratingAvg} />
-          <span className="text-xs font-medium text-ink-3">{t('place.reviews.count', { count })}</span>
+          <Text as="span" size="xs" tone="muted">
+            {t('place.reviews.count', { count })}
+          </Text>
         </div>
         {!compact && <RatingBreakdown className="flex-1" rows={byRating} label={t('place.reviews.breakdown')} rowLabel={(row) => t('place.reviews.bar', { count: row.count, rating: row.rating })} />}
       </div>
@@ -48,8 +50,10 @@ export function PlaceReviews({ organisationId, limit, compact }: PlaceReviewsPro
               leading={<Avatar name={name} color={review.author?.avatarColor} size="sm" />}
               title={name}
               adornment={<Stars value={review.rating} size={12} />}
-              trailing={<span className="text-xs font-medium text-ink-4">{formatAgo(review.createdAt, locale)}</span>}
-              footer={review.text ? <p className="m-0 text-sm font-medium text-pretty text-ink-2">{review.text}</p> : undefined}
+              trailing={<Text as="span" size="xs" tone="faint">
+                  {formatAgo(review.createdAt, locale)}
+                </Text>}
+              footer={review.text ? <Text>{review.text}</Text> : undefined}
             />
           )
         })}

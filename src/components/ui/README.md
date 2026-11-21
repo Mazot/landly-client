@@ -45,9 +45,11 @@ src/components/ui/
 | | `IconButton` | `icon`, `label` (required), `variant` plain · outline · floating, `size`, `pressed` |
 | | `TextLink` | `to` (router) / `href` / `onClick`; `tone` accent · muted · strong · danger |
 | | `Divider` | optional `label` |
+| | `Text` | body copy and secondary lines · `as` p/span/div, `size` md · sm · label · xs, `tone` strong · body · muted · faint · danger, `weight`, `align`, `truncate` |
+| | `Heading` / `Eyebrow` | bold sans title outside `PageHeader` · `as`, `size` sm 14 · md 17 · lg 24 · display (48 px serif figure) / the uppercase line above a title (`PageHeader eyebrow` uses it) |
 | | `InlineStatus` | spinner + message announced as a status ("Signing you in…") |
 | | `Logo` | mark + serif wordmark · `size`, `variant` full / mark, `to` (home link) |
-| Data | `Avatar` | `name` → initials, `color`, `src`, `size` xs–2xl, `square` |
+| Data | `Avatar` | `name` → initials, `color`, `src`, `size` xs–2xl, `square`; `to` + `linkLabel` → a round 44 px router link (top-bar profile) |
 | | `Badge` / `StatusBadge` | `tone`, `icon`, `size` / `status` (OrganisationStatus · PersonStatus) |
 | | `Tag` | services, languages, skills · `orgType` dot, `onRemove` |
 | | `TypeTag` | org type · `slug`, `label`, `color` (server), `variant` |
@@ -74,7 +76,7 @@ src/components/ui/
 | | `Dropzone` | `onFiles`, `onReject` (type / 10 MB like the server), `upload` progress |
 | | `Progress`, `StepBar` | upload progress · sign-up steps |
 | | `CorridorFields` | `from` / `to` slots (Fields with Selects) joined by the accent arrow · `stackOnPhone` |
-| Containers | `Card` | `variant` default · selected · dashed · sunken · elevated, `padding` |
+| Containers | `Card` | `variant` default · selected · dashed · sunken · elevated · floating (borderless panel over the map), `padding`, `aria-label`, `ref` |
 | | `ListItem` / `List` / `ToggleRow` | `leading`, `title`, `adornment`, `subtitle`, `meta`, `trailing`, `footer`, `active`, `to`/`href`/`onClick` · `List variant="divided"` |
 | | `Stat`, `KeyValueList` | number tile · label → value rows |
 | | `Section`, `PageHeader` (+ `Accent`) | heading row with action (`size` sm · md for a form group's heading) · eyebrow + display title + lede + actions; `size` sm · md · lg · xl · hero |
@@ -82,6 +84,7 @@ src/components/ui/
 | | `StepList`, `Menu`, `EmptyState` | process steps · action panel · empty / error states with `code` |
 | Shell | `Sheet` | bottom sheet on phones, modal from `md` (native `<dialog>`) |
 | | `MobileHeader`, `TabBar`, `NavTabs` | phone header · phone bottom nav · top-bar nav (router links) |
+| | `Breadcrumbs` | strip under the top bar · `label`, `items` (empty ones skipped, the last is the current page, truncated) |
 | | `TopBar` | page banner: `brand`, `nav` (from `md`), `actions` |
 | | `MapLayout` | map screen below the app bar, by size (`useBreakpoint`): desktop panel + map · tablet map + list below · phone full-bleed map with the toolbar floating and a `DockedSheet` · `toolbar`, `map`, `overlay`, `resultsHeader`, `results`, `resultsLabel`, `sheetExpanded` / `onSheetExpandedChange`, `sheetHandleLabel` |
 | | `DockedSheet` | non-modal bottom sheet that stays on screen: peeks, opens on tap or swipe of the handle · `expanded`, `onExpandedChange`, `handleLabel`, `header` |

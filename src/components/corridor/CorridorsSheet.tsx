@@ -1,7 +1,7 @@
 import { compact } from 'es-toolkit'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, Callout, CorridorFields, Field, List, Select, Sheet } from '@/components/ui'
+import { Button, Callout, Card, CorridorFields, Field, Heading, List, Select, Sheet } from '@/components/ui'
 import { useAllCountries, useOrganisationTypes } from '@/hooks/useCommon'
 import { useCorridors, useCreateCorridor, useSetDefaultCorridor } from '@/hooks/useCorridors'
 import { useCurrentCorridor } from '@/hooks/useCurrentCorridor'
@@ -119,8 +119,10 @@ function MyCorridors({ onClose }: { onClose: () => void }) {
             </List>
           )
         )}
-        <section aria-label={t('corridors.addTitle')} className="flex flex-col gap-3 rounded-r3 border border-dashed border-border-2 p-3.5">
-          <h3 className="m-0 text-sm font-bold">{t('corridors.addTitle')}</h3>
+        <Card as="section" variant="dashed" padding="none" aria-label={t('corridors.addTitle')} className="flex flex-col gap-3 p-3.5">
+          <Heading as="h3" size="sm">
+            {t('corridors.addTitle')}
+          </Heading>
           <CorridorFields
             stackOnPhone
             from={
@@ -138,7 +140,7 @@ function MyCorridors({ onClose }: { onClose: () => void }) {
           <Button variant="secondary" size="sm" icon="plus" loading={create.isPending} disabled={!from || !to || from === to} onClick={add}>
             {t('corridors.add')}
           </Button>
-        </section>
+        </Card>
       </div>
     </Sheet>
   )

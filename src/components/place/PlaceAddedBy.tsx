@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Avatar, Card, Meta } from '@/components/ui'
+import { Avatar, Card, Meta, Text } from '@/components/ui'
 import type { Organisation } from '@/types/api'
 
 export interface PlaceAddedByProps {
@@ -19,8 +19,12 @@ export function PlaceAddedBy({ place }: PlaceAddedByProps) {
         <>
           <Avatar name={name} color={place.creator.avatarColor} size="md" />
           <div className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="truncate text-sm font-bold text-ink-1">{name}</span>
-            <span className="text-xs font-medium text-ink-3">{t('place.addedBy.who', { username: place.creator.username })}</span>
+            <Text as="span" tone="strong" weight="bold" truncate>
+              {name}
+            </Text>
+            <Text as="span" size="xs" tone="muted">
+              {t('place.addedBy.who', { username: place.creator.username })}
+            </Text>
           </div>
         </>
       )}

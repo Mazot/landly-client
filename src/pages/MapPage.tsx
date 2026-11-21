@@ -12,7 +12,7 @@ import { MapToolbar } from '@/components/map/MapToolbar'
 import { PlaceCompactPanel } from '@/components/place/PlaceCompactPanel'
 import { PlaceList } from '@/components/map/PlaceList'
 import { ResultsHeader } from '@/components/map/ResultsHeader'
-import { Button, CorridorBubble, InlineStatus, MapLayout, MapPin } from '@/components/ui'
+import { Button, Card, CorridorBubble, InlineStatus, MapLayout, MapPin } from '@/components/ui'
 import { useCountry, useOrganisationTypes } from '@/hooks/useCommon'
 import { useCorridorStats } from '@/hooks/useCorridors'
 import { useCurrentCorridor } from '@/hooks/useCurrentCorridor'
@@ -174,7 +174,9 @@ function MapScreen() {
           </div>
         )}
         {panel ? (
-          <div ref={panelRef} className="absolute top-4 right-4 bottom-4 z-10 w-97.5 overflow-y-auto overscroll-contain rounded-r4 bg-surface p-5.5 shadow-pop lg:w-105">{panel}</div>
+          <Card ref={panelRef} variant="floating" padding="none" className="absolute top-4 right-4 bottom-4 z-10 w-97.5 overflow-y-auto overscroll-contain p-5.5 lg:w-105">
+            {panel}
+          </Card>
         ) : (
           <div className="pointer-events-none absolute inset-x-4 top-4 flex justify-end">
             <div className="pointer-events-auto min-w-0">{bubble}</div>

@@ -67,7 +67,9 @@ In `src/pages/` and `src/components/<feature>/`:
   at breakpoints, `sticky`/`fixed` positioning, `overflow-*`.
 - **Not allowed:** visual styling outside `src/components/ui/` — colours,
   borders, radii, shadows, font sizes/weights/families. Need a new look → it is
-  a DS variant.
+  a DS variant. Copy goes through `Text` (paragraphs, captions, "No reviews yet"),
+  titles through `Heading` / `Eyebrow` (or `PageHeader` / `Section`), boxes through
+  `Card` variants (`sunken` for a muted info box, `dashed`, `floating`).
 - No styled raw interactive HTML in screens: `<button>`, `<input>`, `<select>`,
   `<textarea>`, styled `<a>` → the DS component (`Button`, `TextField`, `Link`, …).
 - Tokens only: no hex/rgb/hsl values, no arbitrary values (`text-[13px]`,

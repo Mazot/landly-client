@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Card, type CardVariant } from '../Card'
 
-const VARIANTS: CardVariant[] = ['default', 'selected', 'dashed', 'sunken', 'elevated']
+const VARIANTS: CardVariant[] = ['default', 'selected', 'dashed', 'sunken', 'elevated', 'floating']
 
 const meta = {
   title: 'Containers/Card',
