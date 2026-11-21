@@ -12,7 +12,7 @@ import { PlaceHours } from '@/components/place/PlaceHours'
 import { PlaceMiniMap } from '@/components/place/PlaceMiniMap'
 import { PlacePhotos } from '@/components/place/PlacePhotos'
 import { PlaceReviews } from '@/components/place/PlaceReviews'
-import { Button, Card, Divider, EmptyState, Icon, IconButton, ImageFrame, InlineStatus, MobileHeader, Section, Tag, TextLink } from '@/components/ui'
+import { Breadcrumbs, Button, Card, Divider, EmptyState, IconButton, ImageFrame, InlineStatus, MobileHeader, Section, Tag, Text, TextLink } from '@/components/ui'
 import { useAllCountries, useOrganisationTypes } from '@/hooks/useCommon'
 import { useOrganisationImages } from '@/hooks/useImages'
 import { useCountVisit, useOrganisation } from '@/hooks/useOrganisations'
@@ -144,21 +144,16 @@ function PlaceDetail({ place, phone, wide, onBack }: { place: Organisation; phon
       trailing={<IconButton icon="bookmark" pressed={isSaved} label={t(isSaved ? 'map.unsave' : 'map.save', { name: place.name })} onClick={save} />}
     >
       {!phone && (
-        <nav aria-label={t('place.breadcrumbs')} className="flex h-13 items-center gap-2.5 border-b border-border-1 bg-surface px-8 text-label font-medium text-ink-3">
-          <TextLink to={ROUTES.map} icon="arrowLeft" tone="muted">
-            {t('place.map')}
-          </TextLink>
-          {country && (
-            <>
-              <Icon name="chevronRight" size={11} />
-              <span>{country.name}</span>
-            </>
-          )}
-          <Icon name="chevronRight" size={11} />
-          <span aria-current="page" className="min-w-0 truncate text-ink-1">
-            {place.name}
-          </span>
-        </nav>
+        <Breadcrumbs
+          label={t('place.breadcrumbs')}
+          items={[
+            <TextLink key="map" to={ROUTES.map} icon="arrowLeft" tone="muted">
+              {t('place.map')}
+            </TextLink>,
+            country?.name,
+            place.name,
+          ]}
+        />
       )}
       {primary && <ImageFrame src={primary.url} alt={t('place.photos.primary', { name: place.name })} ratio="banner" rounded={false} className="max-h-65 w-full" />}
       <div className="mx-auto flex w-full max-w-295 flex-col gap-7 px-4.5 pt-5 pb-8 md:px-8 md:pt-7 md:pb-12 lg:flex-row lg:items-start lg:gap-12 lg:pt-8 lg:pb-16">
@@ -167,7 +162,9 @@ function PlaceDetail({ place, phone, wide, onBack }: { place: Organisation; phon
           {!wide && side}
           {place.description && (
             <Section title={t('place.about')} as="h2">
-              <p className="m-0 max-w-165 text-md font-medium text-pretty text-ink-2">{place.description}</p>
+              <Text size="md" className="max-w-165">
+                {place.description}
+              </Text>
             </Section>
           )}
           {place.services.length > 0 && (

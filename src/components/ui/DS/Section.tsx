@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import type { ReactNode } from 'react'
+import { Heading as Title } from './Heading'
 
 export interface SectionProps {
   title?: ReactNode
@@ -14,13 +15,17 @@ export interface SectionProps {
 }
 
 /** Page block with a heading row. Vertical rhythm is set by the page (`gap-*`). */
-export function Section({ title, subtitle, action, as: Heading = 'h3', size = 'md', className, children }: SectionProps) {
+export function Section({ title, subtitle, action, as = 'h3', size = 'md', className, children }: SectionProps) {
   return (
     <section className={clsx('min-w-0', className)}>
       {(title || action) && (
         <div className="mb-3 flex items-baseline justify-between gap-3">
           <div className="min-w-0">
-            {title && <Heading className={clsx('m-0 leading-tight font-bold text-ink-1', size === 'sm' ? 'text-sm' : 'text-lg')}>{title}</Heading>}
+            {title && (
+              <Title as={as} size={size}>
+                {title}
+              </Title>
+            )}
             {subtitle && <div className="mt-1 text-label font-medium text-ink-3">{subtitle}</div>}
           </div>
           {action}

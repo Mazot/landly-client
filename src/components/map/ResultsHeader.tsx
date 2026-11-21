@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { ChipGroup, Select } from '@/components/ui'
+import { ChipGroup, Eyebrow, Heading, Select } from '@/components/ui'
 import type { Breakpoint } from '@/lib/useBreakpoint'
 import { SEARCH_SORTS, type SearchSort } from '@/types/api'
 
@@ -22,7 +22,7 @@ export function ResultsHeader({ size, count, capped, sort, onSortChange }: Resul
   if (size === 'phone') {
     return (
       <div className="flex items-center justify-between gap-3">
-        <span className="text-lg font-bold">{count === null ? t('map.loading') : t('map.nearby', { count })}</span>
+        <Heading as="span">{count === null ? t('map.loading') : t('map.nearby', { count })}</Heading>
         <Select size="sm" aria-label={t('map.sortBy')} options={sortOptions} value={sort} onChange={(event) => onSortChange(event.target.value as SearchSort)} />
       </div>
     )
@@ -32,7 +32,7 @@ export function ResultsHeader({ size, count, capped, sort, onSortChange }: Resul
   if (size === 'tablet') {
     return (
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
-        <h2 className="m-0 text-lg font-bold">{title}</h2>
+        <Heading>{title}</Heading>
         {chips}
       </div>
     )
@@ -40,8 +40,10 @@ export function ResultsHeader({ size, count, capped, sort, onSortChange }: Resul
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <p className="m-0 text-xs font-bold tracking-wider text-ink-3 uppercase">{t('map.showingInArea')}</p>
-        <h1 className="m-0 mt-1.5 text-2xl leading-tight font-bold">{title}</h1>
+        <Eyebrow>{t('map.showingInArea')}</Eyebrow>
+        <Heading as="h1" size="lg" className="mt-1.5">
+          {title}
+        </Heading>
       </div>
       {chips}
     </div>

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Button, EmptyState, InlineStatus, List } from '@/components/ui'
+import { Button, EmptyState, InlineStatus, List, Text } from '@/components/ui'
 import type { Organisation, OrganisationType } from '@/types/api'
 import { PlaceListItem } from './PlaceListItem'
 
@@ -67,7 +67,9 @@ export function PlaceList({ places, orgTypes, selectedId, onSelect, compact, loa
           />
         ))}
       </List>
-      <p className="m-0 px-4 py-3.5 text-center text-label font-medium text-ink-3">{capped ? t('map.capped', { count: places.length }) : t('map.moveToSearch')}</p>
+      <Text size="label" tone="muted" align="center" className="px-4 py-3.5">
+        {capped ? t('map.capped', { count: places.length }) : t('map.moveToSearch')}
+      </Text>
     </>
   )
 }

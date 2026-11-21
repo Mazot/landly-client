@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Card, Stat } from '@/components/ui'
+import { Card, Stat, Text } from '@/components/ui'
 import { useUiLocale } from '@/hooks/useUiLocale'
 import { formatAgo } from '@/lib/dates'
 import type { CommunitySignals } from '@/types/api'
@@ -12,7 +12,7 @@ export interface PlaceCommunityProps {
 export function PlaceCommunity({ community }: PlaceCommunityProps) {
   const { t } = useTranslation()
   const locale = useUiLocale()
-  if (community.peopleCame === 0) return <p className="m-0 text-sm font-medium text-ink-3">{t('place.community.empty')}</p>
+  if (community.peopleCame === 0) return <Text tone="muted">{t('place.community.empty')}</Text>
 
   return (
     <div className="flex flex-col gap-3">
@@ -25,12 +25,12 @@ export function PlaceCommunity({ community }: PlaceCommunityProps) {
         <ul aria-label={t('place.community.tips')} className="m-0 flex list-none flex-col gap-2 p-0">
           {community.tips.map((tip) => (
             <Card key={`${tip.createdAt}-${tip.text}`} as="li" variant="sunken" padding="sm">
-              <p className="m-0 text-sm font-medium text-pretty text-ink-2">
+              <Text>
                 {t('place.community.tip', { text: tip.text })}{' '}
-                <span className="text-ink-4">
+                <Text as="span" tone="faint">
                   {t('place.community.tipBy', { name: tip.author ? tip.author.name || tip.author.username : t('place.community.someone'), ago: formatAgo(tip.createdAt, locale) })}
-                </span>
-              </p>
+                </Text>
+              </Text>
             </Card>
           ))}
         </ul>

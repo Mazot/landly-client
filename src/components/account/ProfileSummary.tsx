@@ -1,6 +1,6 @@
 import { compact } from 'es-toolkit'
 import { useTranslation } from 'react-i18next'
-import { Avatar, Badge, Button, PageHeader, Section, Stat, Tag, TextLink } from '@/components/ui'
+import { Avatar, Badge, Button, PageHeader, Section, Stat, Tag, Text, TextLink } from '@/components/ui'
 import { ROUTES } from '@/lib/routes'
 import type { Country, Language, UserProfile } from '@/types/api'
 
@@ -42,7 +42,7 @@ export function ProfileSummary({ profile, homeCountry, languages, compact: dense
             )}
           </div>
         </div>
-        {profile.bio && <p className="m-0 text-sm font-medium text-pretty text-ink-2">{profile.bio}</p>}
+        {profile.bio && <Text>{profile.bio}</Text>}
         <div className="flex gap-2">
           <Button to={ROUTES.accountEdit} variant="secondary" size="sm" icon="pencil" block={dense}>
             {t('account.editProfile')}
@@ -71,7 +71,9 @@ export function ProfileSummary({ profile, homeCountry, languages, compact: dense
             ))}
           </div>
         ) : (
-          <p className="m-0 text-label font-medium text-ink-3">{t('account.languages.empty')}</p>
+          <Text size="label" tone="muted">
+            {t('account.languages.empty')}
+          </Text>
         )}
       </Section>
     </div>
